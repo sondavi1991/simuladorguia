@@ -1,9 +1,15 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import { db } from './db';
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Client } from "pg";
 import { users, sessions } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import type { User, Session, InsertUser, InsertSession } from '@shared/schema';
+
+// Initialize database connection
+const client = new Client({ connectionString: process.env.DATABASE_URL });
+client.connect();
+const db = drizzle(client);
 
 export class AuthStorage {
   private static readonly SALT_ROUNDS = 12;

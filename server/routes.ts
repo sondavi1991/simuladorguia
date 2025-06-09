@@ -1,13 +1,106 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { AuthStorage } from "./auth-storage";
 import { 
   insertFormSubmissionSchema, 
   insertFormStepSchema, 
-  insertHealthPlanSchema 
+  insertHealthPlanSchema,
+  loginSchema
 } from "@shared/schema";
 
+interface AuthenticatedRequest extends Request {
+  user?: any;
+  session?: any;
+}
+
+// Authentication middleware
+async function authenticateSession(req: AuthenticatedRequest, res: Response, next: any) {
+  const sessionId = req.cookies?.sessionId;
+  
+  if (!sessionId) {
+    return next();
+  }
+
+  const result = await AuthStorage.validateSession(sessionId);
+  if (result) {
+    req.user = result.user;
+    req.session = result.session;
+  } else {
+    res.clearCookie('sessionId');
+  }
+
+  next();
+}
+
+function requireAuth(req: AuthenticatedRequest, res: Response, next: any) {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  next();
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Apply authentication middleware to all routes
+  app.use(authenticateSession);
+
+  // Authentication routes
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { username, password } = loginSchema.parse(req.body);
+      const result = await AuthStorage.login(username, password);
+      
+      if (!result) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      // Set session cookie
+      res.cookie('sessionId', result.session.id, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      });
+
+      res.json({
+        user: {
+          id: result.user.id,
+          username: result.user.username,
+          email: result.user.email,
+          firstName: result.user.firstName,
+          lastName: result.user.lastName
+        }
+      });
+    } catch (error) {
+      res.status(400).json({ error: "Invalid login data" });
+    }
+  });
+
+  app.post("/api/auth/logout", async (req: AuthenticatedRequest, res) => {
+    const sessionId = req.cookies?.sessionId;
+    if (sessionId) {
+      await AuthStorage.logout(sessionId);
+      res.clearCookie('sessionId');
+    }
+    res.json({ success: true });
+  });
+
+  app.get("/api/auth/me", async (req: AuthenticatedRequest, res) => {
+    if (!req.user) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    res.json({
+      user: {
+        id: req.user.id,
+        username: req.user.username,
+        email: req.user.email,
+        firstName: req.user.firstName,
+        lastName: req.user.lastName
+      }
+    });
+  });
+
   // Form submission routes
   app.post("/api/form-submissions", async (req, res) => {
     try {
