@@ -36,12 +36,12 @@ export default function DynamicSimulatorForm() {
   const { toast } = useToast();
 
   // Fetch all form steps
-  const { data: formSteps = [], isLoading: stepsLoading } = useQuery({
+  const { data: formSteps = [], isLoading: stepsLoading } = useQuery<FormStep[]>({
     queryKey: ["/api/form-steps"],
   });
 
   // Fetch health plans for recommendations
-  const { data: healthPlans = [] } = useQuery({
+  const { data: healthPlans = [] } = useQuery<HealthPlan[]>({
     queryKey: ["/api/health-plans"],
   });
 
@@ -377,9 +377,9 @@ export default function DynamicSimulatorForm() {
                     </div>
                     <p className="text-gray-600 mb-3">{plan.description}</p>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {plan.services?.slice(0, 3).map((service, idx) => (
+                      {plan.features?.slice(0, 3).map((feature: string, idx: number) => (
                         <Badge key={idx} variant="outline">
-                          {service}
+                          {feature}
                         </Badge>
                       ))}
                     </div>

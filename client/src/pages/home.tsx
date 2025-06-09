@@ -18,7 +18,7 @@ export default function Home() {
       </div>
 
       {/* Simulator Form */}
-      <SimulatorForm />
+      <DynamicSimulatorForm />
 
       {/* WhatsApp Floating Button */}
       <div className="fixed bottom-6 right-6 z-40">
