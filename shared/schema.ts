@@ -42,6 +42,7 @@ export const formSteps = pgTable("form_steps", {
   fields: json("fields").$type<FormField[]>(),
   conditionalRules: json("conditional_rules").$type<ConditionalRule[]>(),
   navigationRules: json("navigation_rules").$type<StepNavigation[]>(),
+  recommendedPlanIds: json("recommended_plan_ids").$type<number[]>().default([]),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
   updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
 });

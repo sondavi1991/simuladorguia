@@ -28,6 +28,7 @@ import {
   Heading2
 } from "lucide-react";
 import ConditionalNavigation from "./conditional-navigation";
+import PlanSelector from "./plan-selector";
 import type { FormField, FormStep, StepNavigation } from "@shared/schema";
 
 interface FormBuilderProps {
@@ -130,6 +131,7 @@ export default function FormBuilder({ step, onSave }: FormBuilderProps) {
   const [stepDescription, setStepDescription] = useState(step?.description || '');
   const [stepNumber, setStepNumber] = useState(step?.stepNumber || 1);
   const [navigationRules, setNavigationRules] = useState<StepNavigation[]>(step?.navigationRules || []);
+  const [recommendedPlanIds, setRecommendedPlanIds] = useState<number[]>(step?.recommendedPlanIds || []);
   const [draggedItem, setDraggedItem] = useState<ComponentType | null>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -165,6 +167,7 @@ export default function FormBuilder({ step, onSave }: FormBuilderProps) {
       stepNumber,
       fields,
       navigationRules,
+      recommendedPlanIds,
     };
     saveStepMutation.mutate(stepData);
   };

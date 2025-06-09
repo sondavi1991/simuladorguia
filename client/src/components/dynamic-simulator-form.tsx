@@ -270,6 +270,7 @@ export default function DynamicSimulatorForm() {
       case 'text':
       case 'email':
       case 'tel':
+      case 'date':
         return (
           <div key={fieldKey} className="space-y-2">
             <Label htmlFor={fieldKey}>{field.label} {field.required && <span className="text-red-500">*</span>}</Label>
