@@ -138,7 +138,8 @@ export default function FormBuilder({ step, onSave }: FormBuilderProps) {
     mutationFn: async (stepData: Partial<FormStep>) => {
       const url = step?.id ? `/api/form-steps/${step.id}` : "/api/form-steps";
       const method = step?.id ? "PUT" : "POST";
-      return await apiRequest(url, method, stepData);
+      const response = await apiRequest(method, url, stepData);
+      return response.json();
     },
     onSuccess: () => {
       toast({

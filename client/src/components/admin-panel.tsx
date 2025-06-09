@@ -19,11 +19,13 @@ import {
   GripHorizontal as Grip
 } from "lucide-react";
 import FormBuilder from "./form-builder";
-import type { FormSubmission, HealthPlan } from "@shared/schema";
+import type { FormSubmission, HealthPlan, FormStep } from "@shared/schema";
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState("form-builder");
   const [editingPlan, setEditingPlan] = useState<HealthPlan | null>(null);
+  const [editingStep, setEditingStep] = useState<FormStep | null>(null);
+  const [showStepBuilder, setShowStepBuilder] = useState(false);
   const { toast } = useToast();
 
   // Fetch form submissions
@@ -34,6 +36,11 @@ export default function AdminPanel() {
   // Fetch health plans
   const { data: healthPlans = [], isLoading: plansLoading } = useQuery<HealthPlan[]>({
     queryKey: ["/api/health-plans"],
+  });
+
+  // Fetch form steps
+  const { data: formSteps = [], isLoading: stepsLoading } = useQuery<FormStep[]>({
+    queryKey: ["/api/form-steps"],
   });
 
   // Create/Update health plan mutation
@@ -84,6 +91,28 @@ export default function AdminPanel() {
     }
   });
 
+  // Delete form step mutation
+  const deleteStepMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/form-steps/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Sucesso!",
+        description: "Passo do formulário excluído com sucesso.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/form-steps"] });
+    },
+    onError: () => {
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir passo do formulário.",
+        variant: "destructive",
+      });
+    }
+  });
+
   const handleSavePlan = (planData: Partial<HealthPlan>) => {
     planMutation.mutate({
       plan: planData,
@@ -116,7 +145,138 @@ export default function AdminPanel() {
         </TabsList>
 
         <TabsContent value="form-builder" className="space-y-6">
-          <FormBuilder />
+          {showStepBuilder ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">
+                  {editingStep ? `Editar Passo ${editingStep.stepNumber}` : 'Criar Novo Passo'}
+                </h2>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setShowStepBuilder(false);
+                    setEditingStep(null);
+                  }}
+                >
+                  Voltar à Lista
+                </Button>
+              </div>
+              <FormBuilder 
+                step={editingStep || undefined} 
+                onSave={(stepData) => {
+                  setShowStepBuilder(false);
+                  setEditingStep(null);
+                }}
+              />
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">Passos do Formulário</h2>
+                <Button 
+                  onClick={() => setShowStepBuilder(true)}
+                  className="flex items-center space-x-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Criar Novo Passo</span>
+                </Button>
+              </div>
+              
+              <div className="grid gap-4">
+                {stepsLoading ? (
+                  <div>Carregando passos...</div>
+                ) : formSteps.length === 0 ? (
+                  <Card>
+                    <CardContent className="p-8 text-center">
+                      <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Nenhum passo criado
+                      </h3>
+                      <p className="text-gray-500 mb-4">
+                        Comece criando o primeiro passo do seu formulário.
+                      </p>
+                      <Button onClick={() => setShowStepBuilder(true)}>
+                        Criar Primeiro Passo
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  formSteps
+                    .sort((a, b) => a.stepNumber - b.stepNumber)
+                    .map((step) => (
+                      <Card key={step.id}>
+                        <CardHeader>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <CardTitle className="flex items-center space-x-2">
+                                <Badge variant="outline">Passo {step.stepNumber}</Badge>
+                                <span>{step.title}</span>
+                              </CardTitle>
+                              {step.description && (
+                                <p className="text-sm text-gray-600 mt-1">{step.description}</p>
+                              )}
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingStep(step);
+                                  setShowStepBuilder(true);
+                                }}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  if (step.id && confirm('Tem certeza que deseja excluir este passo?')) {
+                                    deleteStepMutation.mutate(step.id);
+                                  }
+                                }}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3">
+                            <div>
+                              <h4 className="font-medium text-sm text-gray-700 mb-2">
+                                Campos ({step.fields?.length || 0})
+                              </h4>
+                              <div className="flex flex-wrap gap-2">
+                                {step.fields?.map((field, index) => (
+                                  <Badge key={index} variant="secondary" className="text-xs">
+                                    {field.label} ({field.type})
+                                  </Badge>
+                                )) || <span className="text-sm text-gray-500">Nenhum campo</span>}
+                              </div>
+                            </div>
+                            {step.navigationRules && step.navigationRules.length > 0 && (
+                              <div>
+                                <h4 className="font-medium text-sm text-gray-700 mb-2">
+                                  Regras de Navegação ({step.navigationRules.length})
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {step.navigationRules.map((rule, index) => (
+                                    <Badge key={index} variant="outline" className="text-xs">
+                                      {rule.condition.field} → Passo {rule.target.stepNumber || 'Final'}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                )}
+              </div>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="responses" className="space-y-6">
