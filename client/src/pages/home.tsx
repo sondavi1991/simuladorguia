@@ -1,5 +1,5 @@
 import { useState } from "react";
-import SimulatorForm from "@/components/simulator-form";
+import DynamicSimulatorForm from "@/components/dynamic-simulator-form";
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { openWhatsApp } from "@/lib/whatsapp";

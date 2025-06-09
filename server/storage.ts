@@ -151,9 +151,9 @@ export class MemStorage implements IStorage {
       ...insertStep, 
       id,
       description: insertStep.description || null,
-      fields: insertStep.fields ? (insertStep.fields as FormField[]) : [],
-      conditionalRules: insertStep.conditionalRules ? (insertStep.conditionalRules as ConditionalRule[]) : [],
-      navigationRules: insertStep.navigationRules ? (insertStep.navigationRules as StepNavigation[]) : [],
+      fields: insertStep.fields || null,
+      conditionalRules: insertStep.conditionalRules || null,
+      navigationRules: insertStep.navigationRules || null,
       isActive: insertStep.isActive ?? true,
       createdAt: now,
       updatedAt: now
