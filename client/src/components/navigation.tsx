@@ -1,9 +1,11 @@
 import { Link, useLocation } from "wouter";
-import { Settings } from "lucide-react";
+import { Settings, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Navigation() {
   const [location] = useLocation();
+  const { isAuthenticated, user, logout, isLoggingOut } = useAuth();
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200">
@@ -29,16 +31,44 @@ export default function Navigation() {
             </Link>
           </div>
           <div className="flex items-center space-x-4">
-            <Link href="/admin">
-              <Button 
-                variant={location === "/admin" ? "default" : "ghost"} 
-                size="sm"
-                className={location === "/admin" ? "bg-gups-teal hover:bg-gups-teal/90" : ""}
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                Admin Panel
-              </Button>
-            </Link>
+            {isAuthenticated && (
+              <Link href="/admin">
+                <Button 
+                  variant={location === "/admin" ? "default" : "ghost"} 
+                  size="sm"
+                  className={location === "/admin" ? "bg-gups-teal hover:bg-gups-teal/90" : ""}
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Admin Panel
+                </Button>
+              </Link>
+            )}
+            
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-gray-100">
+                  <User className="h-4 w-4 text-gray-600" />
+                  <span className="text-sm text-gray-700 font-medium">{user?.username}</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => logout()}
+                  disabled={isLoggingOut}
+                  className="text-gray-600 hover:text-gray-800"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  {isLoggingOut ? "Logging out..." : "Logout"}
+                </Button>
+              </div>
+            ) : (
+              <Link href="/login">
+                <Button variant="outline" size="sm" className="border-gups-teal text-gups-teal hover:bg-gups-teal hover:text-white">
+                  <User className="h-4 w-4 mr-2" />
+                  Login
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>
