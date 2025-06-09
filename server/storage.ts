@@ -250,7 +250,8 @@ export class MemStorage implements IStorage {
 
 // PostgreSQL implementation for Supabase
 export class PostgreSQLStorage implements IStorage {
-  private db: ReturnType<typeof drizzle>;
+  private db: ReturnType<typeof drizzlePg>;
+  private client: pg.Client;
 
   constructor() {
     const databaseUrl = process.env.DATABASE_URL;
@@ -258,8 +259,20 @@ export class PostgreSQLStorage implements IStorage {
       throw new Error("DATABASE_URL environment variable is required");
     }
     
-    const sql = neon(databaseUrl);
-    this.db = drizzle(sql);
+    this.client = new pg.Client({
+      connectionString: databaseUrl,
+      ssl: { rejectUnauthorized: false } // Required for Supabase
+    });
+    
+    this.db = drizzlePg(this.client);
+  }
+
+  async connect() {
+    await this.client.connect();
+  }
+
+  async disconnect() {
+    await this.client.end();
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -380,12 +393,15 @@ async function initializeStorage(): Promise<IStorage> {
     console.log('Testing PostgreSQL connection...');
     const pgStorage = new PostgreSQLStorage();
     
+    // Connect to database
+    await pgStorage.connect();
+    
     // Test connection by trying to get health plans
     await pgStorage.getHealthPlans();
     console.log('✓ PostgreSQL connection successful');
     return pgStorage;
   } catch (error) {
-    console.error('✗ PostgreSQL connection failed:', error.message);
+    console.error('✗ PostgreSQL connection failed:', (error as Error).message);
     console.log('Falling back to memory storage');
     return new MemStorage();
   }
