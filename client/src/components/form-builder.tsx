@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -163,8 +163,14 @@ export default function FormBuilder({ step, onSave }: FormBuilderProps) {
       const newField: FormField = {
         id: generateId(),
         type: draggedItem.type,
-        ...draggedItem.defaultProps,
-        required: draggedItem.defaultProps.required || false
+        label: draggedItem.defaultProps.label || 'Campo',
+        required: draggedItem.defaultProps.required || false,
+        options: draggedItem.defaultProps.options,
+        placeholder: draggedItem.defaultProps.placeholder,
+        content: draggedItem.defaultProps.content,
+        imageUrl: draggedItem.defaultProps.imageUrl,
+        headingLevel: draggedItem.defaultProps.headingLevel,
+        style: draggedItem.defaultProps.style
       };
       setFields([...fields, newField]);
       setDraggedItem(null);

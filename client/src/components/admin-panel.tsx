@@ -18,6 +18,7 @@ import {
   Edit,
   GripHorizontal as Grip
 } from "lucide-react";
+import FormBuilder from "./form-builder";
 import type { FormSubmission, HealthPlan } from "@shared/schema";
 
 export default function AdminPanel() {
@@ -115,65 +116,7 @@ export default function AdminPanel() {
         </TabsList>
 
         <TabsContent value="form-builder" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Construtor de Formulário</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Component Library */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h3 className="font-semibold text-gray-900 mb-4">Componentes Disponíveis</h3>
-                  <div className="space-y-2">
-                    {[
-                      { icon: "📝", name: "Campo de Texto", type: "text-input" },
-                      { icon: "🔘", name: "Múltipla Escolha", type: "radio-group" },
-                      { icon: "☑️", name: "Caixas de Seleção", type: "checkbox-group" },
-                      { icon: "📋", name: "Lista Suspensa", type: "dropdown" },
-                      { icon: "🔀", name: "Lógica Condicional", type: "conditional-logic" }
-                    ].map((component) => (
-                      <div
-                        key={component.type}
-                        className="bg-white p-3 rounded border cursor-move hover:shadow-sm flex items-center space-x-3"
-                        draggable
-                      >
-                        <span className="text-lg">{component.icon}</span>
-                        <span className="text-sm">{component.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Form Builder Canvas */}
-                <div className="lg:col-span-2">
-                  <div className="bg-white border-2 border-dashed border-gray-300 rounded-lg min-h-96 p-6 flex items-center justify-center">
-                    <div className="text-center text-gray-500">
-                      <Grip className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                      <p>Arraste componentes aqui para construir seu formulário</p>
-                      <p className="text-sm mt-2">Funcionalidade completa em desenvolvimento</p>
-                    </div>
-                  </div>
-                  
-                  {/* Conditional Logic Panel */}
-                  <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 className="font-semibold text-blue-900 mb-2">Lógica Condicional Ativa</h4>
-                    <div className="text-sm text-blue-700 space-y-1">
-                      <p><strong>Se</strong> "Tipo de Plano" = "Familiar" <strong>então</strong> mostrar "Dependentes"</p>
-                      <p><strong>Se</strong> "Faixa de Preço" ≥ "Premium" <strong>então</strong> mostrar "Serviços Premium"</p>
-                    </div>
-                    <Button size="sm" variant="outline" className="mt-2 text-blue-600 border-blue-200">
-                      + Adicionar Regra
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 flex justify-end space-x-4">
-                <Button variant="outline">Visualizar</Button>
-                <Button className="bg-gups-teal hover:bg-gups-teal/90">Salvar Alterações</Button>
-              </div>
-            </CardContent>
-          </Card>
+          <FormBuilder />
         </TabsContent>
 
         <TabsContent value="responses" className="space-y-6">
@@ -311,10 +254,10 @@ export default function AdminPanel() {
                       <span className="text-sm font-normal text-gray-500">/mês</span>
                     </div>
                     <div className="space-y-1">
-                      {plan.features.slice(0, 3).map((feature, index) => (
+                      {plan.features?.slice(0, 3).map((feature, index) => (
                         <div key={index} className="text-sm text-gray-600">• {feature}</div>
-                      ))}
-                      {plan.features.length > 3 && (
+                      )) || []}
+                      {plan.features && plan.features.length > 3 && (
                         <div className="text-sm text-gray-400">+{plan.features.length - 3} mais</div>
                       )}
                     </div>

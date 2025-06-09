@@ -10,7 +10,9 @@ import {
   type FormStep,
   type InsertFormStep,
   type HealthPlan,
-  type InsertHealthPlan
+  type InsertHealthPlan,
+  type FormField,
+  type ConditionalRule
 } from "@shared/schema";
 
 export interface IStorage {
@@ -218,9 +220,9 @@ export class MemStorage implements IStorage {
         (priceRange === "executive" && plan.monthlyPrice > 800);
       
       const hasRequestedServices = services.some(service => 
-        plan.features.some(feature => 
+        plan.features?.some(feature => 
           feature.toLowerCase().includes(service.toLowerCase())
-        )
+        ) || false
       );
       
       return matchesPriceRange || hasRequestedServices;
