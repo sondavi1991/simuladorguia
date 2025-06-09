@@ -26,7 +26,8 @@ import {
   Heading1,
   Heading2
 } from "lucide-react";
-import type { FormField, FormStep } from "@shared/schema";
+import ConditionalNavigation from "./conditional-navigation";
+import type { FormField, FormStep, StepNavigation } from "@shared/schema";
 
 interface FormBuilderProps {
   step?: FormStep;
@@ -118,7 +119,9 @@ export default function FormBuilder({ step, onSave }: FormBuilderProps) {
   const [fields, setFields] = useState<FormField[]>(step?.fields || []);
   const [editingField, setEditingField] = useState<FormField | null>(null);
   const [stepTitle, setStepTitle] = useState(step?.title || '');
+  const [stepDescription, setStepDescription] = useState(step?.description || '');
   const [stepNumber, setStepNumber] = useState(step?.stepNumber || 1);
+  const [navigationRules, setNavigationRules] = useState<StepNavigation[]>(step?.navigationRules || []);
   const [draggedItem, setDraggedItem] = useState<ComponentType | null>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -136,7 +139,7 @@ export default function FormBuilder({ step, onSave }: FormBuilderProps) {
         description: "Passo do formulário salvo com sucesso.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/form-steps"] });
-      if (onSave) onSave({ title: stepTitle, stepNumber, fields });
+      if (onSave) onSave({ title: stepTitle, stepNumber, fields, navigationRules });
     },
     onError: () => {
       toast({

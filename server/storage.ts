@@ -12,7 +12,8 @@ import {
   type HealthPlan,
   type InsertHealthPlan,
   type FormField,
-  type ConditionalRule
+  type ConditionalRule,
+  type StepNavigation
 } from "@shared/schema";
 
 export interface IStorage {
@@ -145,12 +146,17 @@ export class MemStorage implements IStorage {
 
   async createFormStep(insertStep: InsertFormStep): Promise<FormStep> {
     const id = this.currentStepId++;
+    const now = new Date().toISOString();
     const step: FormStep = { 
       ...insertStep, 
       id,
+      description: insertStep.description || null,
       fields: insertStep.fields ? (insertStep.fields as FormField[]) : [],
       conditionalRules: insertStep.conditionalRules ? (insertStep.conditionalRules as ConditionalRule[]) : [],
-      isActive: insertStep.isActive ?? true
+      navigationRules: insertStep.navigationRules ? (insertStep.navigationRules as StepNavigation[]) : [],
+      isActive: insertStep.isActive ?? true,
+      createdAt: now,
+      updatedAt: now
     };
     this.formSteps.set(id, step);
     return step;

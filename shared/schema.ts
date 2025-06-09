@@ -26,9 +26,28 @@ export const formSteps = pgTable("form_steps", {
   id: serial("id").primaryKey(),
   stepNumber: integer("step_number").notNull(),
   title: text("title").notNull(),
+  description: text("description"),
   fields: json("fields").$type<FormField[]>().default([]),
   conditionalRules: json("conditional_rules").$type<ConditionalRule[]>().default([]),
+  navigationRules: json("navigation_rules").$type<StepNavigation[]>().default([]),
   isActive: boolean("is_active").default(true),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+  updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
+});
+
+export const stepNavigations = pgTable("step_navigations", {
+  id: serial("id").primaryKey(),
+  fromStepId: integer("from_step_id").notNull(),
+  conditionField: text("condition_field").notNull(),
+  conditionOperator: text("condition_operator").notNull(),
+  conditionValue: json("condition_value").$type<string | string[]>().notNull(),
+  targetType: text("target_type").notNull(), // 'step' | 'end' | 'external_url'
+  targetStepNumber: integer("target_step_number"),
+  targetUrl: text("target_url"),
+  targetMessage: text("target_message"),
+  priority: integer("priority").notNull().default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 
 export const healthPlans = pgTable("health_plans", {
@@ -60,13 +79,32 @@ export type ConditionalRule = {
   id: string;
   condition: {
     field: string;
-    operator: 'equals' | 'not_equals' | 'contains';
+    operator: 'equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than' | 'is_empty' | 'is_not_empty';
     value: string;
   };
   action: {
-    type: 'show' | 'hide';
-    targetField: string;
+    type: 'show' | 'hide' | 'goto_step' | 'skip_step' | 'end_form';
+    targetField?: string;
+    targetStep?: number;
+    message?: string;
   };
+};
+
+export type StepNavigation = {
+  id: string;
+  stepId: number;
+  condition: {
+    field: string;
+    operator: 'equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than' | 'selected' | 'not_selected';
+    value: string | string[];
+  };
+  target: {
+    type: 'step' | 'end' | 'external_url';
+    stepNumber?: number;
+    url?: string;
+    message?: string;
+  };
+  priority: number; // Higher priority rules are evaluated first
 };
 
 export type Dependent = {
@@ -83,6 +121,13 @@ export const insertFormSubmissionSchema = createInsertSchema(formSubmissions).om
 
 export const insertFormStepSchema = createInsertSchema(formSteps).omit({
   id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertStepNavigationSchema = createInsertSchema(stepNavigations).omit({
+  id: true,
+  createdAt: true,
 });
 
 export const insertHealthPlanSchema = createInsertSchema(healthPlans).omit({
@@ -96,10 +141,12 @@ export const insertUserSchema = createInsertSchema(users).omit({
 // Infer types
 export type InsertFormSubmission = z.infer<typeof insertFormSubmissionSchema>;
 export type InsertFormStep = z.infer<typeof insertFormStepSchema>;
+export type InsertStepNavigation = z.infer<typeof insertStepNavigationSchema>;
 export type InsertHealthPlan = z.infer<typeof insertHealthPlanSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 
 export type FormSubmission = typeof formSubmissions.$inferSelect;
 export type FormStep = typeof formSteps.$inferSelect;
+export type StepNavigationRecord = typeof stepNavigations.$inferSelect;
 export type HealthPlan = typeof healthPlans.$inferSelect;
 export type User = typeof users.$inferSelect;
