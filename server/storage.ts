@@ -1,10 +1,13 @@
 import { 
   users, 
+  sessions,
   formSubmissions, 
   formSteps, 
   healthPlans,
   type User, 
+  type Session,
   type InsertUser,
+  type InsertSession,
   type FormSubmission,
   type InsertFormSubmission,
   type FormStep,
@@ -24,6 +27,11 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  
+  // Session methods
+  createSession(session: InsertSession): Promise<Session>;
+  getSession(id: string): Promise<Session | undefined>;
+  deleteSession(id: string): Promise<boolean>;
   
   // Form submission methods
   createFormSubmission(submission: InsertFormSubmission): Promise<FormSubmission>;
@@ -46,6 +54,7 @@ export interface IStorage {
 
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
+  private sessions: Map<string, Session>;
   private formSubmissions: Map<number, FormSubmission>;
   private formSteps: Map<number, FormStep>;
   private healthPlans: Map<number, HealthPlan>;
@@ -56,6 +65,7 @@ export class MemStorage implements IStorage {
 
   constructor() {
     this.users = new Map();
+    this.sessions = new Map();
     this.formSubmissions = new Map();
     this.formSteps = new Map();
     this.healthPlans = new Map();
