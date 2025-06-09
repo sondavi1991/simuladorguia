@@ -26,9 +26,9 @@ export function useAuth() {
   });
 
   return {
-    user: user?.user || null,
+    user: (user as any)?.user || null,
     isLoading,
-    isAuthenticated: !!user?.user,
+    isAuthenticated: !!(user as any)?.user,
     error,
     logout: logoutMutation.mutate,
     isLoggingOut: logoutMutation.isPending,

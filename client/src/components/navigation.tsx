@@ -48,7 +48,7 @@ export default function Navigation() {
               <div className="flex items-center space-x-3">
                 <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-gray-100">
                   <User className="h-4 w-4 text-gray-600" />
-                  <span className="text-sm text-gray-700 font-medium">{user?.username || 'Usuário'}</span>
+                  <span className="text-sm text-gray-700 font-medium">{(user as any)?.username || 'Usuário'}</span>
                 </div>
                 <Button
                   variant="ghost"
