@@ -15,9 +15,7 @@ import {
   type ConditionalRule,
   type StepNavigation
 } from "@shared/schema";
-import { drizzle } from "drizzle-orm/neon-http";
 import { drizzle as drizzlePg } from "drizzle-orm/node-postgres";
-import { neon } from "@neondatabase/serverless";
 import pg from "pg";
 import { eq, and, inArray } from "drizzle-orm";
 
@@ -259,12 +257,22 @@ export class PostgreSQLStorage implements IStorage {
       throw new Error("DATABASE_URL environment variable is required");
     }
     
+    // Use connection pool for better reliability with Supabase
     this.client = new pg.Client({
       connectionString: databaseUrl,
-      ssl: { rejectUnauthorized: false } // Required for Supabase
+      ssl: { rejectUnauthorized: false },
+      connectionTimeoutMillis: 10000,
+      query_timeout: 10000,
     });
     
-    this.db = drizzlePg(this.client);
+    this.db = drizzlePg(this.client, {
+      schema: {
+        users,
+        formSubmissions,
+        formSteps,
+        healthPlans
+      }
+    });
   }
 
   async connect() {
