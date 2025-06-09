@@ -353,9 +353,10 @@ export default function FormBuilder({ step, onSave }: FormBuilderProps) {
       </Card>
 
       <Tabs defaultValue="form" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="form">Campos do Formulário</TabsTrigger>
           <TabsTrigger value="navigation">Navegação Condicional</TabsTrigger>
+          <TabsTrigger value="plans">Planos Recomendados</TabsTrigger>
           <TabsTrigger value="preview">Preview</TabsTrigger>
         </TabsList>
         
@@ -488,6 +489,24 @@ export default function FormBuilder({ step, onSave }: FormBuilderProps) {
             onNavigationRulesChange={setNavigationRules}
             availableSteps={[1, 2, 3, 4, 5]} // This should come from existing steps in the system
           />
+        </TabsContent>
+
+        <TabsContent value="plans" className="space-y-6 mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Planos Recomendados para este Passo</CardTitle>
+              <p className="text-sm text-gray-600">
+                Selecione quais planos de saúde devem aparecer quando o usuário chegar neste passo do formulário.
+                Baseado no caminho que o usuário escolher, você pode configurar planos específicos para cada etapa.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <PlanSelector
+                selectedPlanIds={recommendedPlanIds}
+                onPlanSelectionChange={setRecommendedPlanIds}
+              />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="preview" className="space-y-6 mt-6">
