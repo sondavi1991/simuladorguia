@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, json } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, json, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -27,10 +27,9 @@ export const formSteps = pgTable("form_steps", {
   stepNumber: integer("step_number").notNull(),
   title: text("title").notNull(),
   description: text("description"),
-  fields: json("fields").$type<FormField[]>().default([]),
-  conditionalRules: json("conditional_rules").$type<ConditionalRule[]>().default([]),
-  navigationRules: json("navigation_rules").$type<StepNavigation[]>().default([]),
-  isActive: boolean("is_active").default(true),
+  fields: json("fields").$type<FormField[]>(),
+  conditionalRules: json("conditional_rules").$type<ConditionalRule[]>(),
+  navigationRules: json("navigation_rules").$type<StepNavigation[]>(),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
   updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
 });
