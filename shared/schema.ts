@@ -127,7 +127,6 @@ export type Dependent = {
 // Zod schemas
 export const insertFormSubmissionSchema = createInsertSchema(formSubmissions).omit({
   id: true,
-  submittedAt: true,
 });
 
 export const insertFormStepSchema = createInsertSchema(formSteps).omit({

@@ -104,10 +104,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Form submission routes
   app.post("/api/form-submissions", async (req, res) => {
     try {
-      const validatedData = insertFormSubmissionSchema.parse(req.body);
+      const dataWithTimestamp = {
+        ...req.body,
+        submittedAt: new Date().toISOString()
+      };
+      const validatedData = insertFormSubmissionSchema.parse(dataWithTimestamp);
       const submission = await storage.createFormSubmission(validatedData);
       res.json(submission);
     } catch (error) {
+      console.error("Form submission validation error:", error);
       res.status(400).json({ error: "Invalid form submission data" });
     }
   });
