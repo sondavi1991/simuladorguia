@@ -45,11 +45,15 @@ export const healthPlans = pgTable("health_plans", {
 // Types for form builder
 export type FormField = {
   id: string;
-  type: 'text' | 'radio' | 'checkbox' | 'select' | 'date' | 'tel' | 'email';
+  type: 'text' | 'radio' | 'checkbox' | 'select' | 'date' | 'tel' | 'email' | 'heading' | 'paragraph' | 'image';
   label: string;
   required: boolean;
   options?: string[];
   placeholder?: string;
+  content?: string; // For heading, paragraph content
+  imageUrl?: string; // For image fields
+  headingLevel?: 'h1' | 'h2' | 'h3'; // For heading type
+  style?: Record<string, string>; // For custom styling
 };
 
 export type ConditionalRule = {

@@ -120,7 +120,9 @@ export class MemStorage implements IStorage {
     const submission: FormSubmission = { 
       ...insertSubmission, 
       id,
-      submittedAt: new Date().toISOString()
+      submittedAt: new Date().toISOString(),
+      services: insertSubmission.services ? [...insertSubmission.services] : [],
+      dependents: insertSubmission.dependents ? [...insertSubmission.dependents] : []
     };
     this.formSubmissions.set(id, submission);
     return submission;
@@ -141,7 +143,13 @@ export class MemStorage implements IStorage {
 
   async createFormStep(insertStep: InsertFormStep): Promise<FormStep> {
     const id = this.currentStepId++;
-    const step: FormStep = { ...insertStep, id };
+    const step: FormStep = { 
+      ...insertStep, 
+      id,
+      fields: insertStep.fields ? (insertStep.fields as FormField[]) : [],
+      conditionalRules: insertStep.conditionalRules ? (insertStep.conditionalRules as ConditionalRule[]) : [],
+      isActive: insertStep.isActive ?? true
+    };
     this.formSteps.set(id, step);
     return step;
   }
@@ -150,7 +158,12 @@ export class MemStorage implements IStorage {
     const existingStep = this.formSteps.get(id);
     if (!existingStep) return undefined;
     
-    const updatedStep: FormStep = { ...existingStep, ...updateData };
+    const updatedStep: FormStep = { 
+      ...existingStep, 
+      ...updateData,
+      fields: updateData.fields || existingStep.fields,
+      conditionalRules: updateData.conditionalRules || existingStep.conditionalRules
+    };
     this.formSteps.set(id, updatedStep);
     return updatedStep;
   }
@@ -166,7 +179,12 @@ export class MemStorage implements IStorage {
 
   async createHealthPlan(insertPlan: InsertHealthPlan): Promise<HealthPlan> {
     const id = this.currentPlanId++;
-    const plan: HealthPlan = { ...insertPlan, id };
+    const plan: HealthPlan = { 
+      ...insertPlan, 
+      id,
+      features: insertPlan.features ? [...insertPlan.features] : [],
+      isRecommended: insertPlan.isRecommended ?? false
+    };
     this.healthPlans.set(id, plan);
     return plan;
   }
@@ -175,7 +193,11 @@ export class MemStorage implements IStorage {
     const existingPlan = this.healthPlans.get(id);
     if (!existingPlan) return undefined;
     
-    const updatedPlan: HealthPlan = { ...existingPlan, ...updateData };
+    const updatedPlan: HealthPlan = { 
+      ...existingPlan, 
+      ...updateData,
+      features: updateData.features ? [...updateData.features] : existingPlan.features
+    };
     this.healthPlans.set(id, updatedPlan);
     return updatedPlan;
   }
