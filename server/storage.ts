@@ -16,7 +16,9 @@ import {
   type StepNavigation
 } from "@shared/schema";
 import { drizzle } from "drizzle-orm/neon-http";
+import { drizzle as drizzlePg } from "drizzle-orm/node-postgres";
 import { neon } from "@neondatabase/serverless";
+import pg from "pg";
 import { eq, and, inArray } from "drizzle-orm";
 
 export interface IStorage {
