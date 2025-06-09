@@ -6,6 +6,18 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  email: text("email"),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const sessions = pgTable("sessions", {
+  id: text("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const formSubmissions = pgTable("form_submissions", {
@@ -135,6 +147,17 @@ export const insertHealthPlanSchema = createInsertSchema(healthPlans).omit({
 
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSessionSchema = createInsertSchema(sessions).omit({
+  createdAt: true,
+});
+
+export const loginSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
 });
 
 // Infer types
@@ -143,9 +166,12 @@ export type InsertFormStep = z.infer<typeof insertFormStepSchema>;
 export type InsertStepNavigation = z.infer<typeof insertStepNavigationSchema>;
 export type InsertHealthPlan = z.infer<typeof insertHealthPlanSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type InsertSession = z.infer<typeof insertSessionSchema>;
+export type LoginData = z.infer<typeof loginSchema>;
 
 export type FormSubmission = typeof formSubmissions.$inferSelect;
 export type FormStep = typeof formSteps.$inferSelect;
 export type StepNavigationRecord = typeof stepNavigations.$inferSelect;
 export type HealthPlan = typeof healthPlans.$inferSelect;
 export type User = typeof users.$inferSelect;
+export type Session = typeof sessions.$inferSelect;
