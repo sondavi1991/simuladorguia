@@ -1,4 +1,4 @@
-import DynamicSimulatorForm from "@/components/dynamic-simulator-form";
+import EnhancedSimulatorForm from "@/components/enhanced-simulator-form";
 
 export default function Simulator() {
   return (
@@ -13,7 +13,7 @@ export default function Simulator() {
           </p>
         </div>
         
-        <DynamicSimulatorForm />
+        <EnhancedSimulatorForm />
       </div>
     </div>
   );
