@@ -15,6 +15,9 @@ import {
   type ConditionalRule,
   type StepNavigation
 } from "@shared/schema";
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless";
+import { eq, and, inArray } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -243,4 +246,126 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// PostgreSQL implementation for Supabase
+export class PostgreSQLStorage implements IStorage {
+  private db: ReturnType<typeof drizzle>;
+
+  constructor() {
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) {
+      throw new Error("DATABASE_URL environment variable is required");
+    }
+    
+    const sql = neon(databaseUrl);
+    this.db = drizzle(sql);
+  }
+
+  async getUser(id: number): Promise<User | undefined> {
+    const result = await this.db.select().from(users).where(eq(users.id, id));
+    return result[0];
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const result = await this.db.select().from(users).where(eq(users.username, username));
+    return result[0];
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const result = await this.db.insert(users).values(insertUser).returning();
+    return result[0];
+  }
+
+  async createFormSubmission(insertSubmission: InsertFormSubmission): Promise<FormSubmission> {
+    const result = await this.db.insert(formSubmissions).values(insertSubmission).returning();
+    return result[0];
+  }
+
+  async getFormSubmissions(): Promise<FormSubmission[]> {
+    return await this.db.select().from(formSubmissions);
+  }
+
+  async getFormSubmission(id: number): Promise<FormSubmission | undefined> {
+    const result = await this.db.select().from(formSubmissions).where(eq(formSubmissions.id, id));
+    return result[0];
+  }
+
+  async getFormSteps(): Promise<FormStep[]> {
+    return await this.db.select().from(formSteps).orderBy(formSteps.stepNumber);
+  }
+
+  async createFormStep(insertStep: InsertFormStep): Promise<FormStep> {
+    const result = await this.db.insert(formSteps).values(insertStep).returning();
+    return result[0];
+  }
+
+  async updateFormStep(id: number, updateData: Partial<InsertFormStep>): Promise<FormStep | undefined> {
+    const result = await this.db.update(formSteps)
+      .set(updateData)
+      .where(eq(formSteps.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteFormStep(id: number): Promise<boolean> {
+    const result = await this.db.delete(formSteps).where(eq(formSteps.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getHealthPlans(): Promise<HealthPlan[]> {
+    return await this.db.select().from(healthPlans);
+  }
+
+  async createHealthPlan(insertPlan: InsertHealthPlan): Promise<HealthPlan> {
+    const result = await this.db.insert(healthPlans).values(insertPlan).returning();
+    return result[0];
+  }
+
+  async updateHealthPlan(id: number, updateData: Partial<InsertHealthPlan>): Promise<HealthPlan | undefined> {
+    const result = await this.db.update(healthPlans)
+      .set(updateData)
+      .where(eq(healthPlans.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteHealthPlan(id: number): Promise<boolean> {
+    const result = await this.db.delete(healthPlans).where(eq(healthPlans.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getRecommendedPlans(priceRange: string, services: string[]): Promise<HealthPlan[]> {
+    const allPlans = await this.db.select().from(healthPlans);
+    
+    return allPlans.filter(plan => {
+      // Filter by price range
+      let priceMatch = false;
+      switch (priceRange) {
+        case 'low':
+          priceMatch = plan.monthlyPrice <= 200;
+          break;
+        case 'medium':
+          priceMatch = plan.monthlyPrice > 200 && plan.monthlyPrice <= 500;
+          break;
+        case 'high':
+          priceMatch = plan.monthlyPrice > 500;
+          break;
+        default:
+          priceMatch = true;
+      }
+
+      // Filter by services
+      const planServices = plan.services || [];
+      const serviceMatch = services.length === 0 || 
+        services.some(service => planServices.includes(service));
+
+      return priceMatch && serviceMatch;
+    }).sort((a, b) => {
+      if (a.isRecommended && !b.isRecommended) return -1;
+      if (!a.isRecommended && b.isRecommended) return 1;
+      return a.monthlyPrice - b.monthlyPrice;
+    });
+  }
+}
+
+// Use PostgreSQL storage when DATABASE_URL is available, otherwise fallback to memory
+export const storage = process.env.DATABASE_URL ? new PostgreSQLStorage() : new MemStorage();
