@@ -367,5 +367,37 @@ export class PostgreSQLStorage implements IStorage {
   }
 }
 
-// Use PostgreSQL storage when DATABASE_URL is available, otherwise fallback to memory
-export const storage = process.env.DATABASE_URL ? new PostgreSQLStorage() : new MemStorage();
+// Initialize storage with connection testing
+async function initializeStorage(): Promise<IStorage> {
+  if (!process.env.DATABASE_URL) {
+    console.log('DATABASE_URL not found, using memory storage');
+    return new MemStorage();
+  }
+
+  try {
+    console.log('Testing PostgreSQL connection...');
+    const pgStorage = new PostgreSQLStorage();
+    
+    // Test connection by trying to get health plans
+    await pgStorage.getHealthPlans();
+    console.log('✓ PostgreSQL connection successful');
+    return pgStorage;
+  } catch (error) {
+    console.error('✗ PostgreSQL connection failed:', error.message);
+    console.log('Falling back to memory storage');
+    return new MemStorage();
+  }
+}
+
+// Initialize storage (will be replaced with actual instance)
+let storage: IStorage = new MemStorage();
+
+// Initialize storage asynchronously
+initializeStorage().then(storageInstance => {
+  storage = storageInstance;
+}).catch(error => {
+  console.error('Storage initialization failed:', error);
+  storage = new MemStorage();
+});
+
+export { storage };
