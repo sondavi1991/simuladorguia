@@ -37,7 +37,7 @@ export default function AnalyticsPanel() {
     queryKey: ["/api/form-submissions"],
     refetchOnWindowFocus: true,
     refetchOnMount: true,
-    staleTime: 0, // Always refetch
+    staleTime: 0,
   });
 
   const deleteSubmissionMutation = useMutation({
@@ -139,7 +139,7 @@ export default function AnalyticsPanel() {
     deleteSubmissionMutation.mutate(id);
   };
 
-  const resetFilters = () => {
+  const clearFilters = () => {
     setFilters({
       startDate: "",
       endDate: "",
@@ -151,19 +151,29 @@ export default function AnalyticsPanel() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Carregando analytics...</p>
+          <p className="mt-2 text-gray-600">Carregando dados...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
+        <div className="flex gap-2">
+          <Button onClick={handleExportExcel} className="bg-green-600 hover:bg-green-700">
+            <Download className="h-4 w-4 mr-2" />
+            Exportar Excel
+          </Button>
+        </div>
+      </div>
+
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total de Simulações</CardTitle>
@@ -171,9 +181,6 @@ export default function AnalyticsPanel() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalSimulations}</div>
-            <p className="text-xs text-muted-foreground">
-              {submissions.length} no total
-            </p>
           </CardContent>
         </Card>
 
@@ -184,9 +191,6 @@ export default function AnalyticsPanel() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{uniqueUsers}</div>
-            <p className="text-xs text-muted-foreground">
-              Emails únicos
-            </p>
           </CardContent>
         </Card>
 
@@ -196,31 +200,21 @@ export default function AnalyticsPanel() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{averageAge}</div>
-            <p className="text-xs text-muted-foreground">
-              Anos
-            </p>
+            <div className="text-2xl font-bold">{averageAge} anos</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Plano Mais Popular</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Plano Mais Procurado</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {Object.keys(planTypeStats).length > 0 
+            <div className="text-sm font-bold">
+              {Object.entries(planTypeStats).length > 0 
                 ? Object.entries(planTypeStats).sort(([,a], [,b]) => b - a)[0][0]
-                : "N/A"
-              }
+                : 'N/A'}
             </div>
-            <p className="text-xs text-muted-foreground">
-              {Object.keys(planTypeStats).length > 0 
-                ? `${Object.entries(planTypeStats).sort(([,a], [,b]) => b - a)[0][1]} simulações`
-                : "Nenhum dado"
-              }
-            </p>
           </CardContent>
         </Card>
       </div>
@@ -228,21 +222,9 @@ export default function AnalyticsPanel() {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Filter className="w-5 h-5" />
-              Filtros
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => refetch()}
-              disabled={isLoading}
-              className="flex items-center gap-2"
-            >
-              <TrendingUp className="w-4 h-4" />
-              Atualizar Dados
-            </Button>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Filtros
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -256,6 +238,7 @@ export default function AnalyticsPanel() {
                 onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
               />
             </div>
+
             <div>
               <Label htmlFor="endDate">Data Final</Label>
               <Input
@@ -265,11 +248,12 @@ export default function AnalyticsPanel() {
                 onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
               />
             </div>
+
             <div>
               <Label htmlFor="planType">Tipo de Plano</Label>
               <Select value={filters.planType} onValueChange={(value) => setFilters({ ...filters, planType: value })}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
@@ -279,23 +263,25 @@ export default function AnalyticsPanel() {
                 </SelectContent>
               </Select>
             </div>
+
             <div>
               <Label htmlFor="priceRange">Faixa de Preço</Label>
               <Select value={filters.priceRange} onValueChange={(value) => setFilters({ ...filters, priceRange: value })}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas</SelectItem>
-                  <SelectItem value="até-100">Até R$ 100</SelectItem>
-                  <SelectItem value="100-300">R$ 100-300</SelectItem>
-                  <SelectItem value="300-500">R$ 300-500</SelectItem>
-                  <SelectItem value="acima-500">Acima de R$ 500</SelectItem>
+                  <SelectItem value="0-200">R$ 0 - R$ 200</SelectItem>
+                  <SelectItem value="200-500">R$ 200 - R$ 500</SelectItem>
+                  <SelectItem value="500-1000">R$ 500 - R$ 1.000</SelectItem>
+                  <SelectItem value="1000+">R$ 1.000+</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
             <div className="flex items-end">
-              <Button variant="outline" onClick={resetFilters} className="w-full">
+              <Button onClick={clearFilters} variant="outline" className="w-full">
                 Limpar Filtros
               </Button>
             </div>
@@ -303,122 +289,110 @@ export default function AnalyticsPanel() {
         </CardContent>
       </Card>
 
-      {/* Actions */}
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">
-          Simulações ({filteredSubmissions.length})
-        </h3>
-        <Button onClick={handleExportExcel} className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
-          <Download className="w-4 h-4" />
-          Exportar Excel
-        </Button>
-      </div>
-
-      {/* Submissions Table */}
+      {/* Data Table */}
       <Card>
-        <CardContent className="p-0">
-          {filteredSubmissions.length === 0 ? (
-            <div className="p-8 text-center">
-              <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-              <p className="text-gray-500">Nenhuma simulação encontrada com os filtros aplicados.</p>
-            </div>
-          ) : (
-            <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Telefone</TableHead>
-                    <TableHead>Tipo de Plano</TableHead>
-                    <TableHead>Faixa de Preço</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Ações</TableHead>
+        <CardHeader>
+          <CardTitle>Simulações ({filteredSubmissions.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Dados do Formulário</TableHead>
+                  <TableHead>IP</TableHead>
+                  <TableHead>Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedSubmissions.map((submission) => (
+                  <TableRow key={submission.id}>
+                    <TableCell className="font-medium">{submission.id}</TableCell>
+                    <TableCell>
+                      {new Date(submission.submittedAt).toLocaleDateString("pt-BR")}
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        {submission.formData && typeof submission.formData === 'object' && 
+                          Object.entries(submission.formData).slice(0, 3).map(([key, value]) => (
+                            <div key={key} className="text-xs">
+                              <span className="font-medium">{key}:</span> {
+                                Array.isArray(value) ? value.join(', ') : 
+                                typeof value === 'object' ? JSON.stringify(value) :
+                                String(value)
+                              }
+                            </div>
+                          ))
+                        }
+                        {submission.formData && Object.keys(submission.formData).length > 3 && (
+                          <div className="text-xs text-gray-500">
+                            +{Object.keys(submission.formData).length - 3} campos...
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-xs text-gray-500">
+                      {submission.ipAddress || 'N/A'}
+                    </TableCell>
+                    <TableCell>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tem certeza que deseja excluir esta simulação? Esta ação não pode ser desfeita.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteSubmission(submission.id)}>
+                              Excluir
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedSubmissions.map((submission) => (
-                    <TableRow key={submission.id}>
-                      <TableCell className="font-medium">{submission.name}</TableCell>
-                      <TableCell>{submission.email}</TableCell>
-                      <TableCell>{submission.phone}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{submission.planType}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent text-secondary-foreground hover:bg-secondary/80 bg-[#aed4fc]">{submission.priceRange}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(submission.submittedAt).toLocaleDateString("pt-BR")}
-                      </TableCell>
-                      <TableCell>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Tem certeza que deseja excluir a simulação de {submission.name}? 
-                                Esta ação não pode ser desfeita.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeleteSubmission(submission.id)}
-                                className="bg-red-600 hover:bg-red-700"
-                              >
-                                Excluir
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between p-4 border-t">
-                  <div className="text-sm text-gray-600">
-                    Mostrando {startIndex + 1} até {Math.min(startIndex + itemsPerPage, filteredSubmissions.length)} de {filteredSubmissions.length} simulações
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(currentPage - 1)}
-                      disabled={currentPage === 1}
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                      Anterior
-                    </Button>
-                    <span className="text-sm">
-                      Página {currentPage} de {totalPages}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                    >
-                      Próxima
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4">
+              <p className="text-sm text-gray-700">
+                Mostrando {startIndex + 1} a {Math.min(startIndex + itemsPerPage, filteredSubmissions.length)} de {filteredSubmissions.length} resultados
+              </p>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm">
+                  Página {currentPage} de {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>
