@@ -515,6 +515,11 @@ export default function AdminPanel() {
                         <Badge className="bg-blue-100 text-blue-800">
                           Administrador
                         </Badge>
+                        {(user as any).isCurrentUser && (
+                          <Badge className="bg-green-100 text-green-800">
+                            Você
+                          </Badge>
+                        )}
                         <Button
                           size="sm"
                           variant="outline"
@@ -523,15 +528,17 @@ export default function AdminPanel() {
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => deleteUserMutation.mutate(user.id)}
-                          disabled={deleteUserMutation.isPending}
-                          className="text-red-600 border-red-200 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        {!(user as any).isCurrentUser && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => deleteUserMutation.mutate(user.id)}
+                            disabled={deleteUserMutation.isPending}
+                            className="text-red-600 border-red-200 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ))

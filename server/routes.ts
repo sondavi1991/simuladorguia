@@ -587,13 +587,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin users management routes
   app.get('/api/admin-users', requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      // Get all users except the current logged in user
+      // Get all users and mark the current logged in user
       const currentUserId = req.user?.id;
       const users = await storage.getAllUsers();
-      const filteredUsers = users.filter(user => user.id !== currentUserId);
       
-      // Return users without password hash
-      const safeUsers = filteredUsers.map(({ password, ...user }) => user);
+      // Return users without password hash and mark current user
+      const safeUsers = users.map(({ password, ...user }) => ({
+        ...user,
+        isCurrentUser: user.id === currentUserId
+      }));
       res.json(safeUsers);
     } catch (error: any) {
       console.error("Error fetching admin users:", error);
