@@ -8,6 +8,8 @@ import { openWhatsApp } from "@/lib/whatsapp";
 import { useState } from "react";
 
 export default function Home() {
+  const [termsAccepted, setTermsAccepted] = useState(true);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Hero Section */}
@@ -54,11 +56,26 @@ export default function Home() {
                 </div>
               </div>
               <Link href="/simulator">
-                <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                <Button 
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!termsAccepted}
+                >
                   Começar Simulação
                   <Play className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
+              
+              <div className="flex items-center space-x-3 mt-4 text-sm text-gray-600">
+                <Checkbox 
+                  id="terms"
+                  checked={termsAccepted}
+                  onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                  className="border-gray-300"
+                />
+                <label htmlFor="terms" className="cursor-pointer leading-relaxed">
+                  Ao iniciar você concorda com nossos termos de uso e política de privacidade
+                </label>
+              </div>
             </div>
           </Card>
 
