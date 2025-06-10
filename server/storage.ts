@@ -672,9 +672,12 @@ export class PostgreSQLStorage implements IStorage {
     this.db = drizzlePg(this.client, {
       schema: {
         users,
+        sessions,
         formSubmissions,
         formSteps,
-        healthPlans
+        healthPlans,
+        smtpSettings,
+        whatsappAttendants
       }
     });
   }
@@ -700,6 +703,38 @@ export class PostgreSQLStorage implements IStorage {
   async createUser(insertUser: InsertUser): Promise<User> {
     const result = await this.db.insert(users).values(insertUser).returning();
     return result[0];
+  }
+
+  async updateUser(id: number, updateData: Partial<InsertUser>): Promise<User | undefined> {
+    const result = await this.db.update(users)
+      .set(updateData)
+      .where(eq(users.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await this.db.select().from(users);
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    const result = await this.db.delete(users).where(eq(users.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async createSession(insertSession: InsertSession): Promise<Session> {
+    const result = await this.db.insert(sessions).values(insertSession).returning();
+    return result[0];
+  }
+
+  async getSession(id: string): Promise<Session | undefined> {
+    const result = await this.db.select().from(sessions).where(eq(sessions.id, id));
+    return result[0];
+  }
+
+  async deleteSession(id: string): Promise<boolean> {
+    const result = await this.db.delete(sessions).where(eq(sessions.id, id)).returning();
+    return result.length > 0;
   }
 
   async createFormSubmission(insertSubmission: InsertFormSubmission): Promise<FormSubmission> {
@@ -797,13 +832,68 @@ export class PostgreSQLStorage implements IStorage {
       return a.monthlyPrice - b.monthlyPrice;
     });
   }
+
+  // SMTP Settings methods
+  async getSmtpSettings(): Promise<SmtpSettings[]> {
+    return await this.db.select().from(smtpSettings);
+  }
+
+  async createSmtpSettings(insertSettings: InsertSmtpSettings): Promise<SmtpSettings> {
+    const result = await this.db.insert(smtpSettings).values(insertSettings).returning();
+    return result[0];
+  }
+
+  async updateSmtpSettings(id: number, updateData: Partial<InsertSmtpSettings>): Promise<SmtpSettings | undefined> {
+    const result = await this.db.update(smtpSettings)
+      .set(updateData)
+      .where(eq(smtpSettings.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // WhatsApp Attendant methods
+  async getWhatsappAttendants(): Promise<WhatsappAttendant[]> {
+    return await this.db.select().from(whatsappAttendants).orderBy(whatsappAttendants.priority);
+  }
+
+  async createWhatsappAttendant(insertAttendant: InsertWhatsappAttendant): Promise<WhatsappAttendant> {
+    const result = await this.db.insert(whatsappAttendants).values(insertAttendant).returning();
+    return result[0];
+  }
+
+  async updateWhatsappAttendant(id: number, updateData: Partial<InsertWhatsappAttendant>): Promise<WhatsappAttendant | undefined> {
+    const result = await this.db.update(whatsappAttendants)
+      .set(updateData)
+      .where(eq(whatsappAttendants.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteWhatsappAttendant(id: number): Promise<boolean> {
+    const result = await this.db.delete(whatsappAttendants).where(eq(whatsappAttendants.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getNextWhatsappAttendant(): Promise<WhatsappAttendant | undefined> {
+    const attendants = await this.db.select()
+      .from(whatsappAttendants)
+      .where(eq(whatsappAttendants.isActive, true))
+      .orderBy(whatsappAttendants.priority, whatsappAttendants.lastAssigned);
+    return attendants[0];
+  }
 }
 
 // Initialize storage with connection testing
 async function initializeStorage(): Promise<IStorage> {
-  // For now, always use MemStorage to ensure user management works
-  console.log('Using memory storage for admin functionality');
-  return new MemStorage();
+  try {
+    const pgStorage = new PostgreSQLStorage();
+    await pgStorage.connect();
+    console.log('Using PostgreSQL storage for data persistence');
+    return pgStorage;
+  } catch (error) {
+    console.error('PostgreSQL connection failed, falling back to memory storage:', error);
+    return new MemStorage();
+  }
 }
 
 // Initialize storage (will be replaced with actual instance)
