@@ -133,7 +133,7 @@
   --card-foreground: hsl(20, 14.3%, 4.1%);
   --border: hsl(20, 5.9%, 90%);
   --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(177, 70%, 41%);
+  --primary: 199 89% 41%;
   --primary-foreground: hsl(0, 0%, 100%);
   --secondary: hsl(60, 4.8%, 95.9%);
   --secondary-foreground: hsl(24, 9.8%, 10%);
@@ -141,14 +141,17 @@
   --accent-foreground: hsl(24, 9.8%, 10%);
   --destructive: hsl(0, 84.2%, 60.2%);
   --destructive-foreground: hsl(60, 9.1%, 97.8%);
-  --ring: hsl(177, 70%, 41%);
+  --ring: 199 89% 41%;
   --radius: 0.5rem;
   
-  /* GUPS Brand Colors */
-  --gups-teal: hsl(177, 70%, 41%);
+  /* Guia Único Brand Colors */
+  --primary-color: #0693CB;
+  --secondary-color: #000000;
+  --gray-color: #D9D9D9;
+  --gups-teal: #0693CB;
   --gups-red: hsl(0, 74%, 58%);
   --gups-blue: hsl(224, 76%, 48%);
-  --gups-gray: hsl(215, 16%, 47%);
+  --gups-gray: #D9D9D9;
 }
 
 .dark {
@@ -185,6 +188,18 @@
 }
 
 @layer utilities {
+  .text-primary {
+    color: var(--primary-color);
+  }
+  
+  .text-secondary {
+    color: var(--secondary-color);
+  }
+  
+  .text-gray-custom {
+    color: var(--gray-color);
+  }
+  
   .text-gups-teal {
     color: var(--gups-teal);
   }
@@ -199,6 +214,18 @@
   
   .text-gups-gray {
     color: var(--gups-gray);
+  }
+  
+  .bg-primary {
+    background-color: var(--primary-color);
+  }
+  
+  .bg-secondary {
+    background-color: var(--secondary-color);
+  }
+  
+  .bg-gray-custom {
+    background-color: var(--gray-color);
   }
   
   .bg-gups-teal {
@@ -217,6 +244,14 @@
     background-color: var(--gups-gray);
   }
   
+  .border-primary {
+    border-color: var(--primary-color);
+  }
+  
+  .border-secondary {
+    border-color: var(--secondary-color);
+  }
+  
   .border-gups-teal {
     border-color: var(--gups-teal);
   }
@@ -225,15 +260,27 @@
     border-color: var(--gups-red);
   }
   
+  .hover\:bg-primary\/10:hover {
+    background-color: rgba(6, 147, 203, 0.1);
+  }
+  
+  .hover\:bg-primary\/90:hover {
+    background-color: rgba(6, 147, 203, 0.9);
+  }
+  
   .hover\:bg-gups-teal\/10:hover {
-    background-color: hsl(177, 70%, 41%, 0.1);
+    background-color: rgba(6, 147, 203, 0.1);
   }
   
   .hover\:bg-gups-teal\/90:hover {
-    background-color: hsl(177, 70%, 41%, 0.9);
+    background-color: rgba(6, 147, 203, 0.9);
+  }
+  
+  .bg-primary\/5 {
+    background-color: rgba(6, 147, 203, 0.05);
   }
   
   .bg-gups-teal\/5 {
-    background-color: hsl(177, 70%, 41%, 0.05);
+    background-color: rgba(6, 147, 203, 0.05);
   }
 }
