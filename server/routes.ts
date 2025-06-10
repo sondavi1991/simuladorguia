@@ -43,6 +43,16 @@ function requireAuth(req: AuthenticatedRequest, res: Response, next: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint for deployment monitoring
+  app.get("/api/health", (req, res) => {
+    res.status(200).json({ 
+      status: "ok", 
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || "development"
+    });
+  });
+
   // Apply authentication middleware to all routes
   app.use(authenticateSession);
 
@@ -110,7 +120,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         formData: req.body, // Store all form data dynamically
         userAgent: req.headers['user-agent'] || null,
         ipAddress: req.ip || req.connection.remoteAddress || null,
-        sessionId: req.sessionID || null
+        sessionId: (req as any).sessionID || null
       };
       
       const validatedData = insertFormSubmissionSchema.parse(submissionData);
@@ -671,7 +681,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete('/api/admin-users/:id', requireAuth, async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
-      const currentUserId = req.user?.id;
+      const currentUserId = (req as AuthenticatedRequest).user?.id;
 
       // Prevent user from deleting themselves
       if (userId === currentUserId) {
