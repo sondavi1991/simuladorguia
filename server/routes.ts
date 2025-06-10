@@ -2,11 +2,13 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { AuthStorage } from "./auth-storage";
+import { EmailService } from "./email-service";
 import { 
   insertFormSubmissionSchema, 
   insertFormStepSchema, 
   insertHealthPlanSchema,
   insertWhatsappAttendantSchema,
+  insertSmtpSettingsSchema,
   loginSchema
 } from "@shared/schema";
 import * as XLSX from "xlsx";
@@ -125,6 +127,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const validatedData = insertFormSubmissionSchema.parse(submissionData);
       const submission = await storage.createFormSubmission(validatedData);
+      
+      // Send email notification if SMTP is configured
+      try {
+        const emailResult = await EmailService.sendFormSubmissionEmail(submission);
+        if (emailResult.success) {
+          console.log('Email notification sent successfully');
+        } else {
+          console.log('Email notification failed:', emailResult.message);
+        }
+      } catch (emailError) {
+        console.error('Email notification error:', emailError);
+        // Continue without failing the submission
+      }
+      
       res.json(submission);
     } catch (error) {
       console.error("Form submission validation error:", error);
@@ -381,20 +397,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // SMTP Settings routes
   app.get("/api/smtp-settings", async (req, res) => {
     try {
-      // Return empty configuration that user can fill
-      const defaultSettings = {
-        id: 1,
-        host: "",
-        port: 587,
-        username: "",
-        password: "",
-        protocol: "STARTTLS",
-        recipientEmail: "",
-        isActive: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      res.json(defaultSettings);
+      const settings = await storage.getSmtpSettings();
+      if (settings.length > 0) {
+        res.json(settings[0]);
+      } else {
+        // Return empty configuration that user can fill
+        const defaultSettings = {
+          id: 1,
+          host: "",
+          port: 587,
+          username: "",
+          password: "",
+          protocol: "STARTTLS",
+          recipientEmail: "",
+          isActive: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        res.json(defaultSettings);
+      }
     } catch (error: any) {
       console.error("Error fetching SMTP settings:", error);
       res.status(500).json({ 
@@ -404,16 +425,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/smtp-settings", async (req, res) => {
+  app.post("/api/smtp-settings", requireAuth, async (req, res) => {
     try {
       console.log("Creating SMTP settings with data:", JSON.stringify(req.body, null, 2));
       
-      const smtpSettings = {
-        id: 1,
-        ...req.body,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+      const validatedData = insertSmtpSettingsSchema.parse(req.body);
+      const smtpSettings = await storage.createSmtpSettings(validatedData);
+      
+      // Initialize email service with new settings
+      await EmailService.initializeTransporter();
       
       res.json(smtpSettings);
     } catch (error: any) {
@@ -425,16 +445,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/smtp-settings/:id", async (req, res) => {
+  app.put("/api/smtp-settings/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       console.log("Updating SMTP settings with ID:", id, "and data:", JSON.stringify(req.body, null, 2));
       
-      const smtpSettings = {
-        id,
-        ...req.body,
-        updatedAt: new Date().toISOString(),
-      };
+      const validatedData = insertSmtpSettingsSchema.partial().parse(req.body);
+      const smtpSettings = await storage.updateSmtpSettings(id, validatedData);
+      
+      if (!smtpSettings) {
+        return res.status(404).json({ error: "SMTP settings not found" });
+      }
+      
+      // Reinitialize email service with updated settings
+      await EmailService.initializeTransporter();
       
       res.json(smtpSettings);
     } catch (error: any) {
@@ -446,19 +470,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/smtp-settings/test", async (req, res) => {
+  app.post("/api/smtp-settings/test", requireAuth, async (req, res) => {
     try {
-      console.log("Testing SMTP settings");
+      console.log("Testing SMTP settings with data:", JSON.stringify(req.body, null, 2));
       
-      // For now, return success - user will configure real SMTP later
-      res.json({ 
-        success: true, 
-        message: "Configuração SMTP pronta para uso" 
-      });
+      const testResult = await EmailService.testConnection(req.body);
+      
+      if (testResult.success) {
+        res.json({ 
+          success: true, 
+          message: testResult.message 
+        });
+      } else {
+        res.status(400).json({ 
+          success: false, 
+          message: testResult.message 
+        });
+      }
     } catch (error: any) {
       console.error("SMTP test error:", error);
       res.status(500).json({ 
-        error: "Erro ao testar configurações SMTP",
+        success: false,
+        message: "Erro ao testar configurações SMTP",
         details: error?.message || "Erro desconhecido"
       });
     }
