@@ -38,7 +38,7 @@ export default function AdminPanel() {
   const { toast } = useToast();
 
   // Force refresh users data when component mounts
-  React.useEffect(() => {
+  useEffect(() => {
     queryClient.invalidateQueries({ queryKey: ["/api/admin-users"] });
   }, []);
 
