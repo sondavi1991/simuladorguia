@@ -45,15 +45,21 @@ export default function Login() {
       
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       const queryClient = useQueryClient();
+      // Set the user data immediately to update the UI
+      queryClient.setQueryData(["/api/auth/me"], data);
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       
       toast({
         title: "Login realizado com sucesso",
         description: "Bem-vindo de volta!",
       });
-      navigate("/admin");
+      
+      // Small delay to ensure state update before navigation
+      setTimeout(() => {
+        navigate("/admin");
+      }, 100);
     },
     onError: (error: any) => {
       toast({

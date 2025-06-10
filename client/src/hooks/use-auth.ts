@@ -7,8 +7,9 @@ export function useAuth() {
   const { data: user, isLoading, error } = useQuery({
     queryKey: ['/api/auth/me'],
     retry: false,
-    refetchOnWindowFocus: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Always refetch to ensure fresh auth state
+    gcTime: 0, // Don't cache auth data
   });
 
   const logoutMutation = useMutation({
@@ -20,6 +21,8 @@ export function useAuth() {
       return response.json();
     },
     onSuccess: () => {
+      // Clear user data immediately and invalidate queries
+      queryClient.setQueryData(['/api/auth/me'], null);
       queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
       queryClient.clear();
     },
