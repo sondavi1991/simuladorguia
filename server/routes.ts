@@ -140,6 +140,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/form-submissions/:id', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteFormSubmission(id);
+      if (!success) {
+        return res.status(404).json({ message: "Form submission not found" });
+      }
+      res.json({ message: "Form submission deleted successfully" });
+    } catch (error: any) {
+      console.error("Error deleting form submission:", error);
+      res.status(500).json({ message: "Failed to delete form submission" });
+    }
+  });
+
   // Form steps routes (for admin panel)
   app.get("/api/form-steps", async (req, res) => {
     try {

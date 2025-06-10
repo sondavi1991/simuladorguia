@@ -40,6 +40,7 @@ export interface IStorage {
   createFormSubmission(submission: InsertFormSubmission): Promise<FormSubmission>;
   getFormSubmissions(): Promise<FormSubmission[]>;
   getFormSubmission(id: number): Promise<FormSubmission | undefined>;
+  deleteFormSubmission(id: number): Promise<boolean>;
   
   // Form step methods
   getFormSteps(): Promise<FormStep[]>;
@@ -167,6 +168,10 @@ export class MemStorage implements IStorage {
 
   async getFormSubmission(id: number): Promise<FormSubmission | undefined> {
     return this.formSubmissions.get(id);
+  }
+
+  async deleteFormSubmission(id: number): Promise<boolean> {
+    return this.formSubmissions.delete(id);
   }
 
   // Form step methods
@@ -337,6 +342,11 @@ export class PostgreSQLStorage implements IStorage {
   async getFormSubmission(id: number): Promise<FormSubmission | undefined> {
     const result = await this.db.select().from(formSubmissions).where(eq(formSubmissions.id, id));
     return result[0];
+  }
+
+  async deleteFormSubmission(id: number): Promise<boolean> {
+    const result = await this.db.delete(formSubmissions).where(eq(formSubmissions.id, id)).returning();
+    return result.length > 0;
   }
 
   async getFormSteps(): Promise<FormStep[]> {
