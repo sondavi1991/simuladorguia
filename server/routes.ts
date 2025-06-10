@@ -452,6 +452,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // WhatsApp contact route using attendant queue
+  app.post('/api/whatsapp/contact', async (req, res) => {
+    try {
+      const { planName, userName, userPhone } = req.body;
+      
+      // Get next attendant from queue
+      const nextAttendant = await storage.getNextWhatsappAttendant();
+      
+      if (!nextAttendant) {
+        return res.status(503).json({ 
+          error: "Nenhum atendente disponível no momento",
+          message: "Tente novamente mais tarde ou entre em contato pelo site."
+        });
+      }
+
+      // Format phone number for WhatsApp
+      const formatPhoneNumber = (phone: string) => {
+        const digits = phone.replace(/\D/g, '');
+        if (digits.startsWith('55')) {
+          return `+${digits}`;
+        } else if (digits.length >= 10) {
+          return `+55${digits}`;
+        }
+        return `+55${digits}`;
+      };
+
+      const attendantPhone = formatPhoneNumber(nextAttendant.phoneNumber);
+      
+      // Create WhatsApp message
+      const message = `Olá! Sou ${userName || 'um cliente'} e estou interessado(a) no plano *${planName}* recomendado pelo simulador de planos de saúde.${userPhone ? `\n\nMeu telefone: ${userPhone}` : ''}\n\nGostaria de mais informações e ajuda para contratar.`;
+      
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/${attendantPhone.replace('+', '')}?text=${encodedMessage}`;
+      
+      res.json({
+        success: true,
+        whatsappUrl,
+        attendant: {
+          name: nextAttendant.name,
+          phone: attendantPhone
+        },
+        message: `Você será direcionado para o WhatsApp do atendente ${nextAttendant.name}`
+      });
+
+    } catch (error: any) {
+      console.error("Error processing WhatsApp contact:", error);
+      res.status(500).json({ 
+        error: "Erro interno do servidor",
+        message: "Tente novamente mais tarde"
+      });
+    }
+  });
+
   // Admin users management routes
   app.get('/api/admin-users', requireAuth, async (req, res) => {
     try {

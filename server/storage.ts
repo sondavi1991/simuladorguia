@@ -637,8 +637,14 @@ export class MemStorage implements IStorage {
   async getNextWhatsappAttendant(): Promise<WhatsappAttendant | undefined> {
     const activeAttendants = Array.from(this.whatsappAttendants.values())
       .filter(attendant => attendant.isActive)
-      .sort((a, b) => (a.priority || 0) - (b.priority || 0));
+      .sort((a, b) => (a.priority || 1) - (b.priority || 1));
     
+    if (activeAttendants.length === 0) {
+      return undefined;
+    }
+
+    // Simple round-robin: get the attendant with highest priority first,
+    // then cycle through them. For now, return the first available.
     return activeAttendants[0];
   }
 
