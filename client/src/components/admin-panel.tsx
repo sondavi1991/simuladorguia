@@ -506,6 +506,20 @@ export default function AdminPanel() {
                 )}
               </div>
             )}
+
+            {/* User Creation Form */}
+            {showUserForm && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+                  <h3 className="text-lg font-semibold mb-4">Criar Novo Usuário Administrativo</h3>
+                  <UserForm 
+                    onSave={(userData: { username: string; password: string; email?: string; firstName?: string; lastName?: string }) => createUserMutation.mutate(userData)}
+                    onCancel={() => setShowUserForm(false)}
+                    isLoading={createUserMutation.isPending}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </TabsContent>
 
@@ -518,6 +532,145 @@ export default function AdminPanel() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+// User Form Component
+interface UserFormProps {
+  onSave: (userData: { username: string; password: string; email?: string; firstName?: string; lastName?: string }) => void;
+  onCancel: () => void;
+  isLoading: boolean;
+}
+
+function UserForm({ onSave, onCancel, isLoading }: UserFormProps) {
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+    confirmPassword: "",
+    email: "",
+    firstName: "",
+    lastName: ""
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.username.trim()) {
+      newErrors.username = "Nome de usuário é obrigatório";
+    } else if (formData.username.length < 3) {
+      newErrors.username = "Nome de usuário deve ter pelo menos 3 caracteres";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Senha é obrigatória";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Senha deve ter pelo menos 6 caracteres";
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Senhas não coincidem";
+    }
+
+    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "E-mail inválido";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateForm()) {
+      const { confirmPassword, ...userData } = formData;
+      onSave(userData);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Label htmlFor="username">Nome de Usuário *</Label>
+        <Input
+          id="username"
+          value={formData.username}
+          onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+          className={errors.username ? "border-red-500" : ""}
+          placeholder="Digite o nome de usuário"
+        />
+        {errors.username && <p className="text-sm text-red-500 mt-1">{errors.username}</p>}
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="firstName">Nome</Label>
+          <Input
+            id="firstName"
+            value={formData.firstName}
+            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+            placeholder="Nome"
+          />
+        </div>
+        <div>
+          <Label htmlFor="lastName">Sobrenome</Label>
+          <Input
+            id="lastName"
+            value={formData.lastName}
+            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+            placeholder="Sobrenome"
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="email">E-mail</Label>
+        <Input
+          id="email"
+          type="email"
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          className={errors.email ? "border-red-500" : ""}
+          placeholder="usuario@email.com"
+        />
+        {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
+      </div>
+
+      <div>
+        <Label htmlFor="password">Senha *</Label>
+        <Input
+          id="password"
+          type="password"
+          value={formData.password}
+          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+          className={errors.password ? "border-red-500" : ""}
+          placeholder="Digite a senha"
+        />
+        {errors.password && <p className="text-sm text-red-500 mt-1">{errors.password}</p>}
+      </div>
+
+      <div>
+        <Label htmlFor="confirmPassword">Confirmar Senha *</Label>
+        <Input
+          id="confirmPassword"
+          type="password"
+          value={formData.confirmPassword}
+          onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+          className={errors.confirmPassword ? "border-red-500" : ""}
+          placeholder="Confirme a senha"
+        />
+        {errors.confirmPassword && <p className="text-sm text-red-500 mt-1">{errors.confirmPassword}</p>}
+      </div>
+
+      <div className="flex justify-end space-x-3 pt-4">
+        <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={isLoading} className="bg-gups-teal hover:bg-gups-teal/90">
+          {isLoading ? "Criando..." : "Criar Usuário"}
+        </Button>
+      </div>
+    </form>
   );
 }
 
