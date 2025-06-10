@@ -88,6 +88,13 @@ const COMPONENTS: ComponentType[] = [
     defaultProps: { label: 'Telefone', required: false, placeholder: '(11) 99999-9999' }
   },
   {
+    id: 'number',
+    name: 'Número',
+    icon: Type,
+    type: 'number',
+    defaultProps: { label: 'Número', required: false, placeholder: 'Digite um número' }
+  },
+  {
     id: 'radio',
     name: 'Escolha Única',
     icon: List,
@@ -657,7 +664,7 @@ function FieldPropertiesPanel({ field, onUpdate, onCancel }: FieldPropertiesPane
         )}
 
         {/* Placeholder */}
-        {(field.type === 'text' || field.type === 'email' || field.type === 'tel') && (
+        {(field.type === 'text' || field.type === 'email' || field.type === 'tel' || field.type === 'number') && (
           <div>
             <Label htmlFor="placeholder">Texto de Exemplo</Label>
             <Input

@@ -103,7 +103,7 @@ export const whatsappDistribution = pgTable("whatsapp_distribution", {
 // Types for form builder
 export type FormField = {
   id: string;
-  type: 'text' | 'radio' | 'checkbox' | 'select' | 'date' | 'tel' | 'email' | 'heading' | 'paragraph' | 'image';
+  type: 'text' | 'number' | 'radio' | 'checkbox' | 'select' | 'date' | 'tel' | 'email' | 'heading' | 'paragraph' | 'image';
   label: string;
   required: boolean;
   options?: string[];

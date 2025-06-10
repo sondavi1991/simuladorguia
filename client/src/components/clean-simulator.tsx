@@ -351,6 +351,7 @@ export default function CleanSimulator() {
       case 'text':
       case 'email':
       case 'tel':
+      case 'number':
         return (
           <div key={field.id} className="space-y-2">
             <Label htmlFor={field.id} className="text-sm font-medium text-secondary">
