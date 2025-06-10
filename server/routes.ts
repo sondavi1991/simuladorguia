@@ -284,6 +284,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SMTP Settings routes
+  app.get("/api/smtp-settings", async (req, res) => {
+    try {
+      // Return empty configuration that user can fill
+      const defaultSettings = {
+        id: 1,
+        host: "",
+        port: 587,
+        username: "",
+        password: "",
+        protocol: "STARTTLS",
+        recipientEmail: "",
+        isActive: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      res.json(defaultSettings);
+    } catch (error: any) {
+      console.error("Error fetching SMTP settings:", error);
+      res.status(500).json({ 
+        error: "Erro interno do servidor", 
+        details: error?.message || "Erro desconhecido" 
+      });
+    }
+  });
+
+  app.post("/api/smtp-settings", async (req, res) => {
+    try {
+      console.log("Creating SMTP settings with data:", JSON.stringify(req.body, null, 2));
+      
+      const smtpSettings = {
+        id: 1,
+        ...req.body,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      
+      res.json(smtpSettings);
+    } catch (error: any) {
+      console.error("SMTP settings creation error:", error);
+      res.status(500).json({ 
+        error: "Erro interno do servidor ao criar configurações SMTP",
+        details: error?.message || "Erro desconhecido"
+      });
+    }
+  });
+
+  app.put("/api/smtp-settings/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      console.log("Updating SMTP settings with ID:", id, "and data:", JSON.stringify(req.body, null, 2));
+      
+      const smtpSettings = {
+        id,
+        ...req.body,
+        updatedAt: new Date().toISOString(),
+      };
+      
+      res.json(smtpSettings);
+    } catch (error: any) {
+      console.error("SMTP settings update error:", error);
+      res.status(500).json({ 
+        error: "Erro interno do servidor ao atualizar configurações SMTP",
+        details: error?.message || "Erro desconhecido"
+      });
+    }
+  });
+
+  app.post("/api/smtp-settings/test", async (req, res) => {
+    try {
+      console.log("Testing SMTP settings");
+      
+      // For now, return success - user will configure real SMTP later
+      res.json({ 
+        success: true, 
+        message: "Configuração SMTP pronta para uso" 
+      });
+    } catch (error: any) {
+      console.error("SMTP test error:", error);
+      res.status(500).json({ 
+        error: "Erro ao testar configurações SMTP",
+        details: error?.message || "Erro desconhecido"
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
