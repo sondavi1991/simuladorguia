@@ -17,9 +17,11 @@ interface SmtpSettings {
   port: number;
   username: string;
   password: string;
-  protocol: string;
-  recipientEmail: string;
-  isActive: boolean;
+  fromEmail: string;
+  fromName: string;
+  protocol?: string;
+  recipientEmail?: string;
+  isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

@@ -75,11 +75,13 @@ export const smtpSettings = pgTable("smtp_settings", {
   port: integer("port").notNull().default(587),
   username: text("username").notNull(),
   password: text("password").notNull(),
-  protocol: text("protocol").notNull().default("STARTTLS"),
-  recipientEmail: text("recipient_email").notNull(),
+  fromEmail: text("from_email").notNull(),
+  fromName: text("from_name").notNull(),
+  protocol: text("protocol").default("STARTTLS"),
+  recipientEmail: text("recipient_email"),
   isActive: boolean("is_active").default(true),
-  createdAt: text("created_at").notNull().default(new Date().toISOString()),
-  updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const whatsappAttendants = pgTable("whatsapp_attendants", {
