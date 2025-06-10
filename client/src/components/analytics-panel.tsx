@@ -61,7 +61,39 @@ export default function AnalyticsPanel() {
     }
   });
 
-  // Filter submissions based on filters
+  // Export to Excel functionality
+  const handleExportExcel = async () => {
+    try {
+      const response = await fetch('/api/form-submissions/export');
+      if (!response.ok) {
+        throw new Error('Falha ao exportar dados');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `simulacoes-${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "Exportação concluída",
+        description: "Os dados foram exportados para Excel com sucesso.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro na exportação",
+        description: "Não foi possível exportar os dados para Excel.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Filter submissions based on filters - adapted for dynamic form data
   const filteredSubmissions = submissions.filter((submission) => {
     const submissionDate = new Date(submission.submittedAt);
     const startDate = filters.startDate ? new Date(filters.startDate) : null;
@@ -69,8 +101,11 @@ export default function AnalyticsPanel() {
 
     if (startDate && submissionDate < startDate) return false;
     if (endDate && submissionDate > endDate) return false;
-    if (filters.planType !== "all" && submission.planType !== filters.planType) return false;
-    if (filters.priceRange !== "all" && submission.priceRange !== filters.priceRange) return false;
+    
+    // For dynamic form data, check within formData object
+    const formData = submission.formData || {};
+    if (filters.planType !== "all" && formData.planType !== filters.planType) return false;
+    if (filters.priceRange !== "all" && formData.priceRange !== filters.priceRange) return false;
 
     return true;
   });
@@ -80,77 +115,25 @@ export default function AnalyticsPanel() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedSubmissions = filteredSubmissions.slice(startIndex, startIndex + itemsPerPage);
 
-  // Statistics
+  // Statistics - adapted for dynamic form data
   const totalSimulations = filteredSubmissions.length;
-  const uniqueUsers = new Set(filteredSubmissions.map(s => s.email)).size;
+  const uniqueUsers = new Set(filteredSubmissions.map(s => s.formData?.email || s.id)).size;
   const averageAge = filteredSubmissions.length > 0 
     ? Math.round(filteredSubmissions.reduce((sum, s) => {
-        const age = new Date().getFullYear() - new Date(s.birthDate).getFullYear();
-        return sum + age;
+        const birthDate = s.formData?.birthDate || s.formData?.['data-nascimento'];
+        if (birthDate) {
+          const age = new Date().getFullYear() - new Date(birthDate).getFullYear();
+          return sum + age;
+        }
+        return sum;
       }, 0) / filteredSubmissions.length)
     : 0;
 
   const planTypeStats = filteredSubmissions.reduce((acc, submission) => {
-    acc[submission.planType] = (acc[submission.planType] || 0) + 1;
+    const planType = submission.formData?.planType || submission.formData?.['tipo-plano'] || 'Não informado';
+    acc[planType] = (acc[planType] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
-
-  const handleExportExcel = () => {
-    if (filteredSubmissions.length === 0) {
-      toast({
-        title: "Nenhum dado para exportar",
-        description: "Não há simulações para exportar com os filtros aplicados.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Create CSV content
-    const headers = [
-      "Nome",
-      "Email", 
-      "Telefone",
-      "Data de Nascimento",
-      "CEP",
-      "Tipo de Plano",
-      "Faixa de Preço",
-      "Serviços",
-      "Dependentes",
-      "Data da Simulação"
-    ];
-
-    const csvContent = [
-      headers.join(","),
-      ...filteredSubmissions.map(submission => [
-        `"${submission.name}"`,
-        `"${submission.email}"`,
-        `"${submission.phone}"`,
-        `"${submission.birthDate}"`,
-        `"${submission.zipCode}"`,
-        `"${submission.planType}"`,
-        `"${submission.priceRange}"`,
-        `"${submission.services?.join("; ") || ""}"`,
-        `"${submission.dependents?.map(d => d.name).join("; ") || ""}"`,
-        `"${new Date(submission.submittedAt).toLocaleDateString("pt-BR")}"`
-      ].join(","))
-    ].join("\n");
-
-    // Download file
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `simulacoes_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    toast({
-      title: "Exportação concluída",
-      description: "Os dados foram exportados com sucesso.",
-    });
-  };
 
   const handleDeleteSubmission = (id: number) => {
     deleteSubmissionMutation.mutate(id);

@@ -738,38 +738,8 @@ export class PostgreSQLStorage implements IStorage {
   }
 
   async createFormSubmission(insertSubmission: InsertFormSubmission): Promise<FormSubmission> {
-    // Format arrays correctly for PostgreSQL
-    const services = Array.isArray(insertSubmission.services) ? insertSubmission.services : 
-                    (typeof insertSubmission.services === 'string' ? JSON.parse(insertSubmission.services) : insertSubmission.services || []);
-    
-    const dependents = Array.isArray(insertSubmission.dependents) ? insertSubmission.dependents :
-                      (typeof insertSubmission.dependents === 'string' ? JSON.parse(insertSubmission.dependents) : insertSubmission.dependents || []);
-    
-    // Build the services array string manually for PostgreSQL
-    const servicesString = services.length > 0 ? `{${services.map(s => `"${s}"`).join(',')}}` : '{}';
-    
-    // Use raw SQL with proper array formatting
-    const query = `
-      INSERT INTO form_submissions 
-      (name, email, phone, birth_date, zip_code, plan_type, price_range, services, dependents, submitted_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8::text[], $9::jsonb, $10)
-      RETURNING *
-    `;
-    
-    const result = await this.client.query(query, [
-      insertSubmission.name,
-      insertSubmission.email,
-      insertSubmission.phone,
-      insertSubmission.birthDate,
-      insertSubmission.zipCode,
-      insertSubmission.planType,
-      insertSubmission.priceRange,
-      servicesString,
-      JSON.stringify(dependents),
-      insertSubmission.submittedAt
-    ]);
-    
-    return result.rows[0];
+    const result = await this.db.insert(formSubmissions).values(insertSubmission).returning();
+    return result[0];
   }
 
   async getFormSubmissions(): Promise<FormSubmission[]> {

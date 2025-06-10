@@ -102,20 +102,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Form submission routes
+  // Form submission routes - now dynamic
   app.post("/api/form-submissions", async (req, res) => {
     try {
-      // Ensure arrays are properly formatted for PostgreSQL
-      const processedBody = {
-        ...req.body,
-        services: Array.isArray(req.body.services) ? req.body.services : 
-                  (typeof req.body.services === 'string' ? JSON.parse(req.body.services) : req.body.services || []),
-        dependents: Array.isArray(req.body.dependents) ? req.body.dependents :
-                    (typeof req.body.dependents === 'string' ? JSON.parse(req.body.dependents) : req.body.dependents || []),
-        submittedAt: new Date().toISOString()
+      const submissionData = {
+        formData: req.body, // Store all form data dynamically
+        userAgent: req.headers['user-agent'] || null,
+        ipAddress: req.ip || req.connection.remoteAddress || null,
+        sessionId: req.sessionID || null
       };
       
-      const validatedData = insertFormSubmissionSchema.parse(processedBody);
+      const validatedData = insertFormSubmissionSchema.parse(submissionData);
       const submission = await storage.createFormSubmission(validatedData);
       res.json(submission);
     } catch (error) {
@@ -130,6 +127,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(submissions);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch form submissions" });
+    }
+  });
+
+  // Export form submissions to Excel
+  app.get("/api/form-submissions/export", async (req, res) => {
+    try {
+      const XLSX = require('xlsx');
+      const submissions = await storage.getFormSubmissions();
+      
+      if (submissions.length === 0) {
+        return res.status(404).json({ error: "Nenhuma simulação encontrada para exportar" });
+      }
+
+      // Get all unique keys from all form submissions to create comprehensive headers
+      const allKeys = new Set<string>();
+      submissions.forEach(submission => {
+        if (submission.formData && typeof submission.formData === 'object') {
+          Object.keys(submission.formData).forEach(key => allKeys.add(key));
+        }
+      });
+
+      // Convert submissions to Excel format
+      const excelData = submissions.map(submission => {
+        const row: any = {
+          'ID': submission.id,
+          'Data de Submissão': submission.submittedAt ? new Date(submission.submittedAt).toLocaleString('pt-BR') : '',
+          'User Agent': submission.userAgent || '',
+          'IP Address': submission.ipAddress || '',
+          'Session ID': submission.sessionId || ''
+        };
+
+        // Add all form data fields
+        if (submission.formData && typeof submission.formData === 'object') {
+          Object.keys(submission.formData).forEach(key => {
+            const value = submission.formData[key];
+            if (Array.isArray(value)) {
+              row[key] = value.join(', ');
+            } else if (typeof value === 'object' && value !== null) {
+              row[key] = JSON.stringify(value);
+            } else {
+              row[key] = value;
+            }
+          });
+        }
+
+        return row;
+      });
+
+      // Create workbook and worksheet
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+      // Add the worksheet to the workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Simulações');
+
+      // Generate Excel file buffer
+      const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+      // Set response headers for file download
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename=simulacoes-${new Date().toISOString().split('T')[0]}.xlsx`);
+      
+      res.send(excelBuffer);
+    } catch (error) {
+      console.error("Error exporting form submissions:", error);
+      res.status(500).json({ error: "Erro ao exportar simulações" });
     }
   });
 
