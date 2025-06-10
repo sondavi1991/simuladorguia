@@ -262,7 +262,7 @@ export default function AdminPanel() {
                               </h4>
                               <div className="flex flex-wrap gap-2">
                                 {step.fields?.map((field, index) => (
-                                  <Badge key={index} variant="secondary" className="text-xs">
+                                  <Badge key={index} className="text-xs bg-[#f5f5f5] text-gray-700 hover:bg-gray-200">
                                     {field.label} ({field.type})
                                   </Badge>
                                 )) || <span className="text-sm text-gray-500">Nenhum campo</span>}
@@ -275,7 +275,7 @@ export default function AdminPanel() {
                                 </h4>
                                 <div className="flex flex-wrap gap-2">
                                   {step.navigationRules.map((rule, index) => (
-                                    <Badge key={index} variant="outline" className="text-xs">
+                                    <Badge key={index} className="text-xs text-[#ffffff] bg-[#4775cc]">
                                       {rule.condition.field} → Passo {rule.target.stepNumber || 'Final'}
                                     </Badge>
                                   ))}
