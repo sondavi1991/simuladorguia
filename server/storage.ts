@@ -61,17 +61,17 @@ export interface IStorage {
   deleteHealthPlan(id: number): Promise<boolean>;
   getRecommendedPlans(priceRange: string, services: string[]): Promise<HealthPlan[]>;
   
-  // SMTP settings methods (placeholder for future implementation)
-  getSmtpSettings?(): Promise<any>;
-  createSmtpSettings?(settings: any): Promise<any>;
-  updateSmtpSettings?(id: number, settings: any): Promise<any>;
+  // SMTP settings methods
+  getSmtpSettings(): Promise<SmtpSettings[]>;
+  createSmtpSettings(settings: InsertSmtpSettings): Promise<SmtpSettings>;
+  updateSmtpSettings(id: number, settings: Partial<InsertSmtpSettings>): Promise<SmtpSettings | undefined>;
   
-  // WhatsApp attendant methods (placeholder for future implementation)
-  getWhatsappAttendants?(): Promise<any[]>;
-  createWhatsappAttendant?(attendant: any): Promise<any>;
-  updateWhatsappAttendant?(id: number, attendant: any): Promise<any>;
-  deleteWhatsappAttendant?(id: number): Promise<boolean>;
-  getNextWhatsappAttendant?(): Promise<any>;
+  // WhatsApp attendant methods
+  getWhatsappAttendants(): Promise<WhatsappAttendant[]>;
+  createWhatsappAttendant(attendant: InsertWhatsappAttendant): Promise<WhatsappAttendant>;
+  updateWhatsappAttendant(id: number, attendant: Partial<InsertWhatsappAttendant>): Promise<WhatsappAttendant | undefined>;
+  deleteWhatsappAttendant(id: number): Promise<boolean>;
+  getNextWhatsappAttendant(): Promise<WhatsappAttendant | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -567,6 +567,75 @@ export class MemStorage implements IStorage {
     });
   }
 
+  // SMTP Settings methods
+  async getSmtpSettings(): Promise<SmtpSettings[]> {
+    return Array.from(this.smtpSettings.values());
+  }
+
+  async createSmtpSettings(insertSettings: InsertSmtpSettings): Promise<SmtpSettings> {
+    const settings: SmtpSettings = {
+      id: this.currentSmtpId++,
+      ...insertSettings,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    this.smtpSettings.set(settings.id, settings);
+    return settings;
+  }
+
+  async updateSmtpSettings(id: number, updateData: Partial<InsertSmtpSettings>): Promise<SmtpSettings | undefined> {
+    const existing = this.smtpSettings.get(id);
+    if (!existing) return undefined;
+
+    const updated: SmtpSettings = {
+      ...existing,
+      ...updateData,
+      updatedAt: new Date().toISOString()
+    };
+    this.smtpSettings.set(id, updated);
+    return updated;
+  }
+
+  // WhatsApp Attendant methods
+  async getWhatsappAttendants(): Promise<WhatsappAttendant[]> {
+    return Array.from(this.whatsappAttendants.values());
+  }
+
+  async createWhatsappAttendant(insertAttendant: InsertWhatsappAttendant): Promise<WhatsappAttendant> {
+    const attendant: WhatsappAttendant = {
+      id: this.currentWhatsappId++,
+      ...insertAttendant,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    this.whatsappAttendants.set(attendant.id, attendant);
+    return attendant;
+  }
+
+  async updateWhatsappAttendant(id: number, updateData: Partial<InsertWhatsappAttendant>): Promise<WhatsappAttendant | undefined> {
+    const existing = this.whatsappAttendants.get(id);
+    if (!existing) return undefined;
+
+    const updated: WhatsappAttendant = {
+      ...existing,
+      ...updateData,
+      updatedAt: new Date().toISOString()
+    };
+    this.whatsappAttendants.set(id, updated);
+    return updated;
+  }
+
+  async deleteWhatsappAttendant(id: number): Promise<boolean> {
+    return this.whatsappAttendants.delete(id);
+  }
+
+  async getNextWhatsappAttendant(): Promise<WhatsappAttendant | undefined> {
+    const activeAttendants = Array.from(this.whatsappAttendants.values())
+      .filter(attendant => attendant.isActive)
+      .sort((a, b) => (a.priority || 0) - (b.priority || 0));
+    
+    return activeAttendants[0];
+  }
 
 }
 
