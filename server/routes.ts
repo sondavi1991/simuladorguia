@@ -9,6 +9,7 @@ import {
   insertWhatsappAttendantSchema,
   loginSchema
 } from "@shared/schema";
+import * as XLSX from "xlsx";
 
 interface AuthenticatedRequest extends Request {
   user?: any;
@@ -133,7 +134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Export form submissions to Excel
   app.get("/api/form-submissions/export", async (req, res) => {
     try {
-      const XLSX = require('xlsx');
+      const XLSX = eval('require')('xlsx');
       const submissions = await storage.getFormSubmissions();
       
       if (submissions.length === 0) {

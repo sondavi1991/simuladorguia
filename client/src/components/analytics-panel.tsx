@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Calendar, Download, Trash2, Filter, Users, TrendingUp, FileText, ChevronLeft, ChevronRight } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Calendar, Download, Trash2, Filter, Users, TrendingUp, FileText, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { FormSubmission } from "@shared/schema";
@@ -337,27 +338,99 @@ export default function AnalyticsPanel() {
                       {submission.ipAddress || 'N/A'}
                     </TableCell>
                     <TableCell>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Tem certeza que deseja excluir esta simulação? Esta ação não pode ser desfeita.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDeleteSubmission(submission.id)}>
-                              Excluir
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                      <div className="flex gap-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>Detalhes da Simulação #{submission.id}</DialogTitle>
+                              <DialogDescription>
+                                Visualização completa dos dados preenchidos
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                  <span className="font-medium text-gray-700">Data de Submissão:</span>
+                                  <p>{new Date(submission.submittedAt).toLocaleString("pt-BR")}</p>
+                                </div>
+                                <div>
+                                  <span className="font-medium text-gray-700">Endereço IP:</span>
+                                  <p>{submission.ipAddress || 'N/A'}</p>
+                                </div>
+                                <div>
+                                  <span className="font-medium text-gray-700">User Agent:</span>
+                                  <p className="text-xs break-all">{submission.userAgent || 'N/A'}</p>
+                                </div>
+                                <div>
+                                  <span className="font-medium text-gray-700">Session ID:</span>
+                                  <p className="text-xs break-all">{submission.sessionId || 'N/A'}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="border-t pt-4">
+                                <h4 className="font-medium text-gray-900 mb-3">Dados do Formulário</h4>
+                                <div className="space-y-3">
+                                  {submission.formData && typeof submission.formData === 'object' ? 
+                                    Object.entries(submission.formData).map(([key, value]) => (
+                                      <div key={key} className="bg-gray-50 p-3 rounded-lg">
+                                        <span className="font-medium text-gray-700 capitalize">
+                                          {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:
+                                        </span>
+                                        <div className="mt-1">
+                                          {Array.isArray(value) ? (
+                                            <div className="flex flex-wrap gap-1">
+                                              {value.map((item, index) => (
+                                                <Badge key={index} variant="secondary" className="text-xs">
+                                                  {typeof item === 'object' ? JSON.stringify(item) : String(item)}
+                                                </Badge>
+                                              ))}
+                                            </div>
+                                          ) : typeof value === 'object' && value !== null ? (
+                                            <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto">
+                                              {JSON.stringify(value, null, 2)}
+                                            </pre>
+                                          ) : (
+                                            <p className="text-gray-900">{String(value)}</p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    )) : (
+                                      <p className="text-gray-500 italic">Nenhum dado de formulário disponível</p>
+                                    )
+                                  }
+                                </div>
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja excluir esta simulação? Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteSubmission(submission.id)}>
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
