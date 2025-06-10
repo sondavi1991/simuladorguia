@@ -617,12 +617,46 @@ export default function CleanSimulator() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white relative">
+      {/* Loading Overlay */}
+      {gameState.isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-sm mx-4 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <h3 className="text-lg font-semibold text-secondary mb-2">
+              {gameState.loadingMessage}
+            </h3>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-primary h-2 rounded-full transition-all duration-500" 
+                style={{ width: `${gameState.progress}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-600 mt-2">
+              {gameState.progress}% concluído
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-white border-b border-gray-custom">
         <div className="max-w-4xl mx-auto px-6 py-6">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-between">
             <img src={guiaUnicoLogo} alt="Guia Único" className="h-16 w-auto" />
+            
+            {/* Progress Indicator */}
+            <div className="flex items-center space-x-4">
+              <div className="text-sm text-gray-600">
+                Etapa {navigationState.currentStep} de {formSteps.length}
+              </div>
+              <div className="w-32 bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-primary h-2 rounded-full transition-all duration-300" 
+                  style={{ width: `${gameState.progress}%` }}
+                ></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -638,6 +672,18 @@ export default function CleanSimulator() {
           </p>
         </div>
 
+        {/* Step Title */}
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-semibold text-secondary mb-2">
+            {currentStepData.title}
+          </h2>
+          {currentStepData.description && (
+            <p className="text-gray-600">
+              {currentStepData.description}
+            </p>
+          )}
+        </div>
+
         {/* Form Step */}
         <Card className="border-gray-custom shadow-lg">
           <CardContent className="p-8">
@@ -647,10 +693,10 @@ export default function CleanSimulator() {
               <div className="flex justify-end pt-6">
                 <Button
                   onClick={handleNext}
-                  disabled={submitFormMutation.isPending}
+                  disabled={submitFormMutation.isPending || gameState.isLoading}
                   className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg"
                 >
-                  {submitFormMutation.isPending ? "Processando..." : "Continuar"}
+                  {submitFormMutation.isPending || gameState.isLoading ? "Processando..." : "Continuar"}
                 </Button>
               </div>
             </div>
