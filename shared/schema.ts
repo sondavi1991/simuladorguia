@@ -71,6 +71,7 @@ export const healthPlans = pgTable("health_plans", {
   coverage: text("coverage").notNull(),
   isRecommended: boolean("is_recommended").default(false),
   targetPriceRange: text("target_price_range").notNull(),
+  logoUrl: text("logo_url"),
 });
 
 export const smtpSettings = pgTable("smtp_settings", {
@@ -84,6 +85,24 @@ export const smtpSettings = pgTable("smtp_settings", {
   isActive: boolean("is_active").default(true),
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
   updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
+});
+
+export const whatsappAttendants = pgTable("whatsapp_attendants", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  phoneNumber: text("phone_number").notNull(),
+  isActive: boolean("is_active").default(true),
+  priority: integer("priority").default(1), // Lower number = higher priority
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+  updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
+});
+
+export const whatsappDistribution = pgTable("whatsapp_distribution", {
+  id: serial("id").primaryKey(),
+  attendantId: integer("attendant_id").references(() => whatsappAttendants.id),
+  submissionId: integer("submission_id").references(() => formSubmissions.id),
+  planId: integer("plan_id").references(() => healthPlans.id),
+  distributedAt: text("distributed_at").notNull().default(new Date().toISOString()),
 });
 
 // Types for form builder
@@ -164,6 +183,17 @@ export const insertSmtpSettingsSchema = createInsertSchema(smtpSettings).omit({
   updatedAt: true,
 });
 
+export const insertWhatsappAttendantSchema = createInsertSchema(whatsappAttendants).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertWhatsappDistributionSchema = createInsertSchema(whatsappDistribution).omit({
+  id: true,
+  distributedAt: true,
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
@@ -185,6 +215,8 @@ export type InsertFormStep = z.infer<typeof insertFormStepSchema>;
 export type InsertStepNavigation = z.infer<typeof insertStepNavigationSchema>;
 export type InsertHealthPlan = z.infer<typeof insertHealthPlanSchema>;
 export type InsertSmtpSettings = z.infer<typeof insertSmtpSettingsSchema>;
+export type InsertWhatsappAttendant = z.infer<typeof insertWhatsappAttendantSchema>;
+export type InsertWhatsappDistribution = z.infer<typeof insertWhatsappDistributionSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertSession = z.infer<typeof insertSessionSchema>;
 export type LoginData = z.infer<typeof loginSchema>;
@@ -194,5 +226,7 @@ export type FormStep = typeof formSteps.$inferSelect;
 export type StepNavigationRecord = typeof stepNavigations.$inferSelect;
 export type HealthPlan = typeof healthPlans.$inferSelect;
 export type SmtpSettings = typeof smtpSettings.$inferSelect;
+export type WhatsappAttendant = typeof whatsappAttendants.$inferSelect;
+export type WhatsappDistribution = typeof whatsappDistribution.$inferSelect;
 export type User = typeof users.$inferSelect;
 export type Session = typeof sessions.$inferSelect;

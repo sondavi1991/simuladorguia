@@ -17,10 +17,12 @@ import {
   Trash2, 
   Edit,
   Mail,
+  MessageCircle,
   GripHorizontal as Grip
 } from "lucide-react";
 import FormBuilder from "./form-builder";
 import SmtpPanel from "./smtp-panel";
+import WhatsappPanel from "./whatsapp-panel";
 import type { FormSubmission, HealthPlan, FormStep } from "@shared/schema";
 
 export default function AdminPanel() {
@@ -131,7 +133,7 @@ export default function AdminPanel() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="form-builder" className="flex items-center space-x-2">
             <Settings className="w-4 h-4" />
             <span>Construtor de Formulário</span>
@@ -143,6 +145,10 @@ export default function AdminPanel() {
           <TabsTrigger value="plans" className="flex items-center space-x-2">
             <FileText className="w-4 h-4" />
             <span>Gerenciar Planos</span>
+          </TabsTrigger>
+          <TabsTrigger value="whatsapp" className="flex items-center space-x-2">
+            <MessageCircle className="w-4 h-4" />
+            <span>Atendimento</span>
           </TabsTrigger>
           <TabsTrigger value="smtp" className="flex items-center space-x-2">
             <Mail className="w-4 h-4" />
@@ -432,6 +438,10 @@ export default function AdminPanel() {
               ))
             )}
           </div>
+        </TabsContent>
+
+        <TabsContent value="whatsapp" className="space-y-6">
+          <WhatsappPanel />
         </TabsContent>
 
         <TabsContent value="smtp" className="space-y-6">
