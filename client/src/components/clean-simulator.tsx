@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { MessageCircle, ExternalLink } from "lucide-react";
+import { MessageCircle, ExternalLink, Star, Trophy, Target, Zap } from "lucide-react";
 import type { FormStep, HealthPlan, FormField, StepNavigation } from "@shared/schema";
 import guiaUnicoLogo from "@assets/logo-guia-unico-scaled_1749516567711.png";
 
@@ -20,6 +20,14 @@ interface NavigationState {
   completedSteps: number[];
   recommendations: HealthPlan[];
   isComplete: boolean;
+}
+
+interface GameificationState {
+  isLoading: boolean;
+  loadingMessage: string;
+  progress: number;
+  showMotivation: boolean;
+  stepsSinceLastMotivation: number;
 }
 
 export default function CleanSimulator() {
@@ -33,6 +41,31 @@ export default function CleanSimulator() {
     isComplete: false
   });
 
+  const [gameState, setGameState] = useState<GameificationState>({
+    isLoading: false,
+    loadingMessage: "",
+    progress: 0,
+    showMotivation: false,
+    stepsSinceLastMotivation: 0
+  });
+
+  // Mensagens motivacionais estratégicas
+  const motivationalMessages = [
+    { text: "Ótimo! Você está indo muito bem!", icon: Star, color: "text-yellow-500" },
+    { text: "Quase lá! Seu plano ideal está sendo calculado...", icon: Target, color: "text-blue-500" },
+    { text: "Excelente progresso! Continue assim!", icon: Trophy, color: "text-amber-500" },
+    { text: "Você está quase terminando! Falta pouco!", icon: Zap, color: "text-purple-500" }
+  ];
+
+  const loadingMessages = [
+    "Analisando suas preferências...",
+    "Calculando o melhor plano para você...",
+    "Comparando coberturas disponíveis...",
+    "Encontrando as melhores opções...",
+    "Preparando suas recomendações...",
+    "Finalizando sua análise personalizada..."
+  ];
+
   // Fetch form steps
   const { data: formSteps = [], isLoading: stepsLoading } = useQuery<FormStep[]>({
     queryKey: ["/api/form-steps"],
@@ -42,6 +75,63 @@ export default function CleanSimulator() {
   const { data: healthPlans = [], isLoading: plansLoading } = useQuery<HealthPlan[]>({
     queryKey: ["/api/health-plans"],
   });
+
+  // Determina se deve mostrar motivação (a cada 2-3 steps, com variação)
+  const shouldShowMotivation = (currentStep: number, completed: number[]) => {
+    if (completed.length < 2) return false; // Não mostrar muito cedo
+    if (gameState.stepsSinceLastMotivation < 2) return false; // Não muito frequente
+    
+    // Mostrar em momentos estratégicos (meio do formulário, quase no final)
+    const totalSteps = formSteps.length;
+    const isMiddle = currentStep >= Math.floor(totalSteps / 2) && currentStep < totalSteps - 1;
+    const isNearEnd = currentStep === totalSteps - 1;
+    
+    return (isMiddle && Math.random() > 0.4) || (isNearEnd && Math.random() > 0.2);
+  };
+
+  // Calcula progresso baseado nos steps completados
+  const calculateProgress = () => {
+    if (formSteps.length === 0) return 0;
+    return Math.round((navigationState.completedSteps.length / formSteps.length) * 100);
+  };
+
+  // Efeito para atualizar progresso
+  useEffect(() => {
+    const newProgress = calculateProgress();
+    setGameState(prev => ({ ...prev, progress: newProgress }));
+  }, [navigationState.completedSteps, formSteps.length]);
+
+  // Função para mostrar loading animado com mensagens
+  const showLoadingWithMessage = (duration: number = 2000) => {
+    const randomMessage = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+    
+    setGameState(prev => ({
+      ...prev,
+      isLoading: true,
+      loadingMessage: randomMessage
+    }));
+
+    setTimeout(() => {
+      setGameState(prev => ({ ...prev, isLoading: false, loadingMessage: "" }));
+    }, duration);
+  };
+
+  // Função para mostrar motivação estratégica
+  const showMotivationalMessage = () => {
+    const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
+    
+    toast({
+      title: randomMessage.text,
+      description: "Continue assim! Você está no caminho certo.",
+      duration: 3000,
+    });
+
+    setGameState(prev => ({
+      ...prev,
+      stepsSinceLastMotivation: 0,
+      showMotivation: false
+    }));
+  };
 
   // Submit form mutation
   const submitFormMutation = useMutation({
@@ -119,52 +209,69 @@ export default function CleanSimulator() {
   };
 
   const processNavigation = (stepData: FormStep, formData: Record<string, any>) => {
-    if (!stepData.navigationRules || stepData.navigationRules.length === 0) {
-      const nextStep = formSteps
-        .filter((step: FormStep) => step.stepNumber > navigationState.currentStep)
-        .sort((a: FormStep, b: FormStep) => a.stepNumber - b.stepNumber)[0];
-      
-      if (nextStep) {
-        setNavigationState(prev => ({
-          ...prev,
-          currentStep: nextStep.stepNumber,
-          completedSteps: [...prev.completedSteps, prev.currentStep]
-        }));
-      } else {
-        completeForm(stepData, formData);
-      }
-      return;
-    }
+    // Mostrar loading para criar experiência envolvente
+    const isLastStep = navigationState.currentStep === formSteps.length;
+    const loadingDuration = isLastStep ? 3000 : 1500; // Mais tempo no último step
+    
+    showLoadingWithMessage(loadingDuration);
 
-    const applicableRule = stepData.navigationRules
-      .sort((a, b) => (b.priority || 0) - (a.priority || 0))
-      .find(rule => evaluateCondition(rule, formData));
+    // Incrementar contador de steps e verificar se deve mostrar motivação
+    const newStepsSinceMotivation = gameState.stepsSinceLastMotivation + 1;
+    setGameState(prev => ({ ...prev, stepsSinceLastMotivation: newStepsSinceMotivation }));
 
-    if (applicableRule) {
-      if (applicableRule.target.type === 'step' && applicableRule.target.stepNumber) {
-        setNavigationState(prev => ({
-          ...prev,
-          currentStep: applicableRule.target.stepNumber!,
-          completedSteps: [...prev.completedSteps, prev.currentStep]
-        }));
-      } else if (applicableRule.target.type === 'end') {
-        completeForm(stepData, formData);
+    setTimeout(() => {
+      // Verificar se deve mostrar mensagem motivacional
+      if (shouldShowMotivation(navigationState.currentStep, navigationState.completedSteps)) {
+        setTimeout(() => showMotivationalMessage(), 500); // Pequeno delay após o loading
       }
-    } else {
-      const nextStep = formSteps
-        .filter((step: FormStep) => step.stepNumber > navigationState.currentStep)
-        .sort((a: FormStep, b: FormStep) => a.stepNumber - b.stepNumber)[0];
-      
-      if (nextStep) {
-        setNavigationState(prev => ({
-          ...prev,
-          currentStep: nextStep.stepNumber,
-          completedSteps: [...prev.completedSteps, prev.currentStep]
-        }));
+
+      if (!stepData.navigationRules || stepData.navigationRules.length === 0) {
+        const nextStep = formSteps
+          .filter((step: FormStep) => step.stepNumber > navigationState.currentStep)
+          .sort((a: FormStep, b: FormStep) => a.stepNumber - b.stepNumber)[0];
+        
+        if (nextStep) {
+          setNavigationState(prev => ({
+            ...prev,
+            currentStep: nextStep.stepNumber,
+            completedSteps: [...prev.completedSteps, prev.currentStep]
+          }));
+        } else {
+          completeForm(stepData, formData);
+        }
+        return;
+      }
+
+      const applicableRule = stepData.navigationRules
+        .sort((a, b) => (b.priority || 0) - (a.priority || 0))
+        .find(rule => evaluateCondition(rule, formData));
+
+      if (applicableRule) {
+        if (applicableRule.target.type === 'step' && applicableRule.target.stepNumber) {
+          setNavigationState(prev => ({
+            ...prev,
+            currentStep: applicableRule.target.stepNumber!,
+            completedSteps: [...prev.completedSteps, prev.currentStep]
+          }));
+        } else if (applicableRule.target.type === 'end') {
+          completeForm(stepData, formData);
+        }
       } else {
-        completeForm(stepData, formData);
+        const nextStep = formSteps
+          .filter((step: FormStep) => step.stepNumber > navigationState.currentStep)
+          .sort((a: FormStep, b: FormStep) => a.stepNumber - b.stepNumber)[0];
+        
+        if (nextStep) {
+          setNavigationState(prev => ({
+            ...prev,
+            currentStep: nextStep.stepNumber,
+            completedSteps: [...prev.completedSteps, prev.currentStep]
+          }));
+        } else {
+          completeForm(stepData, formData);
+        }
       }
-    }
+    }, loadingDuration);
   };
 
   const completeForm = (stepData: FormStep, formData: Record<string, any>) => {
