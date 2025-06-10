@@ -60,17 +60,17 @@ export interface IStorage {
   deleteHealthPlan(id: number): Promise<boolean>;
   getRecommendedPlans(priceRange: string, services: string[]): Promise<HealthPlan[]>;
   
-  // SMTP settings methods
-  getSmtpSettings(): Promise<SmtpSettings | undefined>;
-  createSmtpSettings(settings: InsertSmtpSettings): Promise<SmtpSettings>;
-  updateSmtpSettings(id: number, settings: Partial<InsertSmtpSettings>): Promise<SmtpSettings | undefined>;
+  // SMTP settings methods (placeholder for future implementation)
+  getSmtpSettings?(): Promise<any>;
+  createSmtpSettings?(settings: any): Promise<any>;
+  updateSmtpSettings?(id: number, settings: any): Promise<any>;
   
-  // WhatsApp attendant methods
-  getWhatsappAttendants(): Promise<WhatsappAttendant[]>;
-  createWhatsappAttendant(attendant: InsertWhatsappAttendant): Promise<WhatsappAttendant>;
-  updateWhatsappAttendant(id: number, attendant: Partial<InsertWhatsappAttendant>): Promise<WhatsappAttendant | undefined>;
-  deleteWhatsappAttendant(id: number): Promise<boolean>;
-  getNextWhatsappAttendant(): Promise<WhatsappAttendant | undefined>;
+  // WhatsApp attendant methods (placeholder for future implementation)
+  getWhatsappAttendants?(): Promise<any[]>;
+  createWhatsappAttendant?(attendant: any): Promise<any>;
+  updateWhatsappAttendant?(id: number, attendant: any): Promise<any>;
+  deleteWhatsappAttendant?(id: number): Promise<boolean>;
+  getNextWhatsappAttendant?(): Promise<any>;
 }
 
 export class MemStorage implements IStorage {
@@ -80,11 +80,13 @@ export class MemStorage implements IStorage {
   private formSteps: Map<number, FormStep>;
   private healthPlans: Map<number, HealthPlan>;
   private smtpSettings: Map<number, SmtpSettings>;
+  private whatsappAttendants: Map<number, WhatsappAttendant>;
   private currentUserId: number;
   private currentSubmissionId: number;
   private currentStepId: number;
   private currentPlanId: number;
   private currentSmtpId: number;
+  private currentWhatsappId: number;
 
   constructor() {
     this.users = new Map();
@@ -92,10 +94,14 @@ export class MemStorage implements IStorage {
     this.formSubmissions = new Map();
     this.formSteps = new Map();
     this.healthPlans = new Map();
+    this.smtpSettings = new Map();
+    this.whatsappAttendants = new Map();
     this.currentUserId = 1;
     this.currentSubmissionId = 1;
     this.currentStepId = 1;
     this.currentPlanId = 1;
+    this.currentSmtpId = 1;
+    this.currentWhatsappId = 1;
     
     this.initializeDefaultData();
   }
@@ -149,8 +155,12 @@ export class MemStorage implements IStorage {
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentUserId++;
     const user: User = { 
-      ...insertUser, 
       id,
+      username: insertUser.username,
+      password: insertUser.password,
+      email: insertUser.email ?? null,
+      firstName: insertUser.firstName ?? null,
+      lastName: insertUser.lastName ?? null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -311,6 +321,74 @@ export class MemStorage implements IStorage {
       if (!a.isRecommended && b.isRecommended) return 1;
       return a.monthlyPrice - b.monthlyPrice;
     });
+  }
+
+  // SMTP settings methods
+  async getSmtpSettings(): Promise<SmtpSettings | undefined> {
+    const settings = Array.from(this.smtpSettings.values());
+    return settings[0]; // Return first SMTP settings
+  }
+
+  async createSmtpSettings(insertSettings: InsertSmtpSettings): Promise<SmtpSettings> {
+    const settings: SmtpSettings = { 
+      id: this.currentSmtpId++, 
+      ...insertSettings,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.smtpSettings.set(settings.id, settings);
+    return settings;
+  }
+
+  async updateSmtpSettings(id: number, updateData: Partial<InsertSmtpSettings>): Promise<SmtpSettings | undefined> {
+    const existing = this.smtpSettings.get(id);
+    if (!existing) return undefined;
+    
+    const updated: SmtpSettings = { 
+      ...existing, 
+      ...updateData, 
+      updatedAt: new Date()
+    };
+    this.smtpSettings.set(id, updated);
+    return updated;
+  }
+
+  // WhatsApp attendant methods
+  async getWhatsappAttendants(): Promise<WhatsappAttendant[]> {
+    return Array.from(this.whatsappAttendants.values());
+  }
+
+  async createWhatsappAttendant(insertAttendant: InsertWhatsappAttendant): Promise<WhatsappAttendant> {
+    const attendant: WhatsappAttendant = { 
+      id: this.currentWhatsappId++, 
+      ...insertAttendant,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.whatsappAttendants.set(attendant.id, attendant);
+    return attendant;
+  }
+
+  async updateWhatsappAttendant(id: number, updateData: Partial<InsertWhatsappAttendant>): Promise<WhatsappAttendant | undefined> {
+    const existing = this.whatsappAttendants.get(id);
+    if (!existing) return undefined;
+    
+    const updated: WhatsappAttendant = { 
+      ...existing, 
+      ...updateData, 
+      updatedAt: new Date()
+    };
+    this.whatsappAttendants.set(id, updated);
+    return updated;
+  }
+
+  async deleteWhatsappAttendant(id: number): Promise<boolean> {
+    return this.whatsappAttendants.delete(id);
+  }
+
+  async getNextWhatsappAttendant(): Promise<WhatsappAttendant | undefined> {
+    const attendants = Array.from(this.whatsappAttendants.values());
+    return attendants.find(a => a.isActive) || attendants[0];
   }
 }
 
