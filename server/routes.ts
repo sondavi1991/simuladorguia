@@ -589,13 +589,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Get all users and mark the current logged in user
       const currentUserId = req.user?.id;
+      console.log('Current user ID:', currentUserId);
+      
       const users = await storage.getAllUsers();
+      console.log('All users from database:', users.length, users.map(u => ({ id: u.id, username: u.username })));
       
       // Return users without password hash and mark current user
       const safeUsers = users.map(({ password, ...user }) => ({
         ...user,
         isCurrentUser: user.id === currentUserId
       }));
+      
+      console.log('Safe users to return:', safeUsers.length, safeUsers.map(u => ({ id: u.id, username: u.username, isCurrentUser: u.isCurrentUser })));
       res.json(safeUsers);
     } catch (error: any) {
       console.error("Error fetching admin users:", error);
