@@ -18,19 +18,22 @@ import {
   Edit,
   Mail,
   MessageCircle,
+  Users,
+  UserPlus,
   GripHorizontal as Grip
 } from "lucide-react";
 import FormBuilder from "./form-builder";
 import SmtpPanel from "./smtp-panel";
 import WhatsappPanel from "./whatsapp-panel";
 import AnalyticsPanel from "./analytics-panel";
-import type { FormSubmission, HealthPlan, FormStep } from "@shared/schema";
+import type { FormSubmission, HealthPlan, FormStep, User } from "@shared/schema";
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState("form-builder");
   const [editingPlan, setEditingPlan] = useState<HealthPlan | null>(null);
   const [editingStep, setEditingStep] = useState<FormStep | null>(null);
   const [showStepBuilder, setShowStepBuilder] = useState(false);
+  const [showUserForm, setShowUserForm] = useState(false);
   const { toast } = useToast();
 
   // Fetch form submissions
@@ -46,6 +49,11 @@ export default function AdminPanel() {
   // Fetch form steps
   const { data: formSteps = [], isLoading: stepsLoading } = useQuery<FormStep[]>({
     queryKey: ["/api/form-steps"],
+  });
+
+  // Fetch admin users
+  const { data: adminUsers = [], isLoading: usersLoading } = useQuery<User[]>({
+    queryKey: ["/api/admin-users"],
   });
 
   // Create/Update health plan mutation
@@ -118,6 +126,51 @@ export default function AdminPanel() {
     }
   });
 
+  // Create admin user mutation
+  const createUserMutation = useMutation({
+    mutationFn: async (userData: { username: string; password: string; email?: string; firstName?: string; lastName?: string }) => {
+      const response = await apiRequest("POST", "/api/admin-users", userData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin-users"] });
+      setShowUserForm(false);
+      toast({
+        title: "Sucesso!",
+        description: "Usuário administrativo criado com sucesso.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro",
+        description: "Falha ao criar usuário administrativo.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete admin user mutation
+  const deleteUserMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/admin-users/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin-users"] });
+      toast({
+        title: "Sucesso!",
+        description: "Usuário administrativo excluído com sucesso.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro",
+        description: "Falha ao excluir usuário administrativo.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSavePlan = (planData: Partial<HealthPlan>) => {
     planMutation.mutate({
       plan: planData,
@@ -134,7 +187,7 @@ export default function AdminPanel() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="form-builder" className="flex items-center space-x-2">
             <Settings className="w-4 h-4" />
             <span>Construtor de Formulário</span>
@@ -146,6 +199,10 @@ export default function AdminPanel() {
           <TabsTrigger value="plans" className="flex items-center space-x-2">
             <FileText className="w-4 h-4" />
             <span>Gerenciar Planos</span>
+          </TabsTrigger>
+          <TabsTrigger value="users" className="flex items-center space-x-2">
+            <Users className="w-4 h-4" />
+            <span>Usuários</span>
           </TabsTrigger>
           <TabsTrigger value="whatsapp" className="flex items-center space-x-2">
             <MessageCircle className="w-4 h-4" />
