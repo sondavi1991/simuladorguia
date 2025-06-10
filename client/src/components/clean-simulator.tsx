@@ -380,7 +380,7 @@ export default function CleanSimulator() {
               value={value}
               onChange={(e) => handleFieldChange(field.id, e.target.value)}
               required={field.required}
-              className="border-gray-custom focus:border-primary"
+              className="border-gray-custom focus:border-primary text-sm sm:text-base"
             />
           </div>
         );
@@ -392,12 +392,12 @@ export default function CleanSimulator() {
             <RadioGroup
               value={value}
               onValueChange={(newValue) => handleFieldChange(field.id, newValue)}
-              className="space-y-2"
+              className="space-y-2 sm:space-y-3"
             >
               {field.options?.map((option, index) => (
-                <div key={index} className="flex items-center space-x-2">
+                <div key={index} className="flex items-center space-x-2 sm:space-x-3">
                   <RadioGroupItem value={option} id={`${field.id}-${index}`} />
-                  <Label htmlFor={`${field.id}-${index}`} className="text-sm cursor-pointer">
+                  <Label htmlFor={`${field.id}-${index}`} className="text-sm sm:text-base cursor-pointer flex-1">
                     {option}
                   </Label>
                 </div>
@@ -411,9 +411,9 @@ export default function CleanSimulator() {
         return (
           <div key={field.id} className="space-y-3">
             <Label className="text-sm font-medium text-secondary">{field.label}</Label>
-            <div className="space-y-2">
+            <div className="space-y-2 sm:space-y-3">
               {field.options?.map((option, index) => (
-                <div key={index} className="flex items-center space-x-2">
+                <div key={index} className="flex items-center space-x-2 sm:space-x-3">
                   <Checkbox
                     id={`${field.id}-${index}`}
                     checked={selectedValues.includes(option)}
@@ -424,7 +424,7 @@ export default function CleanSimulator() {
                       handleFieldChange(field.id, newValues);
                     }}
                   />
-                  <Label htmlFor={`${field.id}-${index}`} className="text-sm cursor-pointer">
+                  <Label htmlFor={`${field.id}-${index}`} className="text-sm sm:text-base cursor-pointer flex-1">
                     {option}
                   </Label>
                 </div>
@@ -438,12 +438,12 @@ export default function CleanSimulator() {
           <div key={field.id} className="space-y-2">
             <Label className="text-sm font-medium text-secondary">{field.label}</Label>
             <Select value={value} onValueChange={(newValue) => handleFieldChange(field.id, newValue)}>
-              <SelectTrigger className="border-gray-custom focus:border-primary">
+              <SelectTrigger className="border-gray-custom focus:border-primary text-sm sm:text-base">
                 <SelectValue placeholder={field.placeholder || "Selecione uma opção"} />
               </SelectTrigger>
               <SelectContent>
                 {field.options?.map((option, index) => (
-                  <SelectItem key={index} value={option}>{option}</SelectItem>
+                  <SelectItem key={index} value={option} className="text-sm sm:text-base">{option}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -503,57 +503,57 @@ export default function CleanSimulator() {
       <div className="min-h-screen bg-white">
         {/* Header */}
         <div className="bg-white border-b border-gray-custom">
-          <div className="max-w-4xl mx-auto px-6 py-4">
-            <div className="flex items-center space-x-4">
-              <img src={guiaUnicoLogo} alt="Guia Único" className="h-12 w-auto" />
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <img src={guiaUnicoLogo} alt="Guia Único" className="h-8 sm:h-10 lg:h-12 w-auto" />
             </div>
           </div>
         </div>
 
         {/* Results */}
-        <div className="max-w-4xl mx-auto px-6 py-12">
-          <div className="text-center mb-12">
-            <h1 className="text-3xl font-bold text-secondary mb-4">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-12">
+          <div className="text-center mb-8 sm:mb-10 lg:mb-12">
+            <h1 className="text-2xl sm:text-3xl font-bold text-secondary mb-2 sm:mb-4">
               Seus Planos Recomendados
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-base sm:text-lg text-gray-600 px-2">
               Encontramos os melhores planos de saúde baseados no seu perfil
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
             {navigationState.recommendations.map((plan) => (
               <Card key={plan.id} className="border-gray-custom hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
+                    <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-0">
                       {plan.logoUrl && (
-                        <img src={plan.logoUrl} alt={plan.name} className="h-8 w-8 object-contain" />
+                        <img src={plan.logoUrl} alt={plan.name} className="h-6 w-6 sm:h-8 sm:w-8 object-contain flex-shrink-0" />
                       )}
-                      <h3 className="font-semibold text-lg text-secondary">{plan.name}</h3>
+                      <h3 className="font-semibold text-base sm:text-lg text-secondary">{plan.name}</h3>
                     </div>
                     {plan.isRecommended && (
-                      <span className="bg-primary text-white text-xs px-2 py-1 rounded-full">
+                      <span className="bg-primary text-white text-xs px-2 py-1 rounded-full self-start">
                         Recomendado
                       </span>
                     )}
                   </div>
                   
-                  <p className="text-gray-600 mb-4 text-sm">{plan.description}</p>
+                  <p className="text-gray-600 mb-3 sm:mb-4 text-xs sm:text-sm">{plan.description}</p>
                   
-                  <div className="text-2xl font-bold text-primary mb-4">
+                  <div className="text-xl sm:text-2xl font-bold text-primary mb-3 sm:mb-4">
                     R$ {plan.monthlyPrice}
-                    <span className="text-sm font-normal text-gray-500">/mês</span>
+                    <span className="text-xs sm:text-sm font-normal text-gray-500">/mês</span>
                   </div>
                   
-                  <div className="space-y-2 mb-6">
+                  <div className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
                     {plan.features?.slice(0, 3).map((feature, index) => (
-                      <div key={index} className="text-sm text-gray-600">
+                      <div key={index} className="text-xs sm:text-sm text-gray-600">
                         • {feature}
                       </div>
                     ))}
                     {plan.features && plan.features.length > 3 && (
-                      <div className="text-sm text-gray-400">
+                      <div className="text-xs sm:text-sm text-gray-400">
                         +{plan.features.length - 3} benefícios adicionais
                       </div>
                     )}
@@ -561,9 +561,9 @@ export default function CleanSimulator() {
                   
                   <Button
                     onClick={() => handleWhatsAppContact(plan)}
-                    className="w-full bg-primary hover:bg-primary/90 text-white"
+                    className="w-full bg-primary hover:bg-primary/90 text-white text-sm sm:text-base py-2 sm:py-3"
                   >
-                    <MessageCircle className="w-4 h-4 mr-2" />
+                    <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                     Contratar via WhatsApp
                   </Button>
                 </CardContent>
@@ -572,11 +572,11 @@ export default function CleanSimulator() {
           </div>
 
           {navigationState.recommendations.length === 0 && (
-            <div className="text-center py-12">
-              <h3 className="text-xl font-semibold text-secondary mb-4">
+            <div className="text-center py-8 sm:py-12 px-4">
+              <h3 className="text-lg sm:text-xl font-semibold text-secondary mb-3 sm:mb-4">
                 Nenhum plano encontrado
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 max-w-md mx-auto">
                 Não encontramos planos que correspondam exatamente ao seu perfil, 
                 mas nossos especialistas podem ajudá-lo a encontrar a melhor opção.
               </p>
@@ -592,9 +592,9 @@ export default function CleanSimulator() {
                   targetPriceRange: "",
                   logoUrl: null
                 })}
-                className="bg-primary hover:bg-primary/90 text-white"
+                className="bg-primary hover:bg-primary/90 text-white text-sm sm:text-base py-2 sm:py-3 px-4 sm:px-6"
               >
-                <MessageCircle className="w-4 h-4 mr-2" />
+                <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                 Falar com Especialista
               </Button>
             </div>

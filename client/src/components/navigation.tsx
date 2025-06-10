@@ -10,27 +10,27 @@ export default function Navigation() {
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between h-14 sm:h-16">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center">
               {/* Logo recreation based on uploaded image */}
-              <div className="relative w-12 h-12 mr-3">
-                <div className="absolute inset-0 border-4 border-gups-teal rounded-full border-t-transparent transform rotate-45"></div>
-                <div className="absolute inset-2 bg-gups-teal rounded-md flex items-center justify-center">
-                  <div className="w-3 h-3 bg-gups-red rounded-full flex items-center justify-center">
-                    <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <div className="relative w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 mr-2 sm:mr-3">
+                <div className="absolute inset-0 border-2 sm:border-3 lg:border-4 border-gups-teal rounded-full border-t-transparent transform rotate-45"></div>
+                <div className="absolute inset-1 sm:inset-2 bg-gups-teal rounded-md flex items-center justify-center">
+                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 lg:w-3 lg:h-3 bg-gups-red rounded-full flex items-center justify-center">
+                    <svg className="w-1 h-1 sm:w-1.5 sm:h-1.5 lg:w-2 lg:h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                     </svg>
                   </div>
                 </div>
               </div>
-              <div>
-                <div className="text-gups-teal font-bold text-xl leading-none">guia</div>
+              <div className="hidden sm:block">
+                <div className="text-gups-teal font-bold text-lg sm:text-xl leading-none">guia</div>
                 <div className="text-xs text-gray-600 -mt-1 leading-none">dos planos de saúde</div>
               </div>
             </Link>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             {isAuthenticated && (
               <Link href="/admin">
                 <Button 
