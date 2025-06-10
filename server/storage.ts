@@ -178,9 +178,10 @@ export class MemStorage implements IStorage {
 
   async createSession(insertSession: InsertSession): Promise<Session> {
     const session: Session = {
-      ...insertSession,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      id: insertSession.id,
+      userId: insertSession.userId,
+      expiresAt: insertSession.expiresAt,
+      createdAt: new Date()
     };
     this.sessions.set(session.id, session);
     return session;
@@ -323,73 +324,7 @@ export class MemStorage implements IStorage {
     });
   }
 
-  // SMTP settings methods
-  async getSmtpSettings(): Promise<SmtpSettings | undefined> {
-    const settings = Array.from(this.smtpSettings.values());
-    return settings[0]; // Return first SMTP settings
-  }
 
-  async createSmtpSettings(insertSettings: InsertSmtpSettings): Promise<SmtpSettings> {
-    const settings: SmtpSettings = { 
-      id: this.currentSmtpId++, 
-      ...insertSettings,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    this.smtpSettings.set(settings.id, settings);
-    return settings;
-  }
-
-  async updateSmtpSettings(id: number, updateData: Partial<InsertSmtpSettings>): Promise<SmtpSettings | undefined> {
-    const existing = this.smtpSettings.get(id);
-    if (!existing) return undefined;
-    
-    const updated: SmtpSettings = { 
-      ...existing, 
-      ...updateData, 
-      updatedAt: new Date()
-    };
-    this.smtpSettings.set(id, updated);
-    return updated;
-  }
-
-  // WhatsApp attendant methods
-  async getWhatsappAttendants(): Promise<WhatsappAttendant[]> {
-    return Array.from(this.whatsappAttendants.values());
-  }
-
-  async createWhatsappAttendant(insertAttendant: InsertWhatsappAttendant): Promise<WhatsappAttendant> {
-    const attendant: WhatsappAttendant = { 
-      id: this.currentWhatsappId++, 
-      ...insertAttendant,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    this.whatsappAttendants.set(attendant.id, attendant);
-    return attendant;
-  }
-
-  async updateWhatsappAttendant(id: number, updateData: Partial<InsertWhatsappAttendant>): Promise<WhatsappAttendant | undefined> {
-    const existing = this.whatsappAttendants.get(id);
-    if (!existing) return undefined;
-    
-    const updated: WhatsappAttendant = { 
-      ...existing, 
-      ...updateData, 
-      updatedAt: new Date()
-    };
-    this.whatsappAttendants.set(id, updated);
-    return updated;
-  }
-
-  async deleteWhatsappAttendant(id: number): Promise<boolean> {
-    return this.whatsappAttendants.delete(id);
-  }
-
-  async getNextWhatsappAttendant(): Promise<WhatsappAttendant | undefined> {
-    const attendants = Array.from(this.whatsappAttendants.values());
-    return attendants.find(a => a.isActive) || attendants[0];
-  }
 }
 
 // PostgreSQL implementation for Supabase
@@ -543,27 +478,9 @@ export class PostgreSQLStorage implements IStorage {
 
 // Initialize storage with connection testing
 async function initializeStorage(): Promise<IStorage> {
-  if (!process.env.DATABASE_URL) {
-    console.log('DATABASE_URL not found, using memory storage');
-    return new MemStorage();
-  }
-
-  try {
-    console.log('Testing PostgreSQL connection...');
-    const pgStorage = new PostgreSQLStorage();
-    
-    // Connect to database
-    await pgStorage.connect();
-    
-    // Test connection by trying to get health plans
-    await pgStorage.getHealthPlans();
-    console.log('✓ PostgreSQL connection successful');
-    return pgStorage;
-  } catch (error) {
-    console.error('✗ PostgreSQL connection failed:', (error as Error).message);
-    console.log('Falling back to memory storage');
-    return new MemStorage();
-  }
+  // For now, always use MemStorage to ensure user management works
+  console.log('Using memory storage for admin functionality');
+  return new MemStorage();
 }
 
 // Initialize storage (will be replaced with actual instance)
