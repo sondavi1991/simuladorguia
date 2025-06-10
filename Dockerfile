@@ -1,47 +1,60 @@
-# Use Node.js 20 LTS as base image
+# Multi-stage build for optimized production image
 FROM node:20-alpine AS base
 
-# Install dependencies only when needed
+# Install system dependencies
+RUN apk add --no-cache libc6-compat python3 make g++ curl
+
+WORKDIR /app
+
+# Dependencies stage
 FROM base AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat python3 make g++
-WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --frozen-lockfile
 
-# Install dependencies based on the preferred package manager
-COPY package.json package-lock.json* ./
-RUN npm ci
-
-# Rebuild the source code only when needed
+# Builder stage
 FROM base AS builder
-WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build the application
+# Create optimized build
+ENV NODE_ENV=production
 RUN npm run build
 
-# Production image, copy all the files and run the app
-FROM base AS runner
+# Production runtime stage
+FROM node:20-alpine AS runner
+
+# Install curl for healthcheck
+RUN apk add --no-cache curl
+
 WORKDIR /app
 
-ENV NODE_ENV=production
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 appuser
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 appuser
+# Copy built application
+COPY --from=builder --chown=appuser:nodejs /app/dist ./
+COPY --from=builder --chown=appuser:nodejs /app/package*.json ./
 
-# Copy the built application
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/package-lock.json ./package-lock.json
+# Install production dependencies only
+RUN npm ci --only=production --frozen-lockfile && \
+    npm cache clean --force && \
+    rm -rf /tmp/*
 
-# Install only production dependencies
-RUN npm ci --only=production && npm cache clean --force
-
+# Switch to non-root user
 USER appuser
 
+# Expose application port
 EXPOSE 5000
 
+# Environment variables
+ENV NODE_ENV=production
 ENV PORT=5000
 ENV HOST=0.0.0.0
 
-CMD ["npm", "start"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:5000/api/health || exit 1
+
+# Start application
+CMD ["node", "index.js"]

@@ -585,7 +585,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin users management routes
-  app.get('/api/admin-users', requireAuth, async (req, res) => {
+  app.get('/api/admin-users', requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       // Get all users except the current logged in user
       const currentUserId = req.user?.id;
@@ -678,10 +678,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin-users/:id', requireAuth, async (req, res) => {
+  app.delete('/api/admin-users/:id', requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const userId = parseInt(req.params.id);
-      const currentUserId = (req as AuthenticatedRequest).user?.id;
+      const currentUserId = req.user?.id;
 
       // Prevent user from deleting themselves
       if (userId === currentUserId) {
