@@ -363,7 +363,7 @@ export default function AnalyticsPanel() {
                         <Badge variant="outline">{submission.planType}</Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary">{submission.priceRange}</Badge>
+                        <Badge className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent text-secondary-foreground hover:bg-secondary/80 bg-[#aed4fc]">{submission.priceRange}</Badge>
                       </TableCell>
                       <TableCell>
                         {new Date(submission.submittedAt).toLocaleDateString("pt-BR")}

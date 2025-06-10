@@ -22,16 +22,11 @@ export const sessions = pgTable("sessions", {
 
 export const formSubmissions = pgTable("form_submissions", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull(),
-  phone: text("phone").notNull(),
-  birthDate: text("birth_date").notNull(),
-  zipCode: text("zip_code").notNull(),
-  planType: text("plan_type").notNull(),
-  priceRange: text("price_range").notNull(),
-  services: json("services").$type<string[]>().default([]),
-  dependents: json("dependents").$type<Dependent[]>().default([]),
-  submittedAt: text("submitted_at").notNull(),
+  formData: json("form_data").$type<Record<string, any>>().notNull(), // Dynamic form data
+  submittedAt: timestamp("submitted_at").defaultNow(),
+  userAgent: text("user_agent"),
+  ipAddress: text("ip_address"),
+  sessionId: text("session_id"),
 });
 
 export const formSteps = pgTable("form_steps", {
@@ -160,6 +155,7 @@ export type Dependent = {
 // Zod schemas
 export const insertFormSubmissionSchema = createInsertSchema(formSubmissions).omit({
   id: true,
+  submittedAt: true,
 });
 
 export const insertFormStepSchema = createInsertSchema(formSteps).omit({
