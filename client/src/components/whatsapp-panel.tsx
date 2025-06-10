@@ -22,6 +22,12 @@ export default function WhatsappPanel() {
     queryKey: ["/api/whatsapp-attendants"],
   });
 
+  // Fetch next attendant in queue
+  const { data: nextAttendant, isLoading: isLoadingNext } = useQuery<WhatsappAttendant>({
+    queryKey: ["/api/whatsapp-attendants/next"],
+    refetchInterval: 5000, // Atualiza a cada 5 segundos
+  });
+
   // Form state
   const [formData, setFormData] = useState<InsertWhatsappAttendant>({
     name: "",
@@ -44,6 +50,7 @@ export default function WhatsappPanel() {
         description: editingAttendant ? "Atendente atualizado com sucesso." : "Atendente adicionado com sucesso.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/whatsapp-attendants"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/whatsapp-attendants/next"] });
       resetForm();
     },
     onError: () => {
@@ -67,6 +74,7 @@ export default function WhatsappPanel() {
         description: "Atendente removido com sucesso.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/whatsapp-attendants"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/whatsapp-attendants/next"] });
     },
     onError: () => {
       toast({
@@ -187,10 +195,19 @@ export default function WhatsappPanel() {
               <div>
                 <p className="text-sm text-gray-600">Próximo Atendimento</p>
                 <p className="text-lg font-semibold">
-                  {activeAttendants.length > 0 
-                    ? activeAttendants.sort((a, b) => (a.priority || 1) - (b.priority || 1))[0]?.name 
-                    : "Nenhum"}
+                  {isLoadingNext ? (
+                    <span className="text-gray-400">Carregando...</span>
+                  ) : nextAttendant ? (
+                    <span className="text-purple-600">{nextAttendant.name}</span>
+                  ) : (
+                    <span className="text-gray-400">Nenhum ativo</span>
+                  )}
                 </p>
+                {nextAttendant && (
+                  <p className="text-xs text-gray-500">
+                    Prioridade {nextAttendant.priority || 1}
+                  </p>
+                )}
               </div>
             </div>
           </CardContent>
