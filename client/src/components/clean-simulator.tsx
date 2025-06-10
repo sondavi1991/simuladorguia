@@ -162,7 +162,17 @@ export default function CleanSimulator() {
 
   const evaluateCondition = (rule: StepNavigation, formData: Record<string, any>): boolean => {
     const { field, operator, value } = rule.condition;
-    const fieldValue = formData[field];
+    
+    // Try to find the field value using both field ID and field label for compatibility
+    let fieldValue = formData[field];
+    
+    // If not found by field name, try to find by field ID from current step
+    if (fieldValue === undefined && currentStepData?.fields) {
+      const fieldDef = currentStepData.fields.find(f => f.label === field || f.id === field);
+      if (fieldDef) {
+        fieldValue = formData[fieldDef.id];
+      }
+    }
 
     switch (operator) {
       case 'equals':
@@ -247,9 +257,14 @@ export default function CleanSimulator() {
 
       const applicableRule = stepData.navigationRules
         .sort((a, b) => (b.priority || 0) - (a.priority || 0))
-        .find(rule => evaluateCondition(rule, formData));
+        .find(rule => {
+          const result = evaluateCondition(rule, formData);
+          console.log('Evaluating rule:', rule, 'with formData:', formData, 'result:', result);
+          return result;
+        });
 
       if (applicableRule) {
+        console.log('Applying navigation rule:', applicableRule);
         if (applicableRule.target.type === 'step' && applicableRule.target.stepNumber) {
           setNavigationState(prev => ({
             ...prev,

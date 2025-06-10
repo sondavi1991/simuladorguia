@@ -42,7 +42,10 @@ export default function ConditionalNavigation({
       field.type === 'checkbox' || 
       field.type === 'select' ||
       field.type === 'text' ||
-      field.type === 'email'
+      field.type === 'email' ||
+      field.type === 'tel' ||
+      field.type === 'number' ||
+      field.type === 'date'
     );
   };
 

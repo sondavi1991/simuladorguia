@@ -144,10 +144,13 @@ export default function FormBuilder({ step, onSave }: FormBuilderProps) {
   const { toast } = useToast();
 
   // Fetch available steps for navigation
-  const { data: allSteps = [] } = useQuery({
-    queryKey: ["/api/form-steps"],
-    select: (data) => data || []
+  const { data: allSteps } = useQuery({
+    queryKey: ["/api/form-steps"]
   });
+  
+  const availableStepNumbers = Array.isArray(allSteps) 
+    ? allSteps.map((step: any) => step.stepNumber).filter((num: number) => num !== stepNumber)
+    : [];
 
   const saveStepMutation = useMutation({
     mutationFn: async (stepData: Partial<FormStep>) => {
@@ -521,7 +524,7 @@ export default function FormBuilder({ step, onSave }: FormBuilderProps) {
             fields={fields}
             navigationRules={navigationRules}
             onNavigationRulesChange={setNavigationRules}
-            availableSteps={allSteps.map((step: any) => step.stepNumber).filter((num: number) => num !== stepNumber)}
+            availableSteps={availableStepNumbers}
           />
         </TabsContent>
 
