@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +37,11 @@ export default function AdminPanel() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const { toast } = useToast();
 
+  // Force refresh users data when component mounts
+  React.useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ["/api/admin-users"] });
+  }, []);
+
   // Fetch form submissions
   const { data: submissions = [], isLoading: submissionsLoading } = useQuery<FormSubmission[]>({
     queryKey: ["/api/form-submissions"],
@@ -53,8 +58,9 @@ export default function AdminPanel() {
   });
 
   // Fetch admin users
-  const { data: adminUsers = [], isLoading: usersLoading } = useQuery<User[]>({
+  const { data: adminUsers = [], isLoading: usersLoading, refetch: refetchUsers } = useQuery<(User & { isCurrentUser?: boolean })[]>({
     queryKey: ["/api/admin-users"],
+    staleTime: 0,
   });
 
   // Create/Update health plan mutation
@@ -515,7 +521,7 @@ export default function AdminPanel() {
                         <Badge className="bg-blue-100 text-blue-800">
                           Administrador
                         </Badge>
-                        {(user as any).isCurrentUser && (
+                        {user.isCurrentUser && (
                           <Badge className="bg-green-100 text-green-800">
                             Você
                           </Badge>
@@ -528,7 +534,7 @@ export default function AdminPanel() {
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
-                        {!(user as any).isCurrentUser && (
+                        {!user.isCurrentUser && (
                           <Button
                             size="sm"
                             variant="outline"
