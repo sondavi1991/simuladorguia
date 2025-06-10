@@ -14,9 +14,7 @@ export default function Home() {
         <div className="relative max-w-7xl mx-auto px-6 py-16">
           <div className="text-center animate-in fade-in slide-in-from-bottom-8 duration-1000">
             
-            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6">
-              Simulador de Planos de Saúde
-            </h1>
+            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6">Simulador - Guia Único dos planos de saúde</h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
               Encontre o plano de saúde ideal para você e sua família com nosso simulador inteligente 
               conectado ao Supabase e pronto para uso
@@ -26,7 +24,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
       {/* Main Action Cards */}
       <div className="max-w-6xl mx-auto px-6 pb-16">
         <div className="grid grid-cols-1 gap-8 mb-16 max-w-2xl mx-auto">

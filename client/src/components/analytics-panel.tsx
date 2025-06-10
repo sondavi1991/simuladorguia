@@ -385,7 +385,7 @@ export default function AnalyticsPanel() {
                                           {Array.isArray(value) ? (
                                             <div className="flex flex-wrap gap-1">
                                               {value.map((item, index) => (
-                                                <Badge key={index} variant="secondary" className="text-xs">
+                                                <Badge key={index} className="text-xs bg-[#000c70] text-[#f7f7f7]">
                                                   {typeof item === 'object' ? JSON.stringify(item) : String(item)}
                                                 </Badge>
                                               ))}
