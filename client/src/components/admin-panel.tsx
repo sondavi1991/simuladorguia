@@ -34,6 +34,7 @@ export default function AdminPanel() {
   const [editingStep, setEditingStep] = useState<FormStep | null>(null);
   const [showStepBuilder, setShowStepBuilder] = useState(false);
   const [showUserForm, setShowUserForm] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
   const { toast } = useToast();
 
   // Fetch form submissions
@@ -144,6 +145,29 @@ export default function AdminPanel() {
       toast({
         title: "Erro",
         description: "Falha ao criar usuário administrativo.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update admin user mutation
+  const updateUserMutation = useMutation({
+    mutationFn: async (data: { id: number; userData: Partial<{ username: string; password: string; email: string; firstName: string; lastName: string }> }) => {
+      const response = await apiRequest("PUT", `/api/admin-users/${data.id}`, data.userData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin-users"] });
+      setEditingUser(null);
+      toast({
+        title: "Sucesso!",
+        description: "Usuário administrativo atualizado com sucesso.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro",
+        description: "Falha ao atualizar usuário administrativo.",
         variant: "destructive",
       });
     },
@@ -494,6 +518,14 @@ export default function AdminPanel() {
                         <Button
                           size="sm"
                           variant="outline"
+                          onClick={() => setEditingUser(user)}
+                          className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
                           onClick={() => deleteUserMutation.mutate(user.id)}
                           disabled={deleteUserMutation.isPending}
                           className="text-red-600 border-red-200 hover:bg-red-50"
@@ -516,6 +548,23 @@ export default function AdminPanel() {
                     onSave={(userData: { username: string; password: string; email?: string; firstName?: string; lastName?: string }) => createUserMutation.mutate(userData)}
                     onCancel={() => setShowUserForm(false)}
                     isLoading={createUserMutation.isPending}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* User Edit Form */}
+            {editingUser && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+                  <h3 className="text-lg font-semibold mb-4">Editar Usuário Administrativo</h3>
+                  <UserEditForm 
+                    user={editingUser}
+                    onSave={(userData: Partial<{ username: string; password: string; email: string; firstName: string; lastName: string }>) => 
+                      updateUserMutation.mutate({ id: editingUser.id, userData })
+                    }
+                    onCancel={() => setEditingUser(null)}
+                    isLoading={updateUserMutation.isPending}
                   />
                 </div>
               </div>
@@ -668,6 +717,218 @@ function UserForm({ onSave, onCancel, isLoading }: UserFormProps) {
         </Button>
         <Button type="submit" disabled={isLoading} className="bg-gups-teal hover:bg-gups-teal/90">
           {isLoading ? "Criando..." : "Criar Usuário"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+// User Edit Form Component
+interface UserEditFormProps {
+  user: User;
+  onSave: (userData: Partial<{ username: string; password: string; email: string; firstName: string; lastName: string }>) => void;
+  onCancel: () => void;
+  isLoading: boolean;
+}
+
+function UserEditForm({ user, onSave, onCancel, isLoading }: UserEditFormProps) {
+  const [formData, setFormData] = useState({
+    username: user.username || "",
+    email: user.email || "",
+    confirmEmail: user.email || "",
+    firstName: user.firstName || "",
+    lastName: user.lastName || "",
+    newPassword: "",
+    confirmPassword: "",
+    changePassword: false,
+    changeEmail: false
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.username.trim()) {
+      newErrors.username = "Nome de usuário é obrigatório";
+    } else if (formData.username.length < 3) {
+      newErrors.username = "Nome de usuário deve ter pelo menos 3 caracteres";
+    }
+
+    // Validação de e-mail se estiver sendo alterado
+    if (formData.changeEmail) {
+      if (!formData.email.trim()) {
+        newErrors.email = "E-mail é obrigatório";
+      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        newErrors.email = "E-mail inválido";
+      }
+
+      if (formData.email !== formData.confirmEmail) {
+        newErrors.confirmEmail = "E-mails não coincidem";
+      }
+    }
+
+    // Validação de senha se estiver sendo alterada
+    if (formData.changePassword) {
+      if (!formData.newPassword) {
+        newErrors.newPassword = "Nova senha é obrigatória";
+      } else if (formData.newPassword.length < 6) {
+        newErrors.newPassword = "Nova senha deve ter pelo menos 6 caracteres";
+      }
+
+      if (formData.newPassword !== formData.confirmPassword) {
+        newErrors.confirmPassword = "Senhas não coincidem";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateForm()) {
+      const updateData: Partial<{ username: string; password: string; email: string; firstName: string; lastName: string }> = {
+        username: formData.username,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+      };
+
+      if (formData.changeEmail) {
+        updateData.email = formData.email;
+      }
+
+      if (formData.changePassword) {
+        updateData.password = formData.newPassword;
+      }
+
+      onSave(updateData);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 max-h-96 overflow-y-auto">
+      <div>
+        <Label htmlFor="username">Nome de Usuário *</Label>
+        <Input
+          id="username"
+          value={formData.username}
+          onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+          className={errors.username ? "border-red-500" : ""}
+        />
+        {errors.username && <p className="text-sm text-red-500 mt-1">{errors.username}</p>}
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="firstName">Nome</Label>
+          <Input
+            id="firstName"
+            value={formData.firstName}
+            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+          />
+        </div>
+        <div>
+          <Label htmlFor="lastName">Sobrenome</Label>
+          <Input
+            id="lastName"
+            value={formData.lastName}
+            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+          />
+        </div>
+      </div>
+
+      {/* Seção de E-mail */}
+      <div className="border-t pt-4">
+        <div className="flex items-center space-x-2 mb-3">
+          <input
+            type="checkbox"
+            id="changeEmail"
+            checked={formData.changeEmail}
+            onChange={(e) => setFormData({ ...formData, changeEmail: e.target.checked })}
+            className="h-4 w-4 text-gups-teal rounded border-gray-300 focus:ring-gups-teal"
+          />
+          <Label htmlFor="changeEmail" className="text-sm font-medium">Alterar E-mail</Label>
+        </div>
+
+        {formData.changeEmail && (
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="email">Novo E-mail *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className={errors.email ? "border-red-500" : ""}
+                placeholder="novo@email.com"
+              />
+              {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
+            </div>
+            <div>
+              <Label htmlFor="confirmEmail">Confirmar Novo E-mail *</Label>
+              <Input
+                id="confirmEmail"
+                type="email"
+                value={formData.confirmEmail}
+                onChange={(e) => setFormData({ ...formData, confirmEmail: e.target.value })}
+                className={errors.confirmEmail ? "border-red-500" : ""}
+                placeholder="Confirme o novo e-mail"
+              />
+              {errors.confirmEmail && <p className="text-sm text-red-500 mt-1">{errors.confirmEmail}</p>}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Seção de Senha */}
+      <div className="border-t pt-4">
+        <div className="flex items-center space-x-2 mb-3">
+          <input
+            type="checkbox"
+            id="changePassword"
+            checked={formData.changePassword}
+            onChange={(e) => setFormData({ ...formData, changePassword: e.target.checked })}
+            className="h-4 w-4 text-gups-teal rounded border-gray-300 focus:ring-gups-teal"
+          />
+          <Label htmlFor="changePassword" className="text-sm font-medium">Alterar Senha</Label>
+        </div>
+
+        {formData.changePassword && (
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="newPassword">Nova Senha *</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={formData.newPassword}
+                onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
+                className={errors.newPassword ? "border-red-500" : ""}
+                placeholder="Digite a nova senha"
+              />
+              {errors.newPassword && <p className="text-sm text-red-500 mt-1">{errors.newPassword}</p>}
+            </div>
+            <div>
+              <Label htmlFor="confirmPassword">Confirmar Nova Senha *</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                className={errors.confirmPassword ? "border-red-500" : ""}
+                placeholder="Confirme a nova senha"
+              />
+              {errors.confirmPassword && <p className="text-sm text-red-500 mt-1">{errors.confirmPassword}</p>}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex justify-end space-x-3 pt-4">
+        <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={isLoading} className="bg-gups-teal hover:bg-gups-teal/90">
+          {isLoading ? "Salvando..." : "Salvar Alterações"}
         </Button>
       </div>
     </form>

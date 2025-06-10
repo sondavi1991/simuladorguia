@@ -502,6 +502,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put('/api/admin-users/:id', requireAuth, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { username, email, firstName, lastName, password } = req.body;
+      
+      if (!username) {
+        return res.status(400).json({ error: "Username is required" });
+      }
+
+      // Check if username already exists (exclude current user)
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser && existingUser.id !== userId) {
+        return res.status(400).json({ error: "Username already exists" });
+      }
+
+      // Prepare update data
+      const updateData: any = {
+        username,
+        firstName: firstName || null,
+        lastName: lastName || null,
+      };
+
+      // Only include email if provided
+      if (email !== undefined) {
+        updateData.email = email || null;
+      }
+
+      // Only include password if provided
+      if (password) {
+        updateData.password = password;
+      }
+
+      const updatedUser = await storage.updateUser(userId, updateData);
+      if (!updatedUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Return user without password hash
+      const { password: _, ...safeUser } = updatedUser;
+      res.json(safeUser);
+    } catch (error: any) {
+      console.error("Error updating admin user:", error);
+      res.status(500).json({ error: "Failed to update admin user" });
+    }
+  });
+
   app.delete('/api/admin-users/:id', requireAuth, async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
