@@ -10,7 +10,35 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { MessageCircle, ExternalLink, Star, Trophy, Target, Zap } from "lucide-react";
+import { 
+  MessageCircle, 
+  ExternalLink, 
+  Star, 
+  Trophy, 
+  Target, 
+  Zap,
+  User, 
+  Users, 
+  Heart, 
+  Shield, 
+  Building, 
+  Home, 
+  Car, 
+  Briefcase, 
+  GraduationCap, 
+  Baby, 
+  Crown,
+  DollarSign,
+  Calendar,
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  Check,
+  Package,
+  Stethoscope,
+  Activity
+} from "lucide-react";
 import type { FormStep, HealthPlan, FormField, StepNavigation } from "@shared/schema";
 import guiaUnicoLogo from "@assets/logo-guia-unico-scaled_1749516567711.png";
 
@@ -29,6 +57,94 @@ interface GameificationState {
   showMotivation: boolean;
   stepsSinceLastMotivation: number;
 }
+
+// Smart icon selection based on option content
+const getOptionIcon = (option: string, index: number) => {
+  const optionLower = option.toLowerCase();
+  
+  // Health plan related icons
+  if (optionLower.includes('amil') || optionLower.includes('bradesco') || optionLower.includes('unimed') || optionLower.includes('santa casa')) {
+    return <Shield className="w-6 h-6" />;
+  }
+  
+  // Person/people related
+  if (optionLower.includes('apenas uma') || optionLower.includes('individual') || optionLower.includes('só eu') || optionLower.includes('sozinho')) {
+    return <User className="w-6 h-6" />;
+  }
+  if (optionLower.includes('mais pessoas') || optionLower.includes('família') || optionLower.includes('dependentes') || optionLower.includes('casal')) {
+    return <Users className="w-6 h-6" />;
+  }
+  
+  // Age related
+  if (optionLower.includes('criança') || optionLower.includes('bebê') || optionLower.includes('menor') || optionLower.includes('filho')) {
+    return <Baby className="w-6 h-6" />;
+  }
+  
+  // Professional related
+  if (optionLower.includes('trabalho') || optionLower.includes('empres') || optionLower.includes('profissional') || optionLower.includes('funcionário')) {
+    return <Briefcase className="w-6 h-6" />;
+  }
+  
+  // Education related
+  if (optionLower.includes('estud') || optionLower.includes('universid') || optionLower.includes('escola') || optionLower.includes('faculdade')) {
+    return <GraduationCap className="w-6 h-6" />;
+  }
+  
+  // Premium/luxury related
+  if (optionLower.includes('premium') || optionLower.includes('vip') || optionLower.includes('luxo') || optionLower.includes('executivo')) {
+    return <Crown className="w-6 h-6" />;
+  }
+  
+  // Health/medical related
+  if (optionLower.includes('saúde') || optionLower.includes('médic') || optionLower.includes('hospital') || optionLower.includes('clínica')) {
+    return <Heart className="w-6 h-6" />;
+  }
+  
+  // Money/price related
+  if (optionLower.includes('econômic') || optionLower.includes('básic') || optionLower.includes('barato') || optionLower.includes('r$')) {
+    return <DollarSign className="w-6 h-6" />;
+  }
+  
+  // Location related
+  if (optionLower.includes('casa') || optionLower.includes('residênc') || optionLower.includes('domicil')) {
+    return <Home className="w-6 h-6" />;
+  }
+  if (optionLower.includes('empresa') || optionLower.includes('escritório') || optionLower.includes('comercial')) {
+    return <Building className="w-6 h-6" />;
+  }
+  
+  // Activity/sports related
+  if (optionLower.includes('exerc') || optionLower.includes('esporte') || optionLower.includes('atividade') || optionLower.includes('ginástica')) {
+    return <Activity className="w-6 h-6" />;
+  }
+  
+  // Package/plan related
+  if (optionLower.includes('plano') || optionLower.includes('pacote') || optionLower.includes('opção')) {
+    return <Package className="w-6 h-6" />;
+  }
+  
+  // Contact related
+  if (optionLower.includes('telefone') || optionLower.includes('contato') || optionLower.includes('ligar')) {
+    return <Phone className="w-6 h-6" />;
+  }
+  if (optionLower.includes('email') || optionLower.includes('e-mail') || optionLower.includes('@')) {
+    return <Mail className="w-6 h-6" />;
+  }
+  
+  // Default icons based on position
+  const defaultIcons = [
+    <Star className="w-6 h-6" />,
+    <Shield className="w-6 h-6" />,
+    <Heart className="w-6 h-6" />,
+    <Trophy className="w-6 h-6" />,
+    <Target className="w-6 h-6" />,
+    <Zap className="w-6 h-6" />,
+    <Check className="w-6 h-6" />,
+    <Crown className="w-6 h-6" />
+  ];
+  
+  return defaultIcons[index % defaultIcons.length];
+};
 
 export default function CleanSimulator() {
   const { toast } = useToast();
@@ -427,48 +543,150 @@ export default function CleanSimulator() {
 
       case 'radio':
         return (
-          <div key={field.id} className="space-y-3">
-            <Label className="text-sm font-medium text-secondary">{field.label}</Label>
-            <RadioGroup
-              value={value}
-              onValueChange={(newValue) => handleFieldChange(field.id, newValue)}
-              className="space-y-2 sm:space-y-3"
-            >
-              {field.options?.map((option, index) => (
-                <div key={index} className="flex items-center space-x-2 sm:space-x-3">
-                  <RadioGroupItem value={option} id={`${field.id}-${index}`} />
-                  <Label htmlFor={`${field.id}-${index}`} className="text-sm sm:text-base cursor-pointer flex-1">
-                    {option}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
+          <div key={field.id} className="space-y-4">
+            <Label className="text-lg font-semibold text-secondary">{field.label}</Label>
+            <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {field.options?.map((option, index) => {
+                const isSelected = value === option;
+                const optionIcon = getOptionIcon(option, index);
+                
+                return (
+                  <div
+                    key={index}
+                    onClick={() => handleFieldChange(field.id, option)}
+                    className={`
+                      relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 group
+                      ${isSelected 
+                        ? 'border-primary bg-primary/5 shadow-lg transform scale-105' 
+                        : 'border-gray-200 bg-white hover:border-primary/50 hover:shadow-md hover:transform hover:scale-102'
+                      }
+                    `}
+                  >
+                    {/* Selection indicator */}
+                    <div className={`
+                      absolute top-4 right-4 w-5 h-5 rounded-full border-2 transition-all duration-200
+                      ${isSelected 
+                        ? 'border-primary bg-primary' 
+                        : 'border-gray-300 group-hover:border-primary/50'
+                      }
+                    `}>
+                      {isSelected && (
+                        <div className="w-full h-full rounded-full bg-white scale-50 transform transition-transform duration-200">
+                          <div className="w-full h-full rounded-full bg-primary scale-50"></div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Icon */}
+                    <div className={`
+                      flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300
+                      ${isSelected 
+                        ? 'bg-primary text-white' 
+                        : 'bg-gray-100 text-gray-500 group-hover:bg-primary/10 group-hover:text-primary'
+                      }
+                    `}>
+                      {optionIcon}
+                    </div>
+
+                    {/* Text */}
+                    <div className="text-center">
+                      <p className={`
+                        font-medium text-base transition-colors duration-200
+                        ${isSelected 
+                          ? 'text-primary' 
+                          : 'text-gray-700 group-hover:text-primary'
+                        }
+                      `}>
+                        {option}
+                      </p>
+                    </div>
+
+                    {/* Animated background effect */}
+                    <div className={`
+                      absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300
+                      ${isSelected ? 'opacity-100' : 'opacity-0'}
+                      bg-gradient-to-br from-primary/5 to-primary/10
+                    `}></div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         );
 
       case 'checkbox':
         const selectedValues = Array.isArray(value) ? value : [];
         return (
-          <div key={field.id} className="space-y-3">
-            <Label className="text-sm font-medium text-secondary">{field.label}</Label>
-            <div className="space-y-2 sm:space-y-3">
-              {field.options?.map((option, index) => (
-                <div key={index} className="flex items-center space-x-2 sm:space-x-3">
-                  <Checkbox
-                    id={`${field.id}-${index}`}
-                    checked={selectedValues.includes(option)}
-                    onCheckedChange={(checked) => {
-                      const newValues = checked
-                        ? [...selectedValues, option]
-                        : selectedValues.filter(v => v !== option);
+          <div key={field.id} className="space-y-4">
+            <Label className="text-lg font-semibold text-secondary">{field.label}</Label>
+            <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {field.options?.map((option, index) => {
+                const isSelected = selectedValues.includes(option);
+                const optionIcon = getOptionIcon(option, index);
+                
+                return (
+                  <div
+                    key={index}
+                    onClick={() => {
+                      const newValues = isSelected
+                        ? selectedValues.filter(v => v !== option)
+                        : [...selectedValues, option];
                       handleFieldChange(field.id, newValues);
                     }}
-                  />
-                  <Label htmlFor={`${field.id}-${index}`} className="text-sm sm:text-base cursor-pointer flex-1">
-                    {option}
-                  </Label>
-                </div>
-              ))}
+                    className={`
+                      relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 group
+                      ${isSelected 
+                        ? 'border-primary bg-primary/5 shadow-lg transform scale-105' 
+                        : 'border-gray-200 bg-white hover:border-primary/50 hover:shadow-md hover:transform hover:scale-102'
+                      }
+                    `}
+                  >
+                    {/* Selection indicator - square for checkboxes */}
+                    <div className={`
+                      absolute top-4 right-4 w-5 h-5 rounded border-2 transition-all duration-200 flex items-center justify-center
+                      ${isSelected 
+                        ? 'border-primary bg-primary' 
+                        : 'border-gray-300 group-hover:border-primary/50'
+                      }
+                    `}>
+                      {isSelected && (
+                        <Check className="w-3 h-3 text-white" />
+                      )}
+                    </div>
+
+                    {/* Icon */}
+                    <div className={`
+                      flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300
+                      ${isSelected 
+                        ? 'bg-primary text-white' 
+                        : 'bg-gray-100 text-gray-500 group-hover:bg-primary/10 group-hover:text-primary'
+                      }
+                    `}>
+                      {optionIcon}
+                    </div>
+
+                    {/* Text */}
+                    <div className="text-center">
+                      <p className={`
+                        font-medium text-base transition-colors duration-200
+                        ${isSelected 
+                          ? 'text-primary' 
+                          : 'text-gray-700 group-hover:text-primary'
+                        }
+                      `}>
+                        {option}
+                      </p>
+                    </div>
+
+                    {/* Animated background effect */}
+                    <div className={`
+                      absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300
+                      ${isSelected ? 'opacity-100' : 'opacity-0'}
+                      bg-gradient-to-br from-primary/5 to-primary/10
+                    `}></div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         );
@@ -684,8 +902,31 @@ export default function CleanSimulator() {
           
         </div>
 
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm font-medium text-gray-600">
+              Passo {navigationState.currentStep} de {formSteps.length}
+            </span>
+            <span className="text-sm font-medium text-primary">
+              {Math.round((navigationState.currentStep / formSteps.length) * 100)}% concluído
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+            <div 
+              className="bg-gradient-to-r from-primary to-primary/80 h-2 rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${(navigationState.currentStep / formSteps.length) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+
         {/* Step Title */}
         <div className="text-center mb-6 sm:mb-8">
+          <div className="flex items-center justify-center mb-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary text-white font-bold text-lg">
+              {navigationState.currentStep}
+            </div>
+          </div>
           <h2 className="text-xl sm:text-2xl font-semibold text-secondary mb-2">
             {currentStepData.title}
           </h2>
@@ -702,13 +943,40 @@ export default function CleanSimulator() {
             <div className="space-y-4 sm:space-y-6">
               {currentStepData.fields?.map(renderField)}
               
-              <div className="flex justify-center sm:justify-end pt-4 sm:pt-6">
+              <div className="flex justify-center pt-6 sm:pt-8">
                 <Button
                   onClick={handleNext}
                   disabled={submitFormMutation.isPending || gameState.isLoading}
-                  className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 text-base sm:text-lg"
+                  className="
+                    group relative overflow-hidden w-full sm:w-auto min-w-[200px] 
+                    bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary
+                    text-white font-semibold px-8 py-4 rounded-2xl text-lg
+                    transform transition-all duration-300 hover:scale-105 hover:shadow-xl
+                    disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
+                  "
                 >
-                  {submitFormMutation.isPending || gameState.isLoading ? "Processando..." : "Continuar"}
+                  {/* Animated background effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  
+                  {/* Content */}
+                  <div className="relative flex items-center justify-center space-x-2">
+                    {submitFormMutation.isPending || gameState.isLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        <span>Processando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Continuar</span>
+                        <div className="transform transition-transform duration-300 group-hover:translate-x-1">
+                          →
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  
+                  {/* Shine effect */}
+                  <div className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                 </Button>
               </div>
             </div>
