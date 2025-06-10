@@ -107,6 +107,24 @@ export class MemStorage implements IStorage {
   }
 
   private initializeDefaultData() {
+    // Initialize default admin user
+    this.createUser({
+      username: "admin",
+      password: "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj5QJxfHvjve", // senha: "admin123"
+      email: "admin@guiaunico.com.br",
+      firstName: "Administrador",
+      lastName: "Sistema"
+    });
+
+    // Initialize additional test users
+    this.createUser({
+      username: "gerente",
+      password: "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj5QJxfHvjve", // senha: "admin123"
+      email: "gerente@guiaunico.com.br",
+      firstName: "Gerente",
+      lastName: "Operacional"
+    });
+
     // Initialize default health plans
     const defaultPlans: InsertHealthPlan[] = [
       {
@@ -116,7 +134,8 @@ export class MemStorage implements IStorage {
         features: ["Cobertura Nacional", "Telemedicina", "Obstetrícia", "Odontologia"],
         coverage: "nacional",
         isRecommended: true,
-        targetPriceRange: "premium"
+        targetPriceRange: "premium",
+        logoUrl: null
       },
       {
         name: "Plano Saúde Essencial",
@@ -125,7 +144,8 @@ export class MemStorage implements IStorage {
         features: ["Cobertura Regional", "Telemedicina"],
         coverage: "regional",
         isRecommended: false,
-        targetPriceRange: "intermediate"
+        targetPriceRange: "intermediate",
+        logoUrl: null
       },
       {
         name: "Plano Saúde Executivo",
@@ -134,11 +154,207 @@ export class MemStorage implements IStorage {
         features: ["Cobertura Internacional", "Telemedicina", "Obstetrícia", "Odontologia", "Check-ups VIP"],
         coverage: "internacional",
         isRecommended: false,
-        targetPriceRange: "executive"
+        targetPriceRange: "executive",
+        logoUrl: null
       }
     ];
 
     defaultPlans.forEach(plan => this.createHealthPlan(plan));
+
+    // Initialize default form steps
+    const defaultSteps: InsertFormStep[] = [
+      {
+        stepNumber: 1,
+        title: "Informações Pessoais",
+        description: "Vamos começar coletando suas informações básicas",
+        fields: [
+          {
+            id: "name",
+            type: "text",
+            label: "Nome Completo",
+            required: true,
+            placeholder: "Digite seu nome completo"
+          },
+          {
+            id: "email",
+            type: "email",
+            label: "E-mail",
+            required: true,
+            placeholder: "seu@email.com"
+          },
+          {
+            id: "phone",
+            type: "tel",
+            label: "Telefone",
+            required: true,
+            placeholder: "(11) 99999-9999"
+          },
+          {
+            id: "birthDate",
+            type: "date",
+            label: "Data de Nascimento",
+            required: true
+          }
+        ],
+        conditionalRules: [],
+        navigationRules: [
+          {
+            id: "next-step",
+            stepId: 1,
+            condition: {
+              field: "name",
+              operator: "is_not_empty",
+              value: ""
+            },
+            target: {
+              type: "step",
+              stepNumber: 2
+            },
+            priority: 1
+          }
+        ],
+        recommendedPlanIds: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        stepNumber: 2,
+        title: "Localização",
+        description: "Informe seu CEP para encontrarmos os melhores planos da sua região",
+        fields: [
+          {
+            id: "zipCode",
+            type: "text",
+            label: "CEP",
+            required: true,
+            placeholder: "00000-000"
+          }
+        ],
+        conditionalRules: [],
+        navigationRules: [
+          {
+            id: "next-step-2",
+            stepId: 2,
+            condition: {
+              field: "zipCode",
+              operator: "is_not_empty",
+              value: ""
+            },
+            target: {
+              type: "step",
+              stepNumber: 3
+            },
+            priority: 1
+          }
+        ],
+        recommendedPlanIds: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        stepNumber: 3,
+        title: "Tipo de Plano",
+        description: "Que tipo de plano você está procurando?",
+        fields: [
+          {
+            id: "planType",
+            type: "radio",
+            label: "Tipo de Plano",
+            required: true,
+            options: ["Individual", "Familiar", "Empresarial"]
+          }
+        ],
+        conditionalRules: [],
+        navigationRules: [
+          {
+            id: "next-step-3",
+            stepId: 3,
+            condition: {
+              field: "planType",
+              operator: "is_not_empty",
+              value: ""
+            },
+            target: {
+              type: "step",
+              stepNumber: 4
+            },
+            priority: 1
+          }
+        ],
+        recommendedPlanIds: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        stepNumber: 4,
+        title: "Faixa de Preço",
+        description: "Qual faixa de preço se adequa ao seu orçamento?",
+        fields: [
+          {
+            id: "priceRange",
+            type: "radio",
+            label: "Faixa de Preço Mensal",
+            required: true,
+            options: ["Até R$ 300", "R$ 300 - R$ 500", "R$ 500 - R$ 800", "Acima de R$ 800"]
+          }
+        ],
+        conditionalRules: [],
+        navigationRules: [
+          {
+            id: "next-step-4",
+            stepId: 4,
+            condition: {
+              field: "priceRange",
+              operator: "is_not_empty",
+              value: ""
+            },
+            target: {
+              type: "step",
+              stepNumber: 5
+            },
+            priority: 1
+          }
+        ],
+        recommendedPlanIds: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        stepNumber: 5,
+        title: "Serviços Desejados",
+        description: "Quais serviços são importantes para você?",
+        fields: [
+          {
+            id: "services",
+            type: "checkbox",
+            label: "Serviços Desejados",
+            required: false,
+            options: ["Telemedicina", "Obstetrícia", "Odontologia", "Cobertura Nacional", "Cobertura Internacional"]
+          }
+        ],
+        conditionalRules: [],
+        navigationRules: [
+          {
+            id: "finish-form",
+            stepId: 5,
+            condition: {
+              field: "services",
+              operator: "is_not_empty",
+              value: ""
+            },
+            target: {
+              type: "end"
+            },
+            priority: 1
+          }
+        ],
+        recommendedPlanIds: [1, 2, 3],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    ];
+
+    defaultSteps.forEach(step => this.createFormStep(step));
   }
 
   // User methods
