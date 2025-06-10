@@ -245,7 +245,7 @@ export default function WhatsappPanel() {
                   type="number"
                   min="1"
                   max="100"
-                  value={formData.priority}
+                  value={formData.priority || 1}
                   onChange={(e) => setFormData(prev => ({ ...prev, priority: parseInt(e.target.value) || 1 }))}
                 />
                 <p className="text-xs text-gray-500">
@@ -257,7 +257,7 @@ export default function WhatsappPanel() {
                 <div className="flex items-center space-x-2 pt-2">
                   <Switch
                     id="isActive"
-                    checked={formData.isActive}
+                    checked={formData.isActive || false}
                     onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isActive: checked }))}
                   />
                   <Label htmlFor="isActive">{formData.isActive ? 'Ativo' : 'Inativo'}</Label>

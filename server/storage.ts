@@ -58,6 +58,13 @@ export interface IStorage {
   getSmtpSettings(): Promise<SmtpSettings | undefined>;
   createSmtpSettings(settings: InsertSmtpSettings): Promise<SmtpSettings>;
   updateSmtpSettings(id: number, settings: Partial<InsertSmtpSettings>): Promise<SmtpSettings | undefined>;
+  
+  // WhatsApp attendant methods
+  getWhatsappAttendants(): Promise<WhatsappAttendant[]>;
+  createWhatsappAttendant(attendant: InsertWhatsappAttendant): Promise<WhatsappAttendant>;
+  updateWhatsappAttendant(id: number, attendant: Partial<InsertWhatsappAttendant>): Promise<WhatsappAttendant | undefined>;
+  deleteWhatsappAttendant(id: number): Promise<boolean>;
+  getNextWhatsappAttendant(): Promise<WhatsappAttendant | undefined>;
 }
 
 export class MemStorage implements IStorage {
