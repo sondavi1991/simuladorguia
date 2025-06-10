@@ -30,6 +30,8 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  getAllUsers(): Promise<User[]>;
+  deleteUser(id: number): Promise<boolean>;
   
   // Session methods
   createSession(session: InsertSession): Promise<Session>;
@@ -143,9 +145,40 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
+    const user: User = { 
+      ...insertUser, 
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
     this.users.set(id, user);
     return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    return this.users.delete(id);
+  }
+
+  async createSession(insertSession: InsertSession): Promise<Session> {
+    const session: Session = {
+      ...insertSession,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.sessions.set(session.id, session);
+    return session;
+  }
+
+  async getSession(id: string): Promise<Session | undefined> {
+    return this.sessions.get(id);
+  }
+
+  async deleteSession(id: string): Promise<boolean> {
+    return this.sessions.delete(id);
   }
 
   // Form submission methods

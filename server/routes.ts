@@ -454,6 +454,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin users management routes
+  app.get('/api/admin-users', requireAuth, async (req, res) => {
+    try {
+      // Get all users except the current logged in user
+      const currentUserId = req.user?.id;
+      const users = await storage.getAllUsers();
+      const filteredUsers = users.filter(user => user.id !== currentUserId);
+      
+      // Return users without password hash
+      const safeUsers = filteredUsers.map(({ password, ...user }) => user);
+      res.json(safeUsers);
+    } catch (error: any) {
+      console.error("Error fetching admin users:", error);
+      res.status(500).json({ error: "Failed to fetch admin users" });
+    }
+  });
+
+  app.post('/api/admin-users', requireAuth, async (req, res) => {
+    try {
+      const { username, email, firstName, lastName, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ error: "Username and password are required" });
+      }
+
+      // Check if username already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ error: "Username already exists" });
+      }
+
+      const newUser = await storage.createUser({
+        username,
+        email: email || null,
+        firstName: firstName || null,
+        lastName: lastName || null,
+        password
+      });
+
+      // Return user without password hash
+      const { password: _, ...safeUser } = newUser;
+      res.json(safeUser);
+    } catch (error: any) {
+      console.error("Error creating admin user:", error);
+      res.status(500).json({ error: "Failed to create admin user" });
+    }
+  });
+
+  app.delete('/api/admin-users/:id', requireAuth, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const currentUserId = req.user?.id;
+
+      // Prevent user from deleting themselves
+      if (userId === currentUserId) {
+        return res.status(400).json({ error: "Cannot delete your own account" });
+      }
+
+      const deleted = await storage.deleteUser(userId);
+      if (!deleted) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting admin user:", error);
+      res.status(500).json({ error: "Failed to delete admin user" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

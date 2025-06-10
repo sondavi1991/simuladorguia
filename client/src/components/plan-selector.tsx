@@ -65,7 +65,7 @@ export default function PlanSelector({ selectedPlanIds, onPlanSelectionChange }:
                     </Label>
                     <div className="flex items-center space-x-2">
                       {plan.isRecommended && (
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge className="text-xs text-[#f7f7f7] bg-[#29690e]">
                           <Shield className="w-3 h-3 mr-1" />
                           Recomendado
                         </Badge>
