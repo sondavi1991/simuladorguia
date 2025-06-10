@@ -4,6 +4,7 @@ import {
   formSubmissions, 
   formSteps, 
   healthPlans,
+  smtpSettings,
   type User, 
   type Session,
   type InsertUser,
@@ -14,6 +15,8 @@ import {
   type InsertFormStep,
   type HealthPlan,
   type InsertHealthPlan,
+  type SmtpSettings,
+  type InsertSmtpSettings,
   type FormField,
   type ConditionalRule,
   type StepNavigation
