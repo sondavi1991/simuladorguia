@@ -388,8 +388,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // WhatsApp attendant routes
   app.get('/api/whatsapp-attendants', async (req, res) => {
     try {
-      // For now, return empty array - will be implemented with database
-      res.json([]);
+      const attendants = await storage.getWhatsappAttendants();
+      res.json(attendants);
     } catch (error: any) {
       console.error("Error fetching WhatsApp attendants:", error);
       res.status(500).json({ message: "Failed to fetch WhatsApp attendants" });
@@ -400,13 +400,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("Creating WhatsApp attendant with data:", JSON.stringify(req.body, null, 2));
       
-      const attendant = {
-        id: Date.now(), // Simple ID generation for now
-        ...req.body,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      
+      const attendant = await storage.createWhatsappAttendant(req.body);
       res.status(201).json(attendant);
     } catch (error: any) {
       console.error("Error creating WhatsApp attendant:", error);
@@ -419,11 +413,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       console.log("Updating WhatsApp attendant with ID:", id, "and data:", JSON.stringify(req.body, null, 2));
       
-      const attendant = {
-        id,
-        ...req.body,
-        updatedAt: new Date().toISOString(),
-      };
+      const attendant = await storage.updateWhatsappAttendant(id, req.body);
+      if (!attendant) {
+        return res.status(404).json({ message: "WhatsApp attendant not found" });
+      }
       
       res.json(attendant);
     } catch (error: any) {
@@ -437,6 +430,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       console.log("Deleting WhatsApp attendant with ID:", id);
       
+      const deleted = await storage.deleteWhatsappAttendant(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "WhatsApp attendant not found" });
+      }
+      
       res.json({ message: "WhatsApp attendant deleted successfully" });
     } catch (error: any) {
       console.error("Error deleting WhatsApp attendant:", error);
@@ -446,8 +444,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/whatsapp-attendants/next', async (req, res) => {
     try {
-      // For now, return null - will be implemented with round-robin logic
-      res.json(null);
+      const nextAttendant = await storage.getNextWhatsappAttendant();
+      res.json(nextAttendant);
     } catch (error: any) {
       console.error("Error getting next WhatsApp attendant:", error);
       res.status(500).json({ message: "Failed to get next WhatsApp attendant" });

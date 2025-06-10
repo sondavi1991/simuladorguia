@@ -576,6 +576,9 @@ export class MemStorage implements IStorage {
     const settings: SmtpSettings = {
       id: this.currentSmtpId++,
       ...insertSettings,
+      port: insertSettings.port || 587,
+      protocol: insertSettings.protocol || 'TLS',
+      isActive: insertSettings.isActive || true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -605,6 +608,8 @@ export class MemStorage implements IStorage {
     const attendant: WhatsappAttendant = {
       id: this.currentWhatsappId++,
       ...insertAttendant,
+      priority: insertAttendant.priority || 1,
+      isActive: insertAttendant.isActive ?? true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
