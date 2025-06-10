@@ -3,6 +3,11 @@ import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
+// Environment configuration
+const PORT = process.env.PORT || 5000;
+const HOST = process.env.HOST || "0.0.0.0";
+const NODE_ENV = process.env.NODE_ENV || "development";
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -49,24 +54,19 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
+  // Setup development or production serving
+  if (NODE_ENV === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
+  // Start server
   server.listen({
-    port,
-    host: "0.0.0.0",
+    port: PORT,
+    host: HOST,
     reusePort: true,
   }, () => {
-    log(`serving on port ${port}`);
+    log(`🚀 Server running on ${HOST}:${PORT} in ${NODE_ENV} mode`);
   });
 })();
