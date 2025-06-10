@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { MessageCircle, BarChart3, Users, CheckCircle, Play, Shield } from "lucide-react";
 import { Link } from "wouter";
 import { openWhatsApp } from "@/lib/whatsapp";
+import { useState } from "react";
 
 export default function Home() {
   return (
@@ -16,8 +18,7 @@ export default function Home() {
             
             <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6">Simulador - Guia Único dos planos de saúde</h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
-              Encontre o plano de saúde ideal para você e sua família com nosso simulador inteligente 
-              conectado ao Supabase e pronto para uso
+              Encontre seu plano de saúde ideal com nosso simulador, faça sua simulação gratuita e rápida conosco
             </p>
             
             
@@ -40,14 +41,9 @@ export default function Home() {
                   <p className="text-blue-600 font-medium">Encontre seu plano ideal</p>
                 </div>
               </div>
-              <p className="text-gray-600 mb-6 text-lg leading-relaxed">
-                Responda 4 etapas personalizadas e receba recomendações inteligentes baseadas no seu perfil
-              </p>
+              
               <div className="space-y-3 mb-8">
-                <div className="flex items-center text-gray-700">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                  <span>Informações pessoais e localização</span>
-                </div>
+                
                 <div className="flex items-center text-gray-700">
                   <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
                   <span>Dependentes e faixa etária</span>
