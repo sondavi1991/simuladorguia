@@ -642,27 +642,7 @@ export default function CleanSimulator() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="bg-white border-b border-gray-custom">
-        <div className="max-w-4xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <img src={guiaUnicoLogo} alt="Guia Único" className="h-16 w-auto" />
-            
-            {/* Progress Indicator */}
-            <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-600">
-                Etapa {navigationState.currentStep} de {formSteps.length}
-              </div>
-              <div className="w-32 bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-primary h-2 rounded-full transition-all duration-300" 
-                  style={{ width: `${gameState.progress}%` }}
-                ></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-6 py-12">
@@ -670,9 +650,7 @@ export default function CleanSimulator() {
           <h1 className="text-4xl font-bold text-secondary mb-4">
             Simulador - Guia Único dos planos de saúde
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Encontre seu plano de saúde ideal com nosso simulador, faça sua simulação gratuita e rápida conosco
-          </p>
+          
         </div>
 
         {/* Step Title */}
