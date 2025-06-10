@@ -36,17 +36,24 @@ export default function Navigation() {
                 <Button 
                   variant={location === "/admin" ? "default" : "ghost"} 
                   size="sm"
-                  className={location === "/admin" ? "bg-gups-teal hover:bg-gups-teal/90" : ""}
+                  className={`${location === "/admin" ? "bg-gups-teal hover:bg-gups-teal/90" : ""} hidden sm:flex`}
                 >
                   <Settings className="w-4 h-4 mr-2" />
                   Admin Panel
+                </Button>
+                <Button 
+                  variant={location === "/admin" ? "default" : "ghost"} 
+                  size="sm"
+                  className={`${location === "/admin" ? "bg-gups-teal hover:bg-gups-teal/90" : ""} sm:hidden`}
+                >
+                  <Settings className="w-4 h-4" />
                 </Button>
               </Link>
             )}
             
             {isAuthenticated ? (
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-gray-100">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full bg-gray-100">
                   <User className="h-4 w-4 text-gray-600" />
                   <span className="text-sm text-gray-700 font-medium">{(user as any)?.username || 'Usuário'}</span>
                 </div>
@@ -57,15 +64,15 @@ export default function Navigation() {
                   disabled={isLoggingOut}
                   className="text-gray-600 hover:text-gray-800"
                 >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  {isLoggingOut ? "Logging out..." : "Logout"}
+                  <LogOut className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">{isLoggingOut ? "Logging out..." : "Logout"}</span>
                 </Button>
               </div>
             ) : (
               <Link href="/login">
                 <Button variant="outline" size="sm" className="border-gups-teal text-gups-teal hover:bg-gups-teal hover:text-white">
-                  <User className="h-4 w-4 mr-2" />
-                  Login
+                  <User className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Login</span>
                 </Button>
               </Link>
             )}
