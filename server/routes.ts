@@ -128,6 +128,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertFormSubmissionSchema.parse(submissionData);
       const submission = await storage.createFormSubmission(validatedData);
       
+      // Automatically assign to next WhatsApp attendant in rotation
+      let assignedAttendant = null;
+      try {
+        assignedAttendant = await storage.getNextWhatsappAttendant();
+        if (assignedAttendant) {
+          console.log(`New simulation assigned to: ${assignedAttendant.name} (${assignedAttendant.phoneNumber})`);
+        }
+      } catch (attendantError) {
+        console.error('Error assigning WhatsApp attendant:', attendantError);
+      }
+      
       // Send email notification if SMTP is configured
       try {
         const emailResult = await EmailService.sendFormSubmissionEmail(submission);
@@ -141,7 +152,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Continue without failing the submission
       }
       
-      res.json(submission);
+      // Return submission with assigned attendant info
+      res.json({
+        ...submission,
+        assignedAttendant: assignedAttendant ? {
+          id: assignedAttendant.id,
+          name: assignedAttendant.name,
+          phoneNumber: assignedAttendant.phoneNumber
+        } : null
+      });
     } catch (error) {
       console.error("Form submission validation error:", error);
       res.status(400).json({ error: "Invalid form submission data" });

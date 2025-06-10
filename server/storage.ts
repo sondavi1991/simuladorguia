@@ -891,11 +891,31 @@ export class PostgreSQLStorage implements IStorage {
       return undefined;
     }
 
-    // Simple round-robin: cycle through attendants by index using global counter
-    const selectedAttendant = attendants[globalAttendantRotationIndex % attendants.length];
+    // Get current rotation index from database
+    let currentIndex = 0;
+    try {
+      const result = await this.client.query('SELECT current_index FROM attendant_rotation WHERE id = 1');
+      if (result.rows.length > 0) {
+        currentIndex = result.rows[0].current_index;
+      }
+    } catch (error) {
+      console.error('Error getting rotation index:', error);
+    }
+
+    // Select attendant based on current index
+    const selectedAttendant = attendants[currentIndex % attendants.length];
     
-    // Increment global rotation index for next selection
-    globalAttendantRotationIndex = (globalAttendantRotationIndex + 1) % attendants.length;
+    // Increment index for next selection and update database atomically
+    const nextIndex = (currentIndex + 1) % attendants.length;
+    try {
+      await this.client.query(
+        'UPDATE attendant_rotation SET current_index = $1, updated_at = CURRENT_TIMESTAMP WHERE id = 1',
+        [nextIndex]
+      );
+      console.log(`WhatsApp rotation: Current=${currentIndex}, Next=${nextIndex}, Selected=${selectedAttendant.name}`);
+    } catch (error) {
+      console.error('Error updating rotation index:', error);
+    }
     
     return selectedAttendant;
   }
