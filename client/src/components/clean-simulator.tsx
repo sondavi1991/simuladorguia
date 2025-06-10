@@ -257,14 +257,9 @@ export default function CleanSimulator() {
 
       const applicableRule = stepData.navigationRules
         .sort((a, b) => (b.priority || 0) - (a.priority || 0))
-        .find(rule => {
-          const result = evaluateCondition(rule, formData);
-          console.log('Evaluating rule:', rule, 'with formData:', formData, 'result:', result);
-          return result;
-        });
+        .find(rule => evaluateCondition(rule, formData));
 
       if (applicableRule) {
-        console.log('Applying navigation rule:', applicableRule);
         if (applicableRule.target.type === 'step' && applicableRule.target.stepNumber) {
           setNavigationState(prev => ({
             ...prev,
@@ -272,7 +267,34 @@ export default function CleanSimulator() {
             completedSteps: [...prev.completedSteps, prev.currentStep]
           }));
         } else if (applicableRule.target.type === 'end') {
-          completeForm(stepData, formData);
+          // Use plans specifically recommended for this step when ending via navigation rule
+          const stepRecommendedPlans = stepData.recommendedPlanIds || [];
+          const recommendations = healthPlans.filter((plan: HealthPlan) => 
+            stepRecommendedPlans.includes(plan.id)
+          );
+          
+          setNavigationState(prev => ({
+            ...prev,
+            isComplete: true,
+            recommendations,
+            completedSteps: [...prev.completedSteps, prev.currentStep]
+          }));
+
+          // Submit form data
+          const submissionData = {
+            name: formData.nome || formData.name || "",
+            email: formData.email || "",
+            phone: formData.telefone || formData.phone || "",
+            birthDate: formData.dataNascimento || formData.birthDate || "",
+            zipCode: formData.cep || formData.zipCode || "",
+            planType: formData.tipoPlano || formData.planType || "individual",
+            priceRange: formData.faixaPreco || formData.priceRange || "basic",
+            services: Array.isArray(formData.servicos) ? formData.servicos : 
+                      Array.isArray(formData.services) ? formData.services : [],
+            dependents: formData.dependentes || formData.dependents || []
+          };
+
+          submitFormMutation.mutate(submissionData);
         }
       } else {
         const nextStep = formSteps
@@ -318,6 +340,8 @@ export default function CleanSimulator() {
 
     submitFormMutation.mutate(submissionData);
   };
+
+
 
   const handleFieldChange = (fieldId: string, value: any) => {
     setNavigationState(prev => ({
