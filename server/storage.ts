@@ -738,7 +738,16 @@ export class PostgreSQLStorage implements IStorage {
   }
 
   async createFormSubmission(insertSubmission: InsertFormSubmission): Promise<FormSubmission> {
-    const result = await this.db.insert(formSubmissions).values(insertSubmission).returning();
+    // Convert string arrays to proper PostgreSQL arrays
+    const processedSubmission = {
+      ...insertSubmission,
+      services: Array.isArray(insertSubmission.services) ? insertSubmission.services : 
+                (typeof insertSubmission.services === 'string' ? JSON.parse(insertSubmission.services) : insertSubmission.services),
+      dependents: Array.isArray(insertSubmission.dependents) ? insertSubmission.dependents :
+                  (typeof insertSubmission.dependents === 'string' ? JSON.parse(insertSubmission.dependents) : insertSubmission.dependents)
+    };
+    
+    const result = await this.db.insert(formSubmissions).values(processedSubmission).returning();
     return result[0];
   }
 
