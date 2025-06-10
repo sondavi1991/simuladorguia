@@ -151,25 +151,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/form-steps", async (req, res) => {
     try {
+      console.log("Creating form step with data:", JSON.stringify(req.body, null, 2));
       const validatedData = insertFormStepSchema.parse(req.body);
       const step = await storage.createFormStep(validatedData);
       res.json(step);
-    } catch (error) {
-      res.status(400).json({ error: "Invalid form step data" });
+    } catch (error: any) {
+      console.error("Form step creation error:", error);
+      if (error.name === 'ZodError') {
+        const validationErrors = error.errors.map((err: any) => ({
+          field: err.path.join('.'),
+          message: err.message,
+          received: err.received,
+          expected: err.expected
+        }));
+        res.status(400).json({ 
+          error: "Dados inválidos no formulário", 
+          details: "Por favor, verifique os seguintes campos:",
+          validationErrors 
+        });
+      } else {
+        res.status(500).json({ 
+          error: "Erro interno do servidor ao criar passo",
+          details: error?.message || "Erro desconhecido"
+        });
+      }
     }
   });
 
   app.put("/api/form-steps/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      console.log("Updating form step with ID:", id, "and data:", JSON.stringify(req.body, null, 2));
+      
+      // Validate the update data using partial schema
       const updateData = req.body;
       const updatedStep = await storage.updateFormStep(id, updateData);
       if (!updatedStep) {
-        return res.status(404).json({ error: "Form step not found" });
+        return res.status(404).json({ error: "Passo do formulário não encontrado" });
       }
       res.json(updatedStep);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to update form step" });
+    } catch (error: any) {
+      console.error("Form step update error:", error);
+      if (error.name === 'ZodError') {
+        const validationErrors = error.errors.map((err: any) => ({
+          field: err.path.join('.'),
+          message: err.message,
+          received: err.received,
+          expected: err.expected
+        }));
+        res.status(400).json({ 
+          error: "Dados inválidos no formulário", 
+          details: "Por favor, verifique os seguintes campos:",
+          validationErrors 
+        });
+      } else {
+        res.status(500).json({ 
+          error: "Erro interno do servidor ao atualizar passo",
+          details: error?.message || "Erro desconhecido"
+        });
+      }
     }
   });
 

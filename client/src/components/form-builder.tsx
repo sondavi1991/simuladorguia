@@ -151,12 +151,33 @@ export default function FormBuilder({ step, onSave }: FormBuilderProps) {
       queryClient.invalidateQueries({ queryKey: ["/api/form-steps"] });
       if (onSave) onSave({ title: stepTitle, stepNumber, fields, navigationRules });
     },
-    onError: () => {
-      toast({
-        title: "Erro",
-        description: "Erro ao salvar o passo do formulário.",
-        variant: "destructive",
-      });
+    onError: (error: any) => {
+      console.error("Form step save error:", error);
+      
+      // Check if error has validation details
+      if (error.validationErrors && Array.isArray(error.validationErrors)) {
+        const errorMessages = error.validationErrors.map((err: any) => 
+          `${err.field}: ${err.message}`
+        ).join(', ');
+        
+        toast({
+          title: error.error || "Erro de Validação",
+          description: `${error.details || "Corrija os seguintes campos:"} ${errorMessages}`,
+          variant: "destructive",
+        });
+      } else if (error.details) {
+        toast({
+          title: error.error || "Erro",
+          description: error.details,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: "Erro ao salvar o passo do formulário. Verifique se todos os campos obrigatórios estão preenchidos.",
+          variant: "destructive",
+        });
+      }
     }
   });
 
