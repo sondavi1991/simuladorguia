@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, CheckCircle2, ArrowRight, ArrowLeft, Heart, Shield, Users } from "lucide-react";
+import { AlertCircle, CheckCircle2, ArrowRight, ArrowLeft, Heart, Shield, Users, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { FormStep, FormField, HealthPlan, StepNavigation } from "@shared/schema";
@@ -42,6 +42,39 @@ export default function EnhancedSimulatorForm() {
   const { data: healthPlans = [] } = useQuery<HealthPlan[]>({
     queryKey: ["/api/health-plans"],
   });
+
+  // WhatsApp contact handler with round-robin distribution
+  const handleWhatsAppContact = async (plan: HealthPlan) => {
+    try {
+      const response = await fetch('/api/whatsapp-attendants/next');
+      const attendant = await response.json();
+      
+      if (attendant && attendant.phoneNumber) {
+        const message = `Olá! Tenho interesse no plano ${plan.name} (R$ ${plan.monthlyPrice}/mês). Gostaria de mais informações.`;
+        const whatsappUrl = `https://wa.me/${attendant.phoneNumber.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+        
+        window.open(whatsappUrl, '_blank');
+        
+        toast({
+          title: "Redirecionando para WhatsApp",
+          description: `Você será atendido por ${attendant.name}`,
+        });
+      } else {
+        toast({
+          title: "Contato por WhatsApp",
+          description: "Entre em contato conosco para mais informações sobre este plano.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error getting WhatsApp attendant:', error);
+      toast({
+        title: "Erro ao conectar",
+        description: "Tente novamente em alguns instantes.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const form = useForm({
     defaultValues: navigationState.formData,
