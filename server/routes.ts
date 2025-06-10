@@ -105,11 +105,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Form submission routes
   app.post("/api/form-submissions", async (req, res) => {
     try {
-      const dataWithTimestamp = {
+      // Ensure arrays are properly formatted for PostgreSQL
+      const processedBody = {
         ...req.body,
+        services: Array.isArray(req.body.services) ? req.body.services : 
+                  (typeof req.body.services === 'string' ? JSON.parse(req.body.services) : req.body.services || []),
+        dependents: Array.isArray(req.body.dependents) ? req.body.dependents :
+                    (typeof req.body.dependents === 'string' ? JSON.parse(req.body.dependents) : req.body.dependents || []),
         submittedAt: new Date().toISOString()
       };
-      const validatedData = insertFormSubmissionSchema.parse(dataWithTimestamp);
+      
+      const validatedData = insertFormSubmissionSchema.parse(processedBody);
       const submission = await storage.createFormSubmission(validatedData);
       res.json(submission);
     } catch (error) {
