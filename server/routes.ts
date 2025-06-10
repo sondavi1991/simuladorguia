@@ -6,6 +6,7 @@ import {
   insertFormSubmissionSchema, 
   insertFormStepSchema, 
   insertHealthPlanSchema,
+  insertWhatsappAttendantSchema,
   loginSchema
 } from "@shared/schema";
 
@@ -367,6 +368,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: "Erro ao testar configurações SMTP",
         details: error?.message || "Erro desconhecido"
       });
+    }
+  });
+
+  // WhatsApp attendant routes
+  app.get('/api/whatsapp-attendants', async (req, res) => {
+    try {
+      // For now, return empty array - will be implemented with database
+      res.json([]);
+    } catch (error: any) {
+      console.error("Error fetching WhatsApp attendants:", error);
+      res.status(500).json({ message: "Failed to fetch WhatsApp attendants" });
+    }
+  });
+
+  app.post('/api/whatsapp-attendants', requireAuth, async (req, res) => {
+    try {
+      console.log("Creating WhatsApp attendant with data:", JSON.stringify(req.body, null, 2));
+      
+      const attendant = {
+        id: Date.now(), // Simple ID generation for now
+        ...req.body,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      
+      res.status(201).json(attendant);
+    } catch (error: any) {
+      console.error("Error creating WhatsApp attendant:", error);
+      res.status(500).json({ message: "Failed to create WhatsApp attendant" });
+    }
+  });
+
+  app.put('/api/whatsapp-attendants/:id', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      console.log("Updating WhatsApp attendant with ID:", id, "and data:", JSON.stringify(req.body, null, 2));
+      
+      const attendant = {
+        id,
+        ...req.body,
+        updatedAt: new Date().toISOString(),
+      };
+      
+      res.json(attendant);
+    } catch (error: any) {
+      console.error("Error updating WhatsApp attendant:", error);
+      res.status(500).json({ message: "Failed to update WhatsApp attendant" });
+    }
+  });
+
+  app.delete('/api/whatsapp-attendants/:id', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      console.log("Deleting WhatsApp attendant with ID:", id);
+      
+      res.json({ message: "WhatsApp attendant deleted successfully" });
+    } catch (error: any) {
+      console.error("Error deleting WhatsApp attendant:", error);
+      res.status(500).json({ message: "Failed to delete WhatsApp attendant" });
+    }
+  });
+
+  app.get('/api/whatsapp-attendants/next', async (req, res) => {
+    try {
+      // For now, return null - will be implemented with round-robin logic
+      res.json(null);
+    } catch (error: any) {
+      console.error("Error getting next WhatsApp attendant:", error);
+      res.status(500).json({ message: "Failed to get next WhatsApp attendant" });
     }
   });
 

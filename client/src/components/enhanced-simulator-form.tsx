@@ -438,9 +438,21 @@ export default function EnhancedSimulatorForm() {
                 <Card key={plan.id} className="border-2 hover:border-blue-500 transition-colors">
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-xl font-semibold">{plan.name}</h3>
-                        <p className="text-gray-600">{plan.description}</p>
+                      <div className="flex items-start gap-4">
+                        {plan.logoUrl && (
+                          <img 
+                            src={plan.logoUrl} 
+                            alt={`Logo ${plan.name}`}
+                            className="w-16 h-16 object-contain rounded-lg border"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        )}
+                        <div>
+                          <h3 className="text-xl font-semibold">{plan.name}</h3>
+                          <p className="text-gray-600">{plan.description}</p>
+                        </div>
                       </div>
                       <div className="text-right">
                         <div className="text-2xl font-bold text-blue-600">
@@ -476,9 +488,19 @@ export default function EnhancedSimulatorForm() {
                       </div>
                     )}
 
-                    <Button className="w-full mt-4 bg-blue-600 hover:bg-blue-700">
-                      Contratar este Plano
-                    </Button>
+                    <div className="flex gap-2 mt-4">
+                      <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
+                        Contratar este Plano
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="flex items-center gap-2 px-4"
+                        onClick={() => handleWhatsAppContact(plan)}
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        WhatsApp
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}

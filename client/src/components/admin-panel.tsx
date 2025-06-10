@@ -468,7 +468,8 @@ function PlanForm({ plan, onSave, onCancel, isLoading }: PlanFormProps) {
     features: plan.features?.join(", ") || "",
     coverage: plan.coverage || "regional",
     isRecommended: plan.isRecommended || false,
-    targetPriceRange: plan.targetPriceRange || "intermediate"
+    targetPriceRange: plan.targetPriceRange || "intermediate",
+    logoUrl: plan.logoUrl || ""
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -545,6 +546,18 @@ function PlanForm({ plan, onSave, onCancel, isLoading }: PlanFormProps) {
             <option value="premium">Premium</option>
             <option value="executive">Executivo</option>
           </select>
+        </div>
+        <div className="md:col-span-2">
+          <Label htmlFor="logoUrl">URL da Logo</Label>
+          <Input
+            id="logoUrl"
+            value={formData.logoUrl || ""}
+            onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
+            placeholder="https://example.com/logo.png"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            URL da imagem da logo do plano (opcional)
+          </p>
         </div>
       </div>
       
