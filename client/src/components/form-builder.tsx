@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -142,6 +142,12 @@ export default function FormBuilder({ step, onSave }: FormBuilderProps) {
   const [draggedItem, setDraggedItem] = useState<ComponentType | null>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  // Fetch available steps for navigation
+  const { data: allSteps = [] } = useQuery({
+    queryKey: ["/api/form-steps"],
+    select: (data) => data || []
+  });
 
   const saveStepMutation = useMutation({
     mutationFn: async (stepData: Partial<FormStep>) => {
@@ -515,7 +521,7 @@ export default function FormBuilder({ step, onSave }: FormBuilderProps) {
             fields={fields}
             navigationRules={navigationRules}
             onNavigationRulesChange={setNavigationRules}
-            availableSteps={[1, 2, 3, 4, 5]} // This should come from existing steps in the system
+            availableSteps={allSteps.map((step: any) => step.stepNumber).filter((num: number) => num !== stepNumber)}
           />
         </TabsContent>
 
