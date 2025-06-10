@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { MessageCircle, ExternalLink, Star, Trophy, Target, Zap } from "lucide-react";
 import type { FormStep, HealthPlan, FormField, StepNavigation } from "@shared/schema";
 import guiaUnicoLogo from "@assets/logo-guia-unico-scaled_1749516567711.png";
@@ -140,6 +140,9 @@ export default function CleanSimulator() {
       return response.json();
     },
     onSuccess: () => {
+      // Invalidate form submissions cache to refresh Analytics
+      queryClient.invalidateQueries({ queryKey: ["/api/form-submissions"] });
+      
       toast({
         title: "Simulação enviada com sucesso!",
         description: "Encontramos os melhores planos para você.",

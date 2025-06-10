@@ -33,8 +33,11 @@ export default function AnalyticsPanel() {
     priceRange: "all"
   });
 
-  const { data: submissions = [], isLoading } = useQuery<FormSubmission[]>({
+  const { data: submissions = [], isLoading, refetch } = useQuery<FormSubmission[]>({
     queryKey: ["/api/form-submissions"],
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    staleTime: 0, // Always refetch
   });
 
   const deleteSubmissionMutation = useMutation({
@@ -242,9 +245,21 @@ export default function AnalyticsPanel() {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="w-5 h-5" />
-            Filtros
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Filter className="w-5 h-5" />
+              Filtros
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetch()}
+              disabled={isLoading}
+              className="flex items-center gap-2"
+            >
+              <TrendingUp className="w-4 h-4" />
+              Atualizar Dados
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
