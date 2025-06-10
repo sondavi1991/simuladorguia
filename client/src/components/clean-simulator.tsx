@@ -363,7 +363,7 @@ export default function CleanSimulator() {
               value={value}
               onChange={(e) => handleFieldChange(field.id, e.target.value)}
               required={field.required}
-              className="border-gray-custom focus:border-primary"
+              className="border-gray-custom focus:border-primary text-sm sm:text-base"
             />
           </div>
         );
@@ -624,9 +624,9 @@ export default function CleanSimulator() {
       {/* Loading Overlay */}
       {gameState.isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-sm mx-4 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <h3 className="text-lg font-semibold text-secondary mb-2">
+          <div className="bg-white rounded-lg p-4 sm:p-6 lg:p-8 max-w-sm mx-4 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <h3 className="text-base sm:text-lg font-semibold text-secondary mb-2">
               {gameState.loadingMessage}
             </h3>
             <div className="w-full bg-gray-200 rounded-full h-2">
@@ -635,7 +635,7 @@ export default function CleanSimulator() {
                 style={{ width: `${gameState.progress}%` }}
               ></div>
             </div>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-xs sm:text-sm text-gray-600 mt-2">
               {gameState.progress}% concluído
             </p>
           </div>
@@ -645,21 +645,21 @@ export default function CleanSimulator() {
       
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-secondary mb-4">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-12">
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-secondary mb-2 sm:mb-4 leading-tight">
             Simulador - Guia Único dos planos de saúde
           </h1>
           
         </div>
 
         {/* Step Title */}
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-semibold text-secondary mb-2">
+        <div className="text-center mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-semibold text-secondary mb-2">
             {currentStepData.title}
           </h2>
           {currentStepData.description && (
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-sm sm:text-base px-2">
               {currentStepData.description}
             </p>
           )}
@@ -667,15 +667,15 @@ export default function CleanSimulator() {
 
         {/* Form Step */}
         <Card className="border-gray-custom shadow-lg">
-          <CardContent className="p-8">
-            <div className="space-y-6">
+          <CardContent className="p-4 sm:p-6 lg:p-8">
+            <div className="space-y-4 sm:space-y-6">
               {currentStepData.fields?.map(renderField)}
               
-              <div className="flex justify-end pt-6">
+              <div className="flex justify-center sm:justify-end pt-4 sm:pt-6">
                 <Button
                   onClick={handleNext}
                   disabled={submitFormMutation.isPending || gameState.isLoading}
-                  className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg"
+                  className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 text-base sm:text-lg"
                 >
                   {submitFormMutation.isPending || gameState.isLoading ? "Processando..." : "Continuar"}
                 </Button>
