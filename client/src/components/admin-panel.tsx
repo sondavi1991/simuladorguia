@@ -23,6 +23,7 @@ import {
 import FormBuilder from "./form-builder";
 import SmtpPanel from "./smtp-panel";
 import WhatsappPanel from "./whatsapp-panel";
+import AnalyticsPanel from "./analytics-panel";
 import type { FormSubmission, HealthPlan, FormStep } from "@shared/schema";
 
 export default function AdminPanel() {
@@ -292,65 +293,7 @@ export default function AdminPanel() {
         </TabsContent>
 
         <TabsContent value="responses" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="text-2xl font-bold text-gups-teal">{submissions.length}</div>
-                <p className="text-sm text-gray-600">Total de Respostas</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="text-2xl font-bold text-green-600">
-                  {submissions.filter(s => s.priceRange === 'premium').length}
-                </div>
-                <p className="text-sm text-gray-600">Interessados Premium</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="text-2xl font-bold text-blue-600">
-                  {submissions.filter(s => s.planType === 'family').length}
-                </div>
-                <p className="text-sm text-gray-600">Planos Familiares</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Respostas Recentes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {submissionsLoading ? (
-                <div className="text-center py-8">Carregando...</div>
-              ) : submissions.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  Nenhuma resposta encontrada
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {submissions.slice(0, 10).map((submission) => (
-                    <div key={submission.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-semibold">{submission.name}</h4>
-                          <p className="text-sm text-gray-600">{submission.email} • {submission.phone}</p>
-                          <div className="flex space-x-2 mt-2">
-                            <Badge variant="outline">{submission.planType}</Badge>
-                            <Badge variant="outline">{submission.priceRange}</Badge>
-                          </div>
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {new Date(submission.submittedAt).toLocaleDateString('pt-BR')}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <AnalyticsPanel />
         </TabsContent>
 
         <TabsContent value="plans" className="space-y-6">
