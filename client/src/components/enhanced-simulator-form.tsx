@@ -69,43 +69,76 @@ export default function EnhancedSimulatorForm() {
 
   const currentStepData = formSteps.find((step: FormStep) => step.stepNumber === navigationState.currentStep);
 
-  // Enhanced condition evaluation with proper type handling
+  // Enhanced condition evaluation with proper field matching
   const evaluateCondition = (rule: StepNavigation, formData: Record<string, any>): boolean => {
-    const fieldValue = formData[rule.condition.field];
-    const expectedValue = rule.condition.value;
+    const { field, operator, value: expectedValue } = rule.condition;
+    
+    // Try to find field value by field name/label or field ID
+    let fieldValue = formData[field];
+    
+    // If not found by field name, try by field ID from the current step
+    if (fieldValue === undefined && currentStepData?.fields) {
+      const matchingField = currentStepData.fields.find(f => f.label === field || f.id === field);
+      if (matchingField) {
+        fieldValue = formData[matchingField.id];
+      }
+    }
 
-    if (fieldValue === undefined || fieldValue === null) {
+    console.log(`🔍 Evaluating condition:`, {
+      field,
+      operator,
+      expectedValue,
+      fieldValue,
+      formData,
+      currentStep: navigationState.currentStep
+    });
+
+    if (fieldValue === undefined || fieldValue === null || fieldValue === '') {
+      console.log(`❌ Field value is empty, condition fails`);
       return false;
     }
 
-    switch (rule.condition.operator) {
+    let result = false;
+    switch (operator) {
       case 'equals':
-        return String(fieldValue) === String(expectedValue);
+        result = String(fieldValue) === String(expectedValue);
+        break;
       case 'not_equals':
-        return String(fieldValue) !== String(expectedValue);
+        result = String(fieldValue) !== String(expectedValue);
+        break;
       case 'contains':
-        return String(fieldValue).toLowerCase().includes(String(expectedValue).toLowerCase());
+        result = String(fieldValue).toLowerCase().includes(String(expectedValue).toLowerCase());
+        break;
       case 'greater_than':
-        return Number(fieldValue) > Number(expectedValue);
+        result = Number(fieldValue) > Number(expectedValue);
+        break;
       case 'less_than':
-        return Number(fieldValue) < Number(expectedValue);
+        result = Number(fieldValue) < Number(expectedValue);
+        break;
       case 'selected':
         if (Array.isArray(fieldValue)) {
-          return Array.isArray(expectedValue) 
+          result = Array.isArray(expectedValue) 
             ? expectedValue.some(val => fieldValue.includes(val))
             : fieldValue.includes(expectedValue);
+        } else {
+          result = String(fieldValue) === String(expectedValue);
         }
-        return String(fieldValue) === String(expectedValue);
+        break;
       case 'not_selected':
         if (Array.isArray(fieldValue)) {
-          return Array.isArray(expectedValue)
+          result = Array.isArray(expectedValue)
             ? !expectedValue.some(val => fieldValue.includes(val))
             : !fieldValue.includes(expectedValue);
+        } else {
+          result = String(fieldValue) !== String(expectedValue);
         }
-        return String(fieldValue) !== String(expectedValue);
+        break;
       default:
-        return false;
+        result = false;
     }
+    
+    console.log(`${result ? '✅' : '❌'} Condition result: ${result}`);
+    return result;
   };
 
   // Get step-specific plan recommendations
@@ -147,20 +180,32 @@ export default function EnhancedSimulatorForm() {
     // Update form data state
     const updatedFormData = { ...navigationState.formData, ...formData };
     
+    console.log(`🚀 Processing navigation for step ${stepData.stepNumber}:`, {
+      stepData: stepData.title,
+      navigationRules: stepData.navigationRules,
+      formData: updatedFormData
+    });
+    
     // Check for navigation rules
     if (!stepData.navigationRules || stepData.navigationRules.length === 0) {
-      // No navigation rules, proceed to next step
+      console.log(`📝 No navigation rules found, proceeding to next step`);
       goToNextStep(updatedFormData);
       return;
     }
 
     // Evaluate navigation rules (highest priority first)
     const sortedRules = stepData.navigationRules.sort((a, b) => (b.priority || 0) - (a.priority || 0));
+    console.log(`📋 Found ${sortedRules.length} navigation rules to evaluate`);
     
     for (const rule of sortedRules) {
+      console.log(`🔍 Evaluating rule:`, rule);
+      
       if (evaluateCondition(rule, updatedFormData)) {
+        console.log(`✅ Rule matched! Taking action:`, rule.target);
+        
         if (rule.target.type === 'step' && rule.target.stepNumber) {
           // Navigate to specific step
+          console.log(`➡️ Navigating to step ${rule.target.stepNumber}`);
           setNavigationState(prev => ({
             ...prev,
             currentStep: rule.target.stepNumber!,
@@ -170,13 +215,17 @@ export default function EnhancedSimulatorForm() {
           return;
         } else if (rule.target.type === 'end') {
           // Complete form with step-specific recommendations
+          console.log(`🏁 Completing form with message: ${rule.target.message}`);
           completeForm(stepData, updatedFormData);
           return;
         }
+      } else {
+        console.log(`❌ Rule did not match, trying next rule`);
       }
     }
 
     // No rules matched, proceed to next step
+    console.log(`📝 No rules matched, proceeding to next step`);
     goToNextStep(updatedFormData);
   };
 
