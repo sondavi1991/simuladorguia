@@ -5,6 +5,7 @@ import {
   formSteps, 
   healthPlans,
   smtpSettings,
+  whatsappAttendants,
   type User, 
   type Session,
   type InsertUser,
@@ -17,6 +18,8 @@ import {
   type InsertHealthPlan,
   type SmtpSettings,
   type InsertSmtpSettings,
+  type WhatsappAttendant,
+  type InsertWhatsappAttendant,
   type FormField,
   type ConditionalRule,
   type StepNavigation

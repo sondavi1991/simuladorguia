@@ -440,6 +440,75 @@ export default function AdminPanel() {
           </div>
         </TabsContent>
 
+        <TabsContent value="users" className="space-y-6">
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Gerenciar Usuários Administrativos</h2>
+                <p className="text-gray-600">Controle o acesso ao painel administrativo</p>
+              </div>
+              <Button 
+                onClick={() => setShowUserForm(true)}
+                className="bg-gups-teal hover:bg-gups-teal/90"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Novo Usuário
+              </Button>
+            </div>
+
+            {usersLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="text-gray-500">Carregando usuários...</div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {adminUsers.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    Nenhum usuário administrativo encontrado
+                  </div>
+                ) : (
+                  adminUsers.map((user) => (
+                    <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-gups-teal rounded-full flex items-center justify-center text-white font-semibold">
+                            {user.firstName ? user.firstName[0] : user.username[0]}
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-gray-900">
+                              {user.firstName && user.lastName 
+                                ? `${user.firstName} ${user.lastName}` 
+                                : user.username}
+                            </h3>
+                            <p className="text-gray-600">@{user.username}</p>
+                            {user.email && (
+                              <p className="text-sm text-gray-500">{user.email}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge className="bg-blue-100 text-blue-800">
+                          Administrador
+                        </Badge>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => deleteUserMutation.mutate(user.id)}
+                          disabled={deleteUserMutation.isPending}
+                          className="text-red-600 border-red-200 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
         <TabsContent value="whatsapp" className="space-y-6">
           <WhatsappPanel />
         </TabsContent>
