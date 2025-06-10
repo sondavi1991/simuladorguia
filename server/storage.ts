@@ -645,31 +645,13 @@ export class MemStorage implements IStorage {
       return undefined;
     }
 
-    // Implement round-robin distribution
-    // Count how many times each attendant has been assigned
-    const distributions = Array.from(this.whatsappDistribution.values());
-    const attendantCounts = new Map<number, number>();
+    // Simple round-robin: cycle through attendants by index
+    const selectedAttendant = activeAttendants[this.attendantRotationIndex % activeAttendants.length];
     
-    // Initialize counts for all active attendants
-    activeAttendants.forEach(attendant => {
-      attendantCounts.set(attendant.id, 0);
-    });
+    // Increment rotation index for next selection
+    this.attendantRotationIndex = (this.attendantRotationIndex + 1) % activeAttendants.length;
     
-    // Count actual distributions
-    distributions.forEach(dist => {
-      if (dist.attendantId && attendantCounts.has(dist.attendantId)) {
-        attendantCounts.set(dist.attendantId, attendantCounts.get(dist.attendantId)! + 1);
-      }
-    });
-    
-    // Find attendant(s) with minimum count, respecting priority
-    const minCount = Math.min(...Array.from(attendantCounts.values()));
-    const candidateAttendants = activeAttendants.filter(attendant => 
-      attendantCounts.get(attendant.id) === minCount
-    );
-    
-    // Return the highest priority attendant among those with minimum count
-    return candidateAttendants[0];
+    return selectedAttendant;
   }
 
 }
@@ -678,6 +660,7 @@ export class MemStorage implements IStorage {
 export class PostgreSQLStorage implements IStorage {
   private db: ReturnType<typeof drizzlePg>;
   private client: pg.Client;
+  private attendantRotationIndex: number = 0;
 
   constructor() {
     const databaseUrl = process.env.DATABASE_URL;
@@ -903,9 +886,23 @@ export class PostgreSQLStorage implements IStorage {
       .from(whatsappAttendants)
       .where(eq(whatsappAttendants.isActive, true))
       .orderBy(whatsappAttendants.priority);
-    return attendants[0];
+    
+    if (attendants.length === 0) {
+      return undefined;
+    }
+
+    // Simple round-robin: cycle through attendants by index
+    const selectedAttendant = attendants[this.attendantRotationIndex % attendants.length];
+    
+    // Increment rotation index for next selection
+    this.attendantRotationIndex = (this.attendantRotationIndex + 1) % attendants.length;
+    
+    return selectedAttendant;
   }
 }
+
+// Global rotation counter to persist across requests
+let globalAttendantRotationIndex = 0;
 
 // Initialize storage with connection testing
 async function initializeStorage(): Promise<IStorage> {
