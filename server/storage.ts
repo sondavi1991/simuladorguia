@@ -645,11 +645,11 @@ export class MemStorage implements IStorage {
       return undefined;
     }
 
-    // Simple round-robin: cycle through attendants by index
-    const selectedAttendant = activeAttendants[this.attendantRotationIndex % activeAttendants.length];
+    // Simple round-robin: cycle through attendants by index using global counter
+    const selectedAttendant = activeAttendants[globalAttendantRotationIndex % activeAttendants.length];
     
-    // Increment rotation index for next selection
-    this.attendantRotationIndex = (this.attendantRotationIndex + 1) % activeAttendants.length;
+    // Increment global rotation index for next selection
+    globalAttendantRotationIndex = (globalAttendantRotationIndex + 1) % activeAttendants.length;
     
     return selectedAttendant;
   }
@@ -891,11 +891,11 @@ export class PostgreSQLStorage implements IStorage {
       return undefined;
     }
 
-    // Simple round-robin: cycle through attendants by index
-    const selectedAttendant = attendants[this.attendantRotationIndex % attendants.length];
+    // Simple round-robin: cycle through attendants by index using global counter
+    const selectedAttendant = attendants[globalAttendantRotationIndex % attendants.length];
     
-    // Increment rotation index for next selection
-    this.attendantRotationIndex = (this.attendantRotationIndex + 1) % attendants.length;
+    // Increment global rotation index for next selection
+    globalAttendantRotationIndex = (globalAttendantRotationIndex + 1) % attendants.length;
     
     return selectedAttendant;
   }
