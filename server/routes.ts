@@ -134,7 +134,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Export form submissions to Excel
   app.get("/api/form-submissions/export", async (req, res) => {
     try {
-      const XLSX = eval('require')('xlsx');
       const submissions = await storage.getFormSubmissions();
       
       if (submissions.length === 0) {
