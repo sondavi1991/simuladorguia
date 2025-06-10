@@ -385,6 +385,32 @@ export class MemStorage implements IStorage {
     return user;
   }
 
+  async updateUser(id: number, updateData: Partial<InsertUser>): Promise<User | undefined> {
+    const existingUser = this.users.get(id);
+    if (!existingUser) {
+      return undefined;
+    }
+
+    // Hash password if provided
+    let hashedPassword = existingUser.password;
+    if (updateData.password) {
+      const bcrypt = await import('bcrypt');
+      hashedPassword = await bcrypt.hash(updateData.password, 12);
+    }
+
+    const updatedUser: User = {
+      ...existingUser,
+      ...updateData,
+      password: hashedPassword,
+      id, // Ensure ID remains the same
+      createdAt: existingUser.createdAt, // Preserve creation time
+      updatedAt: new Date() // Update modification time
+    };
+
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+
   async getAllUsers(): Promise<User[]> {
     return Array.from(this.users.values());
   }
