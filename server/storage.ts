@@ -88,6 +88,7 @@ export class MemStorage implements IStorage {
   private currentPlanId: number;
   private currentSmtpId: number;
   private currentWhatsappId: number;
+  private attendantRotationIndex: number;
 
   constructor() {
     this.users = new Map();
@@ -103,6 +104,7 @@ export class MemStorage implements IStorage {
     this.currentPlanId = 1;
     this.currentSmtpId = 1;
     this.currentWhatsappId = 1;
+    this.attendantRotationIndex = 0;
     
     this.initializeDefaultData();
   }
@@ -643,9 +645,31 @@ export class MemStorage implements IStorage {
       return undefined;
     }
 
-    // Simple round-robin: get the attendant with highest priority first,
-    // then cycle through them. For now, return the first available.
-    return activeAttendants[0];
+    // Implement round-robin distribution
+    // Count how many times each attendant has been assigned
+    const distributions = Array.from(this.whatsappDistribution.values());
+    const attendantCounts = new Map<number, number>();
+    
+    // Initialize counts for all active attendants
+    activeAttendants.forEach(attendant => {
+      attendantCounts.set(attendant.id, 0);
+    });
+    
+    // Count actual distributions
+    distributions.forEach(dist => {
+      if (dist.attendantId && attendantCounts.has(dist.attendantId)) {
+        attendantCounts.set(dist.attendantId, attendantCounts.get(dist.attendantId)! + 1);
+      }
+    });
+    
+    // Find attendant(s) with minimum count, respecting priority
+    const minCount = Math.min(...Array.from(attendantCounts.values()));
+    const candidateAttendants = activeAttendants.filter(attendant => 
+      attendantCounts.get(attendant.id) === minCount
+    );
+    
+    // Return the highest priority attendant among those with minimum count
+    return candidateAttendants[0];
   }
 
 }
