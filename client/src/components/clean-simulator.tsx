@@ -541,15 +541,6 @@ export default function CleanSimulator() {
   if (navigationState.isComplete) {
     return (
       <div className="min-h-screen bg-white">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-custom">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <img src={guiaUnicoLogo} alt="Guia Único" className="h-8 sm:h-10 lg:h-12 w-auto" />
-            </div>
-          </div>
-        </div>
-
         {/* Results */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-12">
           <div className="text-center mb-8 sm:mb-10 lg:mb-12">

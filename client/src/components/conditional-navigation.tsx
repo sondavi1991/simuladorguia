@@ -151,9 +151,9 @@ export default function ConditionalNavigation({
           <div className="text-sm space-y-2">
             <div className="flex items-center space-x-2 text-gray-700">
               <span className="font-medium">Se</span>
-              <Badge variant="secondary">{rule.condition.field}</Badge>
+              <Badge className="bg-[#2b428f] text-white hover:bg-[#2b428f]/90">{rule.condition.field}</Badge>
               <span>{getOperatorLabel(rule.condition.operator)}</span>
-              <Badge variant="outline">
+              <Badge className="bg-gray-100 text-gray-800 border-gray-300">
                 {Array.isArray(rule.condition.value) 
                   ? rule.condition.value.join(', ') 
                   : rule.condition.value}
@@ -166,7 +166,7 @@ export default function ConditionalNavigation({
               {rule.target.type === 'step' && (
                 <>
                   <span>ir para o passo</span>
-                  <Badge className="bg-gups-teal text-white">
+                  <Badge className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-secondary/80 text-[#dbdbdb] bg-[#2b428f]">
                     {rule.target.stepNumber}
                   </Badge>
                 </>
@@ -180,7 +180,7 @@ export default function ConditionalNavigation({
               {rule.target.type === 'external_url' && (
                 <>
                   <span>redirecionar para</span>
-                  <Badge variant="outline">{rule.target.url}</Badge>
+                  <Badge className="bg-gray-100 text-gray-800 border-gray-300">{rule.target.url}</Badge>
                 </>
               )}
             </div>
