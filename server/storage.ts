@@ -50,6 +50,11 @@ export interface IStorage {
   updateHealthPlan(id: number, plan: Partial<InsertHealthPlan>): Promise<HealthPlan | undefined>;
   deleteHealthPlan(id: number): Promise<boolean>;
   getRecommendedPlans(priceRange: string, services: string[]): Promise<HealthPlan[]>;
+  
+  // SMTP settings methods
+  getSmtpSettings(): Promise<SmtpSettings | undefined>;
+  createSmtpSettings(settings: InsertSmtpSettings): Promise<SmtpSettings>;
+  updateSmtpSettings(id: number, settings: Partial<InsertSmtpSettings>): Promise<SmtpSettings | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -58,10 +63,12 @@ export class MemStorage implements IStorage {
   private formSubmissions: Map<number, FormSubmission>;
   private formSteps: Map<number, FormStep>;
   private healthPlans: Map<number, HealthPlan>;
+  private smtpSettings: Map<number, SmtpSettings>;
   private currentUserId: number;
   private currentSubmissionId: number;
   private currentStepId: number;
   private currentPlanId: number;
+  private currentSmtpId: number;
 
   constructor() {
     this.users = new Map();

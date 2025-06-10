@@ -73,6 +73,19 @@ export const healthPlans = pgTable("health_plans", {
   targetPriceRange: text("target_price_range").notNull(),
 });
 
+export const smtpSettings = pgTable("smtp_settings", {
+  id: serial("id").primaryKey(),
+  host: text("host").notNull(),
+  port: integer("port").notNull().default(587),
+  username: text("username").notNull(),
+  password: text("password").notNull(),
+  protocol: text("protocol").notNull().default("STARTTLS"),
+  recipientEmail: text("recipient_email").notNull(),
+  isActive: boolean("is_active").default(true),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+  updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
+});
+
 // Types for form builder
 export type FormField = {
   id: string;
@@ -145,6 +158,12 @@ export const insertHealthPlanSchema = createInsertSchema(healthPlans).omit({
   id: true,
 });
 
+export const insertSmtpSettingsSchema = createInsertSchema(smtpSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
@@ -165,6 +184,7 @@ export type InsertFormSubmission = z.infer<typeof insertFormSubmissionSchema>;
 export type InsertFormStep = z.infer<typeof insertFormStepSchema>;
 export type InsertStepNavigation = z.infer<typeof insertStepNavigationSchema>;
 export type InsertHealthPlan = z.infer<typeof insertHealthPlanSchema>;
+export type InsertSmtpSettings = z.infer<typeof insertSmtpSettingsSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertSession = z.infer<typeof insertSessionSchema>;
 export type LoginData = z.infer<typeof loginSchema>;
@@ -173,5 +193,6 @@ export type FormSubmission = typeof formSubmissions.$inferSelect;
 export type FormStep = typeof formSteps.$inferSelect;
 export type StepNavigationRecord = typeof stepNavigations.$inferSelect;
 export type HealthPlan = typeof healthPlans.$inferSelect;
+export type SmtpSettings = typeof smtpSettings.$inferSelect;
 export type User = typeof users.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
