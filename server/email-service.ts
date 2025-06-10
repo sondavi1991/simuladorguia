@@ -15,7 +15,7 @@ export class EmailService {
         return;
       }
 
-      this.transporter = nodemailer.createTransporter({
+      this.transporter = nodemailer.createTransport({
         host: smtpSettings.host,
         port: smtpSettings.port,
         secure: smtpSettings.port === 465, // true for 465, false for other ports
@@ -36,7 +36,7 @@ export class EmailService {
 
   static async testConnection(smtpSettings: SmtpSettings): Promise<{ success: boolean; message: string }> {
     try {
-      const testTransporter = nodemailer.createTransporter({
+      const testTransporter = nodemailer.createTransport({
         host: smtpSettings.host,
         port: smtpSettings.port,
         secure: smtpSettings.port === 465,
@@ -102,7 +102,7 @@ export class EmailService {
 
   private static generateEmailTemplate(submission: FormSubmission): string {
     const formData = submission.formData;
-    const submittedAt = new Date(submission.submittedAt).toLocaleString('pt-BR');
+    const submittedAt = new Date(submission.submittedAt || new Date()).toLocaleString('pt-BR');
 
     return `
 <!DOCTYPE html>
@@ -419,7 +419,7 @@ export class EmailService {
 
   private static generateTextTemplate(submission: FormSubmission): string {
     const formData = submission.formData;
-    const submittedAt = new Date(submission.submittedAt).toLocaleString('pt-BR');
+    const submittedAt = new Date(submission.submittedAt || new Date()).toLocaleString('pt-BR');
 
     let text = `NOVA SIMULAÇÃO DE PLANO DE SAÚDE\n`;
     text += `=======================================\n\n`;

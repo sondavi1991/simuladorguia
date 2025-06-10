@@ -41,6 +41,8 @@ export default function SmtpPanel() {
     port: 587,
     username: "",
     password: "",
+    fromEmail: "",
+    fromName: "",
     protocol: "STARTTLS",
     recipientEmail: "",
     isActive: false,
@@ -54,6 +56,8 @@ export default function SmtpPanel() {
         port: smtpSettings.port || 587,
         username: smtpSettings.username || "",
         password: smtpSettings.password || "",
+        fromEmail: smtpSettings.fromEmail || "",
+        fromName: smtpSettings.fromName || "",
         protocol: smtpSettings.protocol || "STARTTLS",
         recipientEmail: smtpSettings.recipientEmail || "",
         isActive: smtpSettings.isActive || false,
@@ -232,6 +236,30 @@ export default function SmtpPanel() {
                 placeholder="••••••••••••"
                 value={formData.password}
                 onChange={(e) => handleInputChange("password", e.target.value)}
+                disabled={!isEditing}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="fromEmail">Email do remetente</Label>
+              <Input
+                id="fromEmail"
+                type="email"
+                placeholder="noreply@empresa.com"
+                value={formData.fromEmail}
+                onChange={(e) => handleInputChange("fromEmail", e.target.value)}
+                disabled={!isEditing}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="fromName">Nome do remetente</Label>
+              <Input
+                id="fromName"
+                placeholder="Guia Único - Simulador"
+                value={formData.fromName}
+                onChange={(e) => handleInputChange("fromName", e.target.value)}
                 disabled={!isEditing}
               />
             </div>
