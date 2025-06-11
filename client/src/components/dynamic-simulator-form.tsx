@@ -153,17 +153,33 @@ export default function DynamicSimulatorForm() {
   };
 
   // Complete form and generate recommendations
-  const completeForm = (formData: Record<string, any>) => {
-    const recommendations = generateRecommendations(formData);
-    setNavigationState(prev => ({
-      ...prev,
-      recommendations,
-      isComplete: true,
-      completedSteps: [...prev.completedSteps, navigationState.currentStep]
-    }));
+  const completeForm = async (formData: Record<string, any>) => {
+    try {
+      // Call backend recommendation API with conditional rules
+      const response = await apiRequest("POST", "/api/health-plans/recommend", { formData });
+      const recommendations = await response.json();
+      
+      setNavigationState(prev => ({
+        ...prev,
+        recommendations,
+        isComplete: true,
+        completedSteps: [...prev.completedSteps, navigationState.currentStep]
+      }));
 
-    // Submit form data to backend
-    submitFormMutation.mutate(formData);
+      // Submit form data to backend
+      submitFormMutation.mutate(formData);
+    } catch (error) {
+      console.error("Error getting recommendations:", error);
+      // Fallback to empty recommendations
+      setNavigationState(prev => ({
+        ...prev,
+        recommendations: [],
+        isComplete: true,
+        completedSteps: [...prev.completedSteps, navigationState.currentStep]
+      }));
+      
+      submitFormMutation.mutate(formData);
+    }
   };
 
   // Generate plan recommendations based on form data
