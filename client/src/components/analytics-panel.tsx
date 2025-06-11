@@ -362,28 +362,62 @@ export default function AnalyticsPanel() {
                     <TableCell>
                       <div className="space-y-1">
                         {submission.formData && typeof submission.formData === 'object' && (() => {
+                          // Get current form field IDs
+                          const currentFieldIds = new Set<string>();
+                          formSteps.forEach(step => {
+                            if (step.fields) {
+                              step.fields.forEach(field => {
+                                currentFieldIds.add(field.id);
+                              });
+                            }
+                          });
+
                           const entries = Object.entries(submission.formData);
-                          // Prioritize showing name, email, phone if they exist, otherwise show first few fields
+                          // Filter to show only relevant fields
                           const priorityFields = ['name', 'email', 'phone'];
-                          const priorityEntries = entries.filter(([key]) => priorityFields.includes(key));
-                          const otherEntries = entries.filter(([key]) => !priorityFields.includes(key));
+                          const relevantEntries = entries.filter(([key]) => {
+                            return currentFieldIds.has(key) || priorityFields.includes(key);
+                          });
+                          
+                          // Prioritize contact fields, then show others
+                          const priorityEntries = relevantEntries.filter(([key]) => priorityFields.includes(key));
+                          const otherEntries = relevantEntries.filter(([key]) => !priorityFields.includes(key));
                           const displayEntries = [...priorityEntries, ...otherEntries].slice(0, 3);
                           
                           return displayEntries.map(([key, value]) => (
                             <div key={key} className="text-xs">
                               <span className="font-medium">{getFieldLabel(key)}:</span> {
-                                Array.isArray(value) ? value.join(', ') : 
-                                typeof value === 'object' ? JSON.stringify(value) :
-                                String(value)
+                                value !== null && value !== undefined && String(value).trim() !== '' ? (
+                                  Array.isArray(value) ? value.join(', ') : 
+                                  typeof value === 'object' ? JSON.stringify(value) :
+                                  String(value)
+                                ) : (
+                                  <span className="text-gray-400">Não informado</span>
+                                )
                               }
                             </div>
                           ));
                         })()}
-                        {submission.formData && Object.keys(submission.formData).length > 3 && (
-                          <div className="text-xs text-gray-500">
-                            +{Object.keys(submission.formData).length - 3} campos...
-                          </div>
-                        )}
+                        {submission.formData && (() => {
+                          const currentFieldIds = new Set<string>();
+                          formSteps.forEach(step => {
+                            if (step.fields) {
+                              step.fields.forEach(field => {
+                                currentFieldIds.add(field.id);
+                              });
+                            }
+                          });
+                          const priorityFields = ['name', 'email', 'phone'];
+                          const relevantEntries = Object.entries(submission.formData).filter(([key]) => {
+                            return currentFieldIds.has(key) || priorityFields.includes(key);
+                          });
+                          
+                          return relevantEntries.length > 3 ? (
+                            <div className="text-xs text-gray-500">
+                              +{relevantEntries.length - 3} campos...
+                            </div>
+                          ) : null;
+                        })()}
                       </div>
                     </TableCell>
                     <TableCell className="text-xs text-gray-500">
@@ -427,8 +461,29 @@ export default function AnalyticsPanel() {
                               <div className="border-t pt-4">
                                 <h4 className="font-medium text-gray-900 mb-3">Dados do Formulário</h4>
                                 <div className="space-y-3">
-                                  {submission.formData && typeof submission.formData === 'object' ? 
-                                    Object.entries(submission.formData).map(([key, value]) => (
+                                  {submission.formData && typeof submission.formData === 'object' ? (() => {
+                                    // Get all current form field IDs from form steps
+                                    const currentFieldIds = new Set<string>();
+                                    formSteps.forEach(step => {
+                                      if (step.fields) {
+                                        step.fields.forEach(field => {
+                                          currentFieldIds.add(field.id);
+                                        });
+                                      }
+                                    });
+
+                                    // Filter to show only fields that exist in current form structure
+                                    const relevantEntries = Object.entries(submission.formData).filter(([key]) => {
+                                      // Always include basic contact fields (name, email, phone) for backwards compatibility
+                                      const basicFields = ['name', 'email', 'phone'];
+                                      return currentFieldIds.has(key) || basicFields.includes(key);
+                                    });
+
+                                    if (relevantEntries.length === 0) {
+                                      return <p className="text-gray-500 italic">Nenhum dado relevante encontrado</p>;
+                                    }
+
+                                    return relevantEntries.map(([key, value]) => (
                                       <div key={key} className="bg-gray-50 p-3 rounded-lg">
                                         <span className="font-medium text-gray-700">
                                           {getFieldLabel(key)}:
@@ -446,15 +501,17 @@ export default function AnalyticsPanel() {
                                             <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto">
                                               {JSON.stringify(value, null, 2)}
                                             </pre>
-                                          ) : (
+                                          ) : value !== null && value !== undefined && String(value).trim() !== '' ? (
                                             <p className="text-gray-900">{String(value)}</p>
+                                          ) : (
+                                            <p className="text-gray-400 italic">Não informado</p>
                                           )}
                                         </div>
                                       </div>
-                                    )) : (
-                                      <p className="text-gray-500 italic">Nenhum dado de formulário disponível</p>
-                                    )
-                                  }
+                                    ));
+                                  })() : (
+                                    <p className="text-gray-500 italic">Nenhum dado de formulário disponível</p>
+                                  )}
                                 </div>
                               </div>
                             </div>
