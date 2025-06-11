@@ -959,8 +959,13 @@ export class PostgreSQLStorage implements IStorage {
     const allPlans = await this.db.select().from(healthPlans);
     const recommendedPlans: { plan: HealthPlan; score: number }[] = [];
 
+    console.log("Evaluating plans against form data:", formData);
+
     for (const plan of allPlans) {
+      console.log(`Evaluating plan: ${plan.name}`);
+      
       if (!plan.recommendationRules || plan.recommendationRules.length === 0) {
+        console.log(`Plan ${plan.name} has no recommendation rules, skipping`);
         continue;
       }
 
@@ -968,20 +973,26 @@ export class PostgreSQLStorage implements IStorage {
       let highestScore = 0;
 
       for (const rule of plan.recommendationRules) {
+        console.log(`Evaluating rule: ${rule.name}, isActive: ${rule.isActive}`);
         if (!rule.isActive) continue;
 
         const ruleMatches = this.evaluateRecommendationRule(rule, formData);
+        console.log(`Rule ${rule.name} matches: ${ruleMatches}`);
+        
         if (ruleMatches) {
           planMatches = true;
           highestScore = Math.max(highestScore, rule.priority || 0);
         }
       }
 
+      console.log(`Plan ${plan.name} final match result: ${planMatches}`);
       if (planMatches) {
         recommendedPlans.push({ plan, score: highestScore });
       }
     }
 
+    console.log(`Total recommended plans: ${recommendedPlans.length}`);
+    
     // Sort by priority (higher score first) and return plans
     return recommendedPlans
       .sort((a, b) => b.score - a.score)
@@ -1018,9 +1029,13 @@ export class PostgreSQLStorage implements IStorage {
     const fieldValue = formData[condition.fieldId];
     const conditionValue = condition.value;
 
+    console.log(`Evaluating condition: fieldId=${condition.fieldId}, operator=${condition.operator}, conditionValue=${JSON.stringify(conditionValue)}, fieldValue=${JSON.stringify(fieldValue)}`);
+
     switch (condition.operator) {
       case 'equals':
-        return fieldValue === conditionValue;
+        const equalsResult = fieldValue === conditionValue;
+        console.log(`Equals comparison: ${JSON.stringify(fieldValue)} === ${JSON.stringify(conditionValue)} = ${equalsResult}`);
+        return equalsResult;
       case 'not_equals':
         return fieldValue !== conditionValue;
       case 'contains':
@@ -1052,6 +1067,7 @@ export class PostgreSQLStorage implements IStorage {
       case 'is_not_empty':
         return fieldValue && fieldValue !== '' && (!Array.isArray(fieldValue) || fieldValue.length > 0);
       default:
+        console.log(`Unknown operator: ${condition.operator}`);
         return false;
     }
   }
