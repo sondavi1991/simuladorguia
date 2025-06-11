@@ -316,26 +316,7 @@ export default function CleanSimulator() {
     }
   };
 
-  const getFilteredRecommendations = (formData: Record<string, any>): HealthPlan[] => {
-    const priceRange = formData.priceRange || formData.faixaPreco;
-    const services = formData.services || formData.servicos || [];
-    
-    return healthPlans.filter((plan: HealthPlan) => {
-      const matchesPriceRange = !priceRange || plan.targetPriceRange === priceRange;
-      const matchesServices = !services.length || 
-        (plan.features && services.some((service: string) => 
-          plan.features?.some((feature: string) => 
-            feature.toLowerCase().includes(service.toLowerCase())
-          )
-        ));
-      
-      return matchesPriceRange || matchesServices;
-    }).sort((a: HealthPlan, b: HealthPlan) => {
-      if (a.isRecommended && !b.isRecommended) return -1;
-      if (!a.isRecommended && b.isRecommended) return 1;
-      return a.monthlyPrice - b.monthlyPrice;
-    });
-  };
+
 
   const processNavigation = (stepData: FormStep, formData: Record<string, any>) => {
     // Mostrar loading para criar experiência envolvente
@@ -430,31 +411,44 @@ export default function CleanSimulator() {
     }, loadingDuration);
   };
 
-  const completeForm = (stepData: FormStep, formData: Record<string, any>) => {
-    const recommendations = getFilteredRecommendations(formData);
-    
-    setNavigationState(prev => ({
-      ...prev,
-      isComplete: true,
-      recommendations,
-      completedSteps: [...prev.completedSteps, prev.currentStep]
-    }));
+  const completeForm = async (stepData: FormStep, formData: Record<string, any>) => {
+    try {
+      // Get recommendations using conditional API
+      const response = await apiRequest("POST", "/api/health-plans/recommend", { formData });
+      const recommendations = await response.json();
+      
+      setNavigationState(prev => ({
+        ...prev,
+        isComplete: true,
+        recommendations,
+        completedSteps: [...prev.completedSteps, prev.currentStep]
+      }));
 
-    // Submit form data
-    const submissionData = {
-      name: formData.nome || formData.name || "",
-      email: formData.email || "",
-      phone: formData.telefone || formData.phone || "",
-      birthDate: formData.dataNascimento || formData.birthDate || "",
-      zipCode: formData.cep || formData.zipCode || "",
-      planType: formData.tipoPlano || formData.planType || "individual",
-      priceRange: formData.faixaPreco || formData.priceRange || "basic",
-      services: Array.isArray(formData.servicos) ? formData.servicos : 
-                Array.isArray(formData.services) ? formData.services : [],
-      dependents: formData.dependentes || formData.dependents || []
-    };
+      // Submit form data
+      const submissionData = {
+        name: formData.nome || formData.name || "",
+        email: formData.email || "",
+        phone: formData.telefone || formData.phone || "",
+        birthDate: formData.dataNascimento || formData.birthDate || "",
+        zipCode: formData.cep || formData.zipCode || "",
+        planType: formData.tipoPlano || formData.planType || "individual",
+        priceRange: formData.faixaPreco || formData.priceRange || "basic",
+        services: Array.isArray(formData.servicos) ? formData.servicos : 
+                  Array.isArray(formData.services) ? formData.services : [],
+        dependents: formData.dependentes || formData.dependents || []
+      };
 
-    submitFormMutation.mutate(submissionData);
+      submitFormMutation.mutate(submissionData);
+    } catch (error) {
+      console.error("Error getting recommendations:", error);
+      // Show empty recommendations on error
+      setNavigationState(prev => ({
+        ...prev,
+        isComplete: true,
+        recommendations: [],
+        completedSteps: [...prev.completedSteps, prev.currentStep]
+      }));
+    }
   };
 
 
@@ -466,8 +460,37 @@ export default function CleanSimulator() {
     }));
   };
 
+  const validateCurrentStep = (): boolean => {
+    if (!currentStepData?.fields) return true;
+    
+    const requiredFields = currentStepData.fields.filter(field => field.required);
+    
+    for (const field of requiredFields) {
+      const value = navigationState.formData[field.id];
+      
+      if (!value || (Array.isArray(value) && value.length === 0)) {
+        return false;
+      }
+      
+      if (typeof value === 'string' && value.trim() === '') {
+        return false;
+      }
+    }
+    
+    return true;
+  };
+
   const handleNext = () => {
     if (!currentStepData) return;
+    
+    if (!validateCurrentStep()) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha todos os campos obrigatórios antes de continuar.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     const updatedFormData = { ...navigationState.formData };
     processNavigation(currentStepData, updatedFormData);
@@ -511,6 +534,7 @@ export default function CleanSimulator() {
           <div key={field.id} className="space-y-2">
             <Label htmlFor={field.id} className="text-sm font-medium text-secondary">
               {field.label}
+              {!field.required && <span className="text-gray-400 text-xs ml-1">(Opcional)</span>}
             </Label>
             <Input
               id={field.id}
@@ -821,12 +845,8 @@ export default function CleanSimulator() {
           {navigationState.recommendations.length === 0 && (
             <div className="text-center py-8 sm:py-12 px-4">
               <h3 className="text-lg sm:text-xl font-semibold text-secondary mb-3 sm:mb-4">
-                Nenhum plano encontrado
+                OPS, vale com um de nossos consultores para que ele veja o melhor plano para você
               </h3>
-              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 max-w-md mx-auto">
-                Não encontramos planos que correspondam exatamente ao seu perfil, 
-                mas nossos especialistas podem ajudá-lo a encontrar a melhor opção.
-              </p>
               <Button
                 onClick={() => handleWhatsAppContact({
                   id: 0,
