@@ -927,15 +927,16 @@ export class PostgreSQLStorage implements IStorage {
     return allPlans.filter(plan => {
       // Filter by price range
       let priceMatch = false;
+      const price = parseFloat(plan.monthlyPrice.toString());
       switch (priceRange) {
         case 'low':
-          priceMatch = plan.monthlyPrice <= 200;
+          priceMatch = price <= 200;
           break;
         case 'medium':
-          priceMatch = plan.monthlyPrice > 200 && plan.monthlyPrice <= 500;
+          priceMatch = price > 200 && price <= 500;
           break;
         case 'high':
-          priceMatch = plan.monthlyPrice > 500;
+          priceMatch = price > 500;
           break;
         default:
           priceMatch = true;

@@ -961,7 +961,7 @@ function PlanForm({ plan, onSave, onCancel, isLoading }: PlanFormProps) {
   const [formData, setFormData] = useState({
     name: plan.name || "",
     description: plan.description || "",
-    monthlyPrice: plan.monthlyPrice || 0,
+    monthlyPrice: plan.monthlyPrice?.toString() || "",
     features: plan.features?.join(", ") || "",
     coverage: plan.coverage || "regional",
     isRecommended: plan.isRecommended || false,
@@ -1012,7 +1012,7 @@ function PlanForm({ plan, onSave, onCancel, isLoading }: PlanFormProps) {
                   step="0.01"
                   min="0"
                   value={formData.monthlyPrice}
-                  onChange={(e) => setFormData({ ...formData, monthlyPrice: parseFloat(e.target.value) || 0 })}
+                  onChange={(e) => setFormData({ ...formData, monthlyPrice: e.target.value })}
                   placeholder="710.45"
                   required
                 />

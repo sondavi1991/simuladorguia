@@ -87,7 +87,7 @@ export const healthPlans = pgTable("health_plans", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description").notNull(),
-  monthlyPrice: decimal("monthly_price", { precision: 10, scale: 2 }).notNull(),
+  monthlyPrice: text("monthly_price").notNull(), // Store as text to handle decimals properly
   features: json("features").$type<string[]>().default([]),
   coverage: text("coverage").notNull(),
   isRecommended: boolean("is_recommended").default(false),
