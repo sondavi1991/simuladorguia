@@ -205,7 +205,7 @@ export default function AdminPanel() {
   const handleSavePlan = (planData: Partial<HealthPlan>) => {
     planMutation.mutate({
       plan: planData,
-      isEdit: !!editingPlan,
+      isEdit: !!editingPlan?.id,
       id: editingPlan?.id
     });
   };
@@ -990,6 +990,7 @@ function PlanForm({ plan, onSave, onCancel, isLoading }: PlanFormProps) {
     onSave({
       ...formData,
       features: formData.features.split(",").map(f => f.trim()).filter(Boolean),
+      logoUrl: formData.logoUrl || null,
       recommendationRules
     });
   };

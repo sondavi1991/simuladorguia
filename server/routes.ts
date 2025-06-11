@@ -367,11 +367,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/health-plans", async (req, res) => {
     try {
+      console.log("POST /api/health-plans - Request body:", JSON.stringify(req.body, null, 2));
       const validatedData = insertHealthPlanSchema.parse(req.body);
       const plan = await storage.createHealthPlan(validatedData);
       res.json(plan);
-    } catch (error) {
-      res.status(400).json({ error: "Invalid health plan data" });
+    } catch (error: any) {
+      console.error("Health plan validation error:", error);
+      res.status(400).json({ error: "Invalid health plan data", details: error.message });
     }
   });
 
