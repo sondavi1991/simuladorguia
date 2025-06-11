@@ -1009,8 +1009,11 @@ function PlanForm({ plan, onSave, onCancel, isLoading }: PlanFormProps) {
                 <Input
                   id="monthlyPrice"
                   type="number"
+                  step="0.01"
+                  min="0"
                   value={formData.monthlyPrice}
-                  onChange={(e) => setFormData({ ...formData, monthlyPrice: parseInt(e.target.value) || 0 })}
+                  onChange={(e) => setFormData({ ...formData, monthlyPrice: parseFloat(e.target.value) || 0 })}
+                  placeholder="710.45"
                   required
                 />
               </div>

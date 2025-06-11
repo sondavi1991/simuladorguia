@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, json, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, json, timestamp, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -87,7 +87,7 @@ export const healthPlans = pgTable("health_plans", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description").notNull(),
-  monthlyPrice: integer("monthly_price").notNull(),
+  monthlyPrice: decimal("monthly_price", { precision: 10, scale: 2 }).notNull(),
   features: json("features").$type<string[]>().default([]),
   coverage: text("coverage").notNull(),
   isRecommended: boolean("is_recommended").default(false),
