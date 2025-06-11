@@ -1172,7 +1172,7 @@ export class PostgreSQLStorage implements IStorage {
       console.error('Error getting rotation index:', error);
     }
 
-    // Return the attendant that would be next without changing the rotation
+    // Return the attendant that would be selected NEXT (not current)
     const nextAttendant = attendants[currentIndex % attendants.length];
     return nextAttendant;
   }

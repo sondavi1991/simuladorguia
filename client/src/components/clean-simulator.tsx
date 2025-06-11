@@ -424,21 +424,8 @@ export default function CleanSimulator() {
         completedSteps: [...prev.completedSteps, prev.currentStep]
       }));
 
-      // Submit form data
-      const submissionData = {
-        name: formData.nome || formData.name || "",
-        email: formData.email || "",
-        phone: formData.telefone || formData.phone || "",
-        birthDate: formData.dataNascimento || formData.birthDate || "",
-        zipCode: formData.cep || formData.zipCode || "",
-        planType: formData.tipoPlano || formData.planType || "individual",
-        priceRange: formData.faixaPreco || formData.priceRange || "basic",
-        services: Array.isArray(formData.servicos) ? formData.servicos : 
-                  Array.isArray(formData.services) ? formData.services : [],
-        dependents: formData.dependentes || formData.dependents || []
-      };
-
-      submitFormMutation.mutate(submissionData);
+      // Submit form data - preserve all dynamic field data
+      submitFormMutation.mutate(formData);
     } catch (error) {
       console.error("Error getting recommendations:", error);
       // Show empty recommendations on error
