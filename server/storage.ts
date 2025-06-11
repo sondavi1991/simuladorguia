@@ -951,8 +951,109 @@ export class PostgreSQLStorage implements IStorage {
     }).sort((a, b) => {
       if (a.isRecommended && !b.isRecommended) return -1;
       if (!a.isRecommended && b.isRecommended) return 1;
-      return a.monthlyPrice - b.monthlyPrice;
+      return parseFloat(a.monthlyPrice.toString()) - parseFloat(b.monthlyPrice.toString());
     });
+  }
+
+  async getRecommendedPlansByFormData(formData: Record<string, any>): Promise<HealthPlan[]> {
+    const allPlans = await this.db.select().from(healthPlans);
+    const recommendedPlans: { plan: HealthPlan; score: number }[] = [];
+
+    for (const plan of allPlans) {
+      if (!plan.recommendationRules || plan.recommendationRules.length === 0) {
+        continue;
+      }
+
+      let planMatches = false;
+      let highestScore = 0;
+
+      for (const rule of plan.recommendationRules) {
+        if (!rule.isActive) continue;
+
+        const ruleMatches = this.evaluateRecommendationRule(rule, formData);
+        if (ruleMatches) {
+          planMatches = true;
+          highestScore = Math.max(highestScore, rule.priority || 0);
+        }
+      }
+
+      if (planMatches) {
+        recommendedPlans.push({ plan, score: highestScore });
+      }
+    }
+
+    // Sort by priority (higher score first) and return plans
+    return recommendedPlans
+      .sort((a, b) => b.score - a.score)
+      .map(item => item.plan);
+  }
+
+  private evaluateRecommendationRule(rule: any, formData: Record<string, any>): boolean {
+    if (!rule.groups || rule.groups.length === 0) return false;
+
+    const groupResults = rule.groups.map((group: any) => this.evaluateConditionGroup(group, formData));
+    
+    // Combine group results based on groupOperator
+    if (rule.groupOperator === 'OR') {
+      return groupResults.some(result => result);
+    } else {
+      return groupResults.every(result => result);
+    }
+  }
+
+  private evaluateConditionGroup(group: any, formData: Record<string, any>): boolean {
+    if (!group.conditions || group.conditions.length === 0) return false;
+
+    const conditionResults = group.conditions.map((condition: any) => this.evaluateCondition(condition, formData));
+    
+    // Combine condition results based on group operator
+    if (group.operator === 'OR') {
+      return conditionResults.some(result => result);
+    } else {
+      return conditionResults.every(result => result);
+    }
+  }
+
+  private evaluateCondition(condition: any, formData: Record<string, any>): boolean {
+    const fieldValue = formData[condition.fieldId];
+    const conditionValue = condition.value;
+
+    switch (condition.operator) {
+      case 'equals':
+        return fieldValue === conditionValue;
+      case 'not_equals':
+        return fieldValue !== conditionValue;
+      case 'contains':
+        return typeof fieldValue === 'string' && typeof conditionValue === 'string' 
+          && fieldValue.toLowerCase().includes(conditionValue.toLowerCase());
+      case 'not_contains':
+        return !(typeof fieldValue === 'string' && typeof conditionValue === 'string' 
+          && fieldValue.toLowerCase().includes(conditionValue.toLowerCase()));
+      case 'greater_than':
+        return Number(fieldValue) > Number(conditionValue);
+      case 'less_than':
+        return Number(fieldValue) < Number(conditionValue);
+      case 'greater_equal':
+        return Number(fieldValue) >= Number(conditionValue);
+      case 'less_equal':
+        return Number(fieldValue) <= Number(conditionValue);
+      case 'in_list':
+        if (Array.isArray(conditionValue)) {
+          return conditionValue.includes(fieldValue);
+        }
+        return false;
+      case 'not_in_list':
+        if (Array.isArray(conditionValue)) {
+          return !conditionValue.includes(fieldValue);
+        }
+        return true;
+      case 'is_empty':
+        return !fieldValue || fieldValue === '' || (Array.isArray(fieldValue) && fieldValue.length === 0);
+      case 'is_not_empty':
+        return fieldValue && fieldValue !== '' && (!Array.isArray(fieldValue) || fieldValue.length > 0);
+      default:
+        return false;
+    }
   }
 
   // SMTP Settings methods
