@@ -26,7 +26,8 @@ import FormBuilder from "./form-builder";
 import SmtpPanel from "./smtp-panel";
 import WhatsappPanel from "./whatsapp-panel";
 import AnalyticsPanel from "./analytics-panel";
-import type { FormSubmission, HealthPlan, FormStep, User } from "@shared/schema";
+import { PlanRecommendationRules } from "./plan-recommendation-rules";
+import type { FormSubmission, HealthPlan, FormStep, User, PlanRecommendationRule } from "@shared/schema";
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState("form-builder");
@@ -967,37 +968,52 @@ function PlanForm({ plan, onSave, onCancel, isLoading }: PlanFormProps) {
     targetPriceRange: plan.targetPriceRange || "intermediate",
     logoUrl: plan.logoUrl || ""
   });
+  
+  const [recommendationRules, setRecommendationRules] = useState<PlanRecommendationRule[]>(
+    plan.recommendationRules || []
+  );
+  
+  const [activeTab, setActiveTab] = useState("basic");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({
       ...formData,
-      features: formData.features.split(",").map(f => f.trim()).filter(Boolean)
+      features: formData.features.split(",").map(f => f.trim()).filter(Boolean),
+      recommendationRules
     });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <Label htmlFor="name">Nome do Plano</Label>
-          <Input
-            id="name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="monthlyPrice">Preço Mensal (R$)</Label>
-          <Input
-            id="monthlyPrice"
-            type="number"
-            value={formData.monthlyPrice}
-            onChange={(e) => setFormData({ ...formData, monthlyPrice: parseInt(e.target.value) || 0 })}
-            required
-          />
-        </div>
+    <div className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="basic">Informações Básicas</TabsTrigger>
+          <TabsTrigger value="rules">Regras de Recomendação</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="basic" className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="name">Nome do Plano</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="monthlyPrice">Preço Mensal (R$)</Label>
+                <Input
+                  id="monthlyPrice"
+                  type="number"
+                  value={formData.monthlyPrice}
+                  onChange={(e) => setFormData({ ...formData, monthlyPrice: parseInt(e.target.value) || 0 })}
+                  required
+                />
+              </div>
         <div className="md:col-span-2">
           <Label htmlFor="description">Descrição</Label>
           <Textarea
@@ -1068,14 +1084,37 @@ function PlanForm({ plan, onSave, onCancel, isLoading }: PlanFormProps) {
         <Label htmlFor="isRecommended">Marcar como recomendado</Label>
       </div>
 
-      <div className="flex justify-end space-x-4">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancelar
-        </Button>
-        <Button type="submit" disabled={isLoading} className="bg-gups-teal hover:bg-gups-teal/90">
-          {isLoading ? "Salvando..." : "Salvar Plano"}
-        </Button>
-      </div>
-    </form>
+            <div className="flex justify-end space-x-4">
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isLoading} className="bg-gups-teal hover:bg-gups-teal/90">
+                {isLoading ? "Salvando..." : "Salvar Plano"}
+              </Button>
+            </div>
+          </form>
+        </TabsContent>
+        
+        <TabsContent value="rules" className="space-y-6">
+          <PlanRecommendationRules 
+            rules={recommendationRules}
+            onRulesChange={setRecommendationRules}
+          />
+          <div className="flex justify-end space-x-4">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancelar
+            </Button>
+            <Button 
+              type="button" 
+              disabled={isLoading} 
+              className="bg-gups-teal hover:bg-gups-teal/90"
+              onClick={handleSubmit}
+            >
+              {isLoading ? "Salvando..." : "Salvar Plano"}
+            </Button>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
