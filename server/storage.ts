@@ -60,6 +60,7 @@ export interface IStorage {
   updateHealthPlan(id: number, plan: Partial<InsertHealthPlan>): Promise<HealthPlan | undefined>;
   deleteHealthPlan(id: number): Promise<boolean>;
   getRecommendedPlans(priceRange: string, services: string[]): Promise<HealthPlan[]>;
+  getRecommendedPlansByFormData(formData: Record<string, any>): Promise<HealthPlan[]>;
   
   // SMTP settings methods
   getSmtpSettings(): Promise<SmtpSettings[]>;

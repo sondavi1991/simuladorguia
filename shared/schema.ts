@@ -57,6 +57,32 @@ export const stepNavigations = pgTable("step_navigations", {
   createdAt: text("created_at").notNull().default(new Date().toISOString()),
 });
 
+// Types for plan recommendation rules (defined before usage)
+export type PlanCondition = {
+  id: string;
+  fieldId: string;
+  fieldLabel: string;
+  operator: 'equals' | 'not_equals' | 'contains' | 'not_contains' | 'greater_than' | 'less_than' | 'greater_equal' | 'less_equal' | 'in_list' | 'not_in_list' | 'is_empty' | 'is_not_empty';
+  value: string | number | string[];
+  valueType: 'text' | 'number' | 'date' | 'list';
+};
+
+export type PlanConditionGroup = {
+  id: string;
+  operator: 'AND' | 'OR';
+  conditions: PlanCondition[];
+};
+
+export type PlanRecommendationRule = {
+  id: string;
+  name: string;
+  description?: string;
+  isActive: boolean;
+  groups: PlanConditionGroup[];
+  groupOperator: 'AND' | 'OR'; // How to combine multiple groups
+  priority: number; // Higher number = higher priority
+};
+
 export const healthPlans = pgTable("health_plans", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -67,6 +93,7 @@ export const healthPlans = pgTable("health_plans", {
   isRecommended: boolean("is_recommended").default(false),
   targetPriceRange: text("target_price_range").notNull(),
   logoUrl: text("logo_url"),
+  recommendationRules: json("recommendation_rules").$type<PlanRecommendationRule[]>().default([]),
 });
 
 export const smtpSettings = pgTable("smtp_settings", {
