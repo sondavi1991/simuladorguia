@@ -174,38 +174,16 @@ export default function EnhancedSimulatorForm() {
     return result;
   };
 
-  // Get step-specific plan recommendations
-  const getStepRecommendations = (stepData: FormStep): HealthPlan[] => {
-    if (!stepData.recommendedPlanIds || stepData.recommendedPlanIds.length === 0) {
-      // Fallback to general recommendations based on form data
-      return generateGeneralRecommendations(navigationState.formData);
+  // Get step-specific plan recommendations using conditional API
+  const getStepRecommendations = async (formData: Record<string, any>): Promise<HealthPlan[]> => {
+    try {
+      // Use conditional recommendation API
+      const response = await apiRequest("POST", "/api/health-plans/recommend", { formData });
+      return await response.json();
+    } catch (error) {
+      console.error("Error getting recommendations:", error);
+      return [];
     }
-    
-    // Return plans specifically configured for this step
-    return healthPlans.filter((plan: HealthPlan) => 
-      stepData.recommendedPlanIds?.includes(plan.id!)
-    );
-  };
-
-  // Generate general recommendations as fallback
-  const generateGeneralRecommendations = (formData: Record<string, any>): HealthPlan[] => {
-    const priceRange = formData.priceRange || 'medio';
-    const services = formData.services || [];
-    
-    return healthPlans.filter((plan: HealthPlan) => {
-      const matchesPrice = plan.targetPriceRange === priceRange;
-      const hasMatchingServices = Array.isArray(services) && services.length > 0 
-        ? plan.features?.some(feature => services.some((service: string) => 
-            feature.toLowerCase().includes(service.toLowerCase())
-          ))
-        : true;
-      
-      return matchesPrice || hasMatchingServices || plan.isRecommended;
-    }).sort((a: HealthPlan, b: HealthPlan) => {
-      if (a.isRecommended && !b.isRecommended) return -1;
-      if (!a.isRecommended && b.isRecommended) return 1;
-      return a.monthlyPrice - b.monthlyPrice;
-    }).slice(0, 3);
   };
 
   // Process navigation with enhanced conditional logic
@@ -281,16 +259,34 @@ export default function EnhancedSimulatorForm() {
     }
   };
 
-  const completeForm = (stepData: FormStep, formData: Record<string, any>) => {
-    const recommendations = getStepRecommendations(stepData);
-    
-    setNavigationState(prev => ({
-      ...prev,
-      recommendations,
-      isComplete: true,
-      completedSteps: [...prev.completedSteps, prev.currentStep],
-      formData
-    }));
+  const completeForm = async (stepData: FormStep, formData: Record<string, any>) => {
+    try {
+      // Get recommendations using conditional API
+      const recommendations = await getStepRecommendations(formData);
+      
+      setNavigationState(prev => ({
+        ...prev,
+        recommendations: recommendations,
+        isComplete: true,
+        completedSteps: [...prev.completedSteps, prev.currentStep],
+        formData
+      }));
+
+      // Submit form data to backend
+      submitFormMutation.mutate(formData);
+    } catch (error) {
+      console.error("Error completing form:", error);
+      // Show empty recommendations on error
+      setNavigationState(prev => ({
+        ...prev,
+        recommendations: [],
+        isComplete: true,
+        completedSteps: [...prev.completedSteps, prev.currentStep],
+        formData
+      }));
+      
+      submitFormMutation.mutate(formData);
+    }
   };
 
   const handleSubmitStep = (data: any) => {
