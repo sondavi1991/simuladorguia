@@ -48,6 +48,11 @@ interface NavigationState {
   completedSteps: number[];
   recommendations: HealthPlan[];
   isComplete: boolean;
+  assignedAttendant?: {
+    id: number;
+    name: string;
+    phoneNumber: string;
+  };
 }
 
 interface GameificationState {
@@ -154,7 +159,8 @@ export default function CleanSimulator() {
     formData: {},
     completedSteps: [],
     recommendations: [],
-    isComplete: false
+    isComplete: false,
+    assignedAttendant: undefined
   });
 
   const [gameState, setGameState] = useState<GameificationState>({
@@ -417,10 +423,15 @@ export default function CleanSimulator() {
       const response = await apiRequest("POST", "/api/health-plans/recommend", { formData });
       const recommendations = await response.json();
       
+      // Get assigned attendant for this simulation
+      const attendantResponse = await apiRequest("GET", "/api/whatsapp-attendants/next");
+      const assignedAttendant = await attendantResponse.json();
+      
       setNavigationState(prev => ({
         ...prev,
         isComplete: true,
         recommendations,
+        assignedAttendant,
         completedSteps: [...prev.completedSteps, prev.currentStep]
       }));
 
@@ -485,20 +496,27 @@ export default function CleanSimulator() {
 
   const handleWhatsAppContact = async (plan: HealthPlan) => {
     try {
-      const response = await apiRequest("POST", "/api/whatsapp/contact", {
-        planName: plan.name,
-        userName: navigationState.formData.nome || navigationState.formData.name || "Cliente",
-        userPhone: navigationState.formData.telefone || navigationState.formData.phone || ""
-      });
-      
-      const result = await response.json();
-      if (result.whatsappUrl) {
-        window.open(result.whatsappUrl, '_blank');
+      // Use the assigned attendant for this simulation
+      const attendant = navigationState.assignedAttendant;
+      if (!attendant) {
+        toast({
+          title: "Erro",
+          description: "Nenhum atendente disponível no momento.",
+          variant: "destructive",
+        });
+        return;
       }
+
+      // Create WhatsApp message
+      const userName = navigationState.formData.nome || navigationState.formData.name || "Cliente";
+      const message = `Olá! Sou ${userName} e tenho interesse no plano *${plan.name}* no valor de R$ ${String(plan.monthlyPrice)}/mês. Gostaria de mais informações.`;
+      const whatsappUrl = `https://wa.me/${attendant.phoneNumber.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
       
+      window.open(whatsappUrl, '_blank');
+
       toast({
         title: "Redirecionando para WhatsApp",
-        description: `Você será conectado com nosso atendente para o plano ${plan.name}.`,
+        description: `Você será conectado com ${attendant.name} para o plano ${plan.name}.`,
       });
     } catch (error) {
       toast({
@@ -788,30 +806,30 @@ export default function CleanSimulator() {
 
           <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
             {navigationState.recommendations.map((plan) => (
-              <Card key={plan.id} className="border-gray-custom hover:shadow-lg transition-shadow">
-                <CardContent className="p-4 sm:p-6">
+              <Card key={plan.id} className="border-gray-custom hover:shadow-lg transition-shadow h-full flex flex-col">
+                <CardContent className="p-4 sm:p-6 flex flex-col h-full">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
                     <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-0">
                       {plan.logoUrl && (
                         <img src={plan.logoUrl} alt={plan.name} className="h-6 w-6 sm:h-8 sm:w-8 object-contain flex-shrink-0" />
                       )}
-                      <h3 className="font-semibold text-base sm:text-lg text-secondary">{plan.name}</h3>
+                      <h3 className="font-semibold text-base sm:text-lg text-secondary line-clamp-2">{plan.name}</h3>
                     </div>
                     {plan.isRecommended && (
-                      <span className="bg-primary text-white text-xs px-2 py-1 rounded-full self-start">
+                      <span className="bg-primary text-white text-xs px-2 py-1 rounded-full self-start flex-shrink-0">
                         Recomendado
                       </span>
                     )}
                   </div>
                   
-                  <p className="text-gray-600 mb-3 sm:mb-4 text-xs sm:text-sm">{plan.description}</p>
+                  <p className="text-gray-600 mb-3 sm:mb-4 text-xs sm:text-sm line-clamp-2 flex-shrink-0">{plan.description}</p>
                   
-                  <div className="text-xl sm:text-2xl font-bold text-primary mb-3 sm:mb-4">
+                  <div className="text-xl sm:text-2xl font-bold text-primary mb-3 sm:mb-4 flex-shrink-0">
                     R$ {plan.monthlyPrice}
                     <span className="text-xs sm:text-sm font-normal text-gray-500">/mês</span>
                   </div>
                   
-                  <div className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
+                  <div className="space-y-1 sm:space-y-2 mb-4 sm:mb-6 flex-1">
                     {plan.features?.slice(0, 3).map((feature, index) => (
                       <div key={index} className="text-xs sm:text-sm text-gray-600">
                         • {feature}
@@ -826,7 +844,7 @@ export default function CleanSimulator() {
                   
                   <Button
                     onClick={() => handleWhatsAppContact(plan)}
-                    className="w-full bg-primary hover:bg-primary/90 text-white text-sm sm:text-base py-2 sm:py-3"
+                    className="w-full bg-primary hover:bg-primary/90 text-white text-sm sm:text-base py-2 sm:py-3 mt-auto"
                   >
                     <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                     Contratar via WhatsApp
@@ -846,7 +864,7 @@ export default function CleanSimulator() {
                   id: 0,
                   name: "Consultoria Personalizada",
                   description: "Atendimento especializado",
-                  monthlyPrice: 0,
+                  monthlyPrice: "0",
                   features: [],
                   coverage: "",
                   isRecommended: false,
