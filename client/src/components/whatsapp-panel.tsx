@@ -22,9 +22,9 @@ export default function WhatsappPanel() {
     queryKey: ["/api/whatsapp-attendants"],
   });
 
-  // Fetch next attendant in queue
+  // Fetch next attendant in queue (preview only, doesn't change rotation)
   const { data: nextAttendant, isLoading: isLoadingNext } = useQuery<WhatsappAttendant>({
-    queryKey: ["/api/whatsapp-attendants/next"],
+    queryKey: ["/api/whatsapp-attendants/preview"],
     refetchInterval: 5000, // Atualiza a cada 5 segundos
   });
 

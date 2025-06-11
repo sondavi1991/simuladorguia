@@ -601,6 +601,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/whatsapp-attendants/preview', async (req, res) => {
+    try {
+      const nextAttendant = await storage.previewNextWhatsappAttendant();
+      res.json(nextAttendant);
+    } catch (error: any) {
+      console.error("Error previewing next WhatsApp attendant:", error);
+      res.status(500).json({ message: "Failed to preview next WhatsApp attendant" });
+    }
+  });
+
   // WhatsApp contact route using attendant queue
   app.post('/api/whatsapp/contact', async (req, res) => {
     try {

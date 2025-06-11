@@ -73,6 +73,7 @@ export interface IStorage {
   updateWhatsappAttendant(id: number, attendant: Partial<InsertWhatsappAttendant>): Promise<WhatsappAttendant | undefined>;
   deleteWhatsappAttendant(id: number): Promise<boolean>;
   getNextWhatsappAttendant(): Promise<WhatsappAttendant | undefined>;
+  previewNextWhatsappAttendant(): Promise<WhatsappAttendant | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -768,6 +769,20 @@ export class MemStorage implements IStorage {
     return selectedAttendant;
   }
 
+  async previewNextWhatsappAttendant(): Promise<WhatsappAttendant | undefined> {
+    const activeAttendants = Array.from(this.whatsappAttendants.values())
+      .filter(attendant => attendant.isActive)
+      .sort((a, b) => (a.priority || 1) - (b.priority || 1));
+    
+    if (activeAttendants.length === 0) {
+      return undefined;
+    }
+
+    // Return the next attendant without changing the rotation index
+    const nextAttendant = activeAttendants[globalAttendantRotationIndex % activeAttendants.length];
+    return nextAttendant;
+  }
+
 }
 
 // PostgreSQL implementation for Supabase
@@ -1134,6 +1149,32 @@ export class PostgreSQLStorage implements IStorage {
     }
     
     return selectedAttendant;
+  }
+
+  async previewNextWhatsappAttendant(): Promise<WhatsappAttendant | undefined> {
+    const attendants = await this.db.select()
+      .from(whatsappAttendants)
+      .where(eq(whatsappAttendants.isActive, true))
+      .orderBy(whatsappAttendants.priority);
+    
+    if (attendants.length === 0) {
+      return undefined;
+    }
+
+    // Get current rotation index from database without modifying it
+    let currentIndex = 0;
+    try {
+      const result = await this.client.query('SELECT current_index FROM attendant_rotation WHERE id = 1');
+      if (result.rows.length > 0) {
+        currentIndex = result.rows[0].current_index;
+      }
+    } catch (error) {
+      console.error('Error getting rotation index:', error);
+    }
+
+    // Return the attendant that would be next without changing the rotation
+    const nextAttendant = attendants[currentIndex % attendants.length];
+    return nextAttendant;
   }
 }
 
