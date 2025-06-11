@@ -553,6 +553,7 @@ export default function CleanSimulator() {
           <div key={field.id} className="space-y-2">
             <Label htmlFor={field.id} className="text-sm font-medium text-secondary">
               {field.label}
+              {!field.required && <span className="text-gray-400 text-xs ml-1">(Opcional)</span>}
             </Label>
             <Input
               id={field.id}
@@ -568,7 +569,10 @@ export default function CleanSimulator() {
       case 'radio':
         return (
           <div key={field.id} className="space-y-4">
-            <Label className="text-lg font-semibold text-secondary">{field.label}</Label>
+            <Label className="text-lg font-semibold text-secondary">
+              {field.label}
+              {!field.required && <span className="text-gray-400 text-xs ml-1">(Opcional)</span>}
+            </Label>
             <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
               {field.options?.map((option, index) => {
                 const isSelected = value === option;
@@ -640,7 +644,10 @@ export default function CleanSimulator() {
         const selectedValues = Array.isArray(value) ? value : [];
         return (
           <div key={field.id} className="space-y-4">
-            <Label className="text-lg font-semibold text-secondary">{field.label}</Label>
+            <Label className="text-lg font-semibold text-secondary">
+              {field.label}
+              {!field.required && <span className="text-gray-400 text-xs ml-1">(Opcional)</span>}
+            </Label>
             <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
               {field.options?.map((option, index) => {
                 const isSelected = selectedValues.includes(option);
