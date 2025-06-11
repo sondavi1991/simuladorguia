@@ -496,8 +496,21 @@ export default function CleanSimulator() {
 
   const handleWhatsAppContact = async (plan: HealthPlan) => {
     try {
-      // Use the assigned attendant for this simulation
-      const attendant = navigationState.assignedAttendant;
+      // Use the assigned attendant for this simulation, or get one if not assigned yet
+      let attendant = navigationState.assignedAttendant;
+      
+      if (!attendant) {
+        // Get an attendant for this contact
+        const attendantResponse = await apiRequest("GET", "/api/whatsapp-attendants/next");
+        attendant = await attendantResponse.json();
+        
+        // Update state with assigned attendant
+        setNavigationState(prev => ({
+          ...prev,
+          assignedAttendant: attendant
+        }));
+      }
+
       if (!attendant) {
         toast({
           title: "Erro",
@@ -869,7 +882,8 @@ export default function CleanSimulator() {
                   coverage: "",
                   isRecommended: false,
                   targetPriceRange: "",
-                  logoUrl: null
+                  logoUrl: null,
+                  recommendationRules: null
                 })}
                 className="bg-primary hover:bg-primary/90 text-white text-sm sm:text-base py-2 sm:py-3 px-4 sm:px-6"
               >
