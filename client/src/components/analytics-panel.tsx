@@ -41,6 +41,34 @@ export default function AnalyticsPanel() {
     staleTime: 0,
   });
 
+  // Fetch form steps to map field IDs to labels
+  const { data: formSteps = [] } = useQuery<any[]>({
+    queryKey: ["/api/form-steps"],
+  });
+
+  // Create a mapping of field IDs to their labels
+  const getFieldLabel = (fieldId: string): string => {
+    for (const step of formSteps) {
+      if (step.fields) {
+        for (const field of step.fields) {
+          if (field.id === fieldId) {
+            return field.label;
+          }
+        }
+      }
+    }
+    
+    // Fallback: try to format the field ID nicely
+    if (fieldId.includes('_')) {
+      const parts = fieldId.split('_');
+      // Take the readable part (usually after the timestamp)
+      const readablePart = parts[parts.length - 1];
+      return readablePart.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+    }
+    
+    return fieldId.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+  };
+
   const deleteSubmissionMutation = useMutation({
     mutationFn: async (id: number) => {
       const response = await apiRequest("DELETE", `/api/form-submissions/${id}`);
@@ -378,8 +406,8 @@ export default function AnalyticsPanel() {
                                   {submission.formData && typeof submission.formData === 'object' ? 
                                     Object.entries(submission.formData).map(([key, value]) => (
                                       <div key={key} className="bg-gray-50 p-3 rounded-lg">
-                                        <span className="font-medium text-gray-700 capitalize">
-                                          {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:
+                                        <span className="font-medium text-gray-700">
+                                          {getFieldLabel(key)}:
                                         </span>
                                         <div className="mt-1">
                                           {Array.isArray(value) ? (
