@@ -413,6 +413,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Advanced plan recommendations based on form data
+  app.post("/api/health-plans/recommend", async (req, res) => {
+    try {
+      const { formData } = req.body;
+      if (!formData) {
+        return res.status(400).json({ error: "Form data is required" });
+      }
+      
+      const recommendedPlans = await storage.getRecommendedPlansByFormData(formData);
+      res.json(recommendedPlans);
+    } catch (error: any) {
+      console.error("Error getting recommended plans:", error);
+      res.status(500).json({ error: "Failed to get recommended plans" });
+    }
+  });
+
   // SMTP Settings routes
   app.get("/api/smtp-settings", async (req, res) => {
     try {

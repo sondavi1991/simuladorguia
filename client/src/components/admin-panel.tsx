@@ -1014,75 +1014,75 @@ function PlanForm({ plan, onSave, onCancel, isLoading }: PlanFormProps) {
                   required
                 />
               </div>
-        <div className="md:col-span-2">
-          <Label htmlFor="description">Descrição</Label>
-          <Textarea
-            id="description"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            required
-          />
-        </div>
-        <div className="md:col-span-2">
-          <Label htmlFor="features">Características (separadas por vírgula)</Label>
-          <Textarea
-            id="features"
-            value={formData.features}
-            onChange={(e) => setFormData({ ...formData, features: e.target.value })}
-            placeholder="Cobertura Nacional, Telemedicina, Obstetrícia"
-          />
-        </div>
-        <div>
-          <Label htmlFor="coverage">Cobertura</Label>
-          <select
-            id="coverage"
-            value={formData.coverage}
-            onChange={(e) => setFormData({ ...formData, coverage: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-          >
-            <option value="regional">Regional</option>
-            <option value="nacional">Nacional</option>
-            <option value="internacional">Internacional</option>
-          </select>
-        </div>
-        <div>
-          <Label htmlFor="targetPriceRange">Faixa de Preço Alvo</Label>
-          <select
-            id="targetPriceRange"
-            value={formData.targetPriceRange}
-            onChange={(e) => setFormData({ ...formData, targetPriceRange: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-          >
-            <option value="basic">Básico</option>
-            <option value="intermediate">Intermediário</option>
-            <option value="premium">Premium</option>
-            <option value="executive">Executivo</option>
-          </select>
-        </div>
-        <div className="md:col-span-2">
-          <Label htmlFor="logoUrl">URL da Logo</Label>
-          <Input
-            id="logoUrl"
-            value={formData.logoUrl || ""}
-            onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
-            placeholder="https://example.com/logo.png"
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            URL da imagem da logo do plano (opcional)
-          </p>
-        </div>
-      </div>
-      
-      <div className="flex items-center space-x-2">
-        <input
-          type="checkbox"
-          id="isRecommended"
-          checked={formData.isRecommended}
-          onChange={(e) => setFormData({ ...formData, isRecommended: e.target.checked })}
-          className="h-4 w-4 text-gups-teal rounded border-gray-300 focus:ring-gups-teal"
-        />
-        <Label htmlFor="isRecommended">Marcar como recomendado</Label>
-      </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="description">Descrição</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="features">Características (separadas por vírgula)</Label>
+                <Textarea
+                  id="features"
+                  value={formData.features}
+                  onChange={(e) => setFormData({ ...formData, features: e.target.value })}
+                  placeholder="Cobertura Nacional, Telemedicina, Obstetrícia"
+                />
+              </div>
+              <div>
+                <Label htmlFor="coverage">Cobertura</Label>
+                <select
+                  id="coverage"
+                  value={formData.coverage}
+                  onChange={(e) => setFormData({ ...formData, coverage: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                >
+                  <option value="regional">Regional</option>
+                  <option value="nacional">Nacional</option>
+                  <option value="internacional">Internacional</option>
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="targetPriceRange">Faixa de Preço Alvo</Label>
+                <select
+                  id="targetPriceRange"
+                  value={formData.targetPriceRange}
+                  onChange={(e) => setFormData({ ...formData, targetPriceRange: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                >
+                  <option value="basic">Básico</option>
+                  <option value="intermediate">Intermediário</option>
+                  <option value="premium">Premium</option>
+                  <option value="executive">Executivo</option>
+                </select>
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="logoUrl">URL da Logo</Label>
+                <Input
+                  id="logoUrl"
+                  value={formData.logoUrl || ""}
+                  onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
+                  placeholder="https://example.com/logo.png"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  URL da imagem da logo do plano (opcional)
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="isRecommended"
+                checked={formData.isRecommended}
+                onChange={(e) => setFormData({ ...formData, isRecommended: e.target.checked })}
+                className="h-4 w-4 text-gups-teal rounded border-gray-300 focus:ring-gups-teal"
+              />
+              <Label htmlFor="isRecommended">Marcar como recomendado</Label>
+            </div>
 
             <div className="flex justify-end space-x-4">
               <Button type="button" variant="outline" onClick={onCancel}>
