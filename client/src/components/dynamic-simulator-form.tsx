@@ -182,74 +182,7 @@ export default function DynamicSimulatorForm() {
     }
   };
 
-  // Generate plan recommendations based on form data
-  const generateRecommendations = (formData: Record<string, any>): HealthPlan[] => {
-    if (healthPlans.length === 0) return [];
 
-    // Extract key factors from form data
-    const priceRange = formData.faixa_preco || formData.orcamento || formData.priceRange || '';
-    const age = formData.idade || formData.age || '';
-    const services = formData.servicos || formData.services || [];
-    const dependents = formData.dependentes || formData.dependents || [];
-
-    // Filter and score plans based on user responses
-    return healthPlans.filter((plan: HealthPlan) => {
-      // Filter by price range if specified
-      if (priceRange && plan.targetPriceRange) {
-        const priceMatches = [
-          'até R$ 200',
-          'R$ 200 - R$ 400', 
-          'R$ 400 - R$ 600',
-          'R$ 600 - R$ 800',
-          'acima de R$ 800'
-        ];
-        
-        const userPriceIndex = priceMatches.indexOf(priceRange);
-        const planPriceIndex = priceMatches.indexOf(plan.targetPriceRange);
-        
-        // Allow some flexibility in price matching (±1 range)
-        if (userPriceIndex !== -1 && planPriceIndex !== -1) {
-          const priceDiff = Math.abs(userPriceIndex - planPriceIndex);
-          if (priceDiff > 1) return false;
-        }
-      }
-
-      return true;
-    })
-    .sort((a: HealthPlan, b: HealthPlan) => {
-      // Sort by relevance score
-      let scoreA = 0;
-      let scoreB = 0;
-
-      // Boost recommended plans
-      if (a.isRecommended) scoreA += 10;
-      if (b.isRecommended) scoreB += 10;
-
-      // Consider price range exact match
-      if (priceRange) {
-        if (a.targetPriceRange === priceRange) scoreA += 5;
-        if (b.targetPriceRange === priceRange) scoreB += 5;
-      }
-
-      // Consider features match if services were selected
-      if (Array.isArray(services) && services.length > 0) {
-        const aFeatures = a.features || [];
-        const bFeatures = b.features || [];
-        
-        services.forEach((service: string) => {
-          if (aFeatures.some(f => f.toLowerCase().includes(service.toLowerCase()))) {
-            scoreA += 2;
-          }
-          if (bFeatures.some(f => f.toLowerCase().includes(service.toLowerCase()))) {
-            scoreB += 2;
-          }
-        });
-      }
-
-      return scoreB - scoreA;
-    })
-    .slice(0, 3); // Return top 3 recommendations
-  };
 
   // Handle step submission
   const onSubmit = (data: any) => {
