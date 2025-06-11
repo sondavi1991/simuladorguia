@@ -30,9 +30,11 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
 }
 
 function Router() {
+  const { isAuthenticated } = useAuth();
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      <Navigation />
+      {isAuthenticated && <Navigation />}
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/admin">
