@@ -134,7 +134,7 @@ export class MemStorage implements IStorage {
       {
         name: "Plano Saúde Premium",
         description: "Cobertura completa com rede credenciada nacional",
-        monthlyPrice: 485,
+        monthlyPrice: "485.00",
         features: ["Cobertura Nacional", "Telemedicina", "Obstetrícia", "Odontologia"],
         coverage: "nacional",
         isRecommended: true,
@@ -144,7 +144,7 @@ export class MemStorage implements IStorage {
       {
         name: "Plano Saúde Essencial",
         description: "Plano básico com boa cobertura regional",
-        monthlyPrice: 285,
+        monthlyPrice: "285.00",
         features: ["Cobertura Regional", "Telemedicina"],
         coverage: "regional",
         isRecommended: false,
@@ -154,7 +154,7 @@ export class MemStorage implements IStorage {
       {
         name: "Plano Saúde Executivo",
         description: "Premium com cobertura internacional",
-        monthlyPrice: 890,
+        monthlyPrice: "890.00",
         features: ["Cobertura Internacional", "Telemedicina", "Obstetrícia", "Odontologia", "Check-ups VIP"],
         coverage: "internacional",
         isRecommended: false,

@@ -388,7 +388,17 @@ export default function AdminPanel() {
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold">Planos de Saúde</h2>
             <Button 
-              onClick={() => setEditingPlan({} as HealthPlan)}
+              onClick={() => setEditingPlan({
+                name: "",
+                description: "",
+                monthlyPrice: "",
+                features: [],
+                coverage: "regional",
+                isRecommended: false,
+                targetPriceRange: "basic",
+                logoUrl: null,
+                recommendationRules: []
+              } as any)}
               className="bg-gups-teal hover:bg-gups-teal/90"
             >
               <Plus className="w-4 h-4 mr-2" />
