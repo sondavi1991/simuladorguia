@@ -48,6 +48,7 @@ export default function AnalyticsPanel() {
 
   // Create a mapping of field IDs to their labels
   const getFieldLabel = (fieldId: string): string => {
+    // Check dynamic fields in form steps
     for (const step of formSteps) {
       if (step.fields) {
         for (const field of step.fields) {
@@ -58,10 +59,26 @@ export default function AnalyticsPanel() {
       }
     }
     
-    // Fallback: try to format the field ID nicely
+    // Map old static field names to readable labels
+    const staticFieldLabels: Record<string, string> = {
+      'name': 'Nome Completo',
+      'email': 'E-mail',
+      'phone': 'Telefone',
+      'birthDate': 'Data de Nascimento',
+      'zipCode': 'CEP',
+      'planType': 'Tipo de Plano',
+      'priceRange': 'Faixa de Preço',
+      'services': 'Serviços',
+      'dependents': 'Dependentes'
+    };
+    
+    if (staticFieldLabels[fieldId]) {
+      return staticFieldLabels[fieldId];
+    }
+    
+    // Fallback: format field ID nicely
     if (fieldId.includes('_')) {
       const parts = fieldId.split('_');
-      // Take the readable part (usually after the timestamp)
       const readablePart = parts[parts.length - 1];
       return readablePart.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
     }
@@ -344,17 +361,24 @@ export default function AnalyticsPanel() {
                     </TableCell>
                     <TableCell>
                       <div className="space-y-1">
-                        {submission.formData && typeof submission.formData === 'object' && 
-                          Object.entries(submission.formData).slice(0, 3).map(([key, value]) => (
+                        {submission.formData && typeof submission.formData === 'object' && (() => {
+                          const entries = Object.entries(submission.formData);
+                          // Prioritize showing name, email, phone if they exist, otherwise show first few fields
+                          const priorityFields = ['name', 'email', 'phone'];
+                          const priorityEntries = entries.filter(([key]) => priorityFields.includes(key));
+                          const otherEntries = entries.filter(([key]) => !priorityFields.includes(key));
+                          const displayEntries = [...priorityEntries, ...otherEntries].slice(0, 3);
+                          
+                          return displayEntries.map(([key, value]) => (
                             <div key={key} className="text-xs">
-                              <span className="font-medium">{key}:</span> {
+                              <span className="font-medium">{getFieldLabel(key)}:</span> {
                                 Array.isArray(value) ? value.join(', ') : 
                                 typeof value === 'object' ? JSON.stringify(value) :
                                 String(value)
                               }
                             </div>
-                          ))
-                        }
+                          ));
+                        })()}
                         {submission.formData && Object.keys(submission.formData).length > 3 && (
                           <div className="text-xs text-gray-500">
                             +{Object.keys(submission.formData).length - 3} campos...
