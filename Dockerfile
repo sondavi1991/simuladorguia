@@ -35,12 +35,10 @@ RUN addgroup --system --gid 1001 nodejs && \
 # Copy only production files
 COPY --from=builder --chown=appuser:nodejs /app/dist ./dist
 COPY --from=builder --chown=appuser:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=appuser:nodejs /app/package-lock.json ./package-lock.json
 
-# Create a production-only package.json (without devDependencies)
-RUN node -e "const pkg = require('./package.json'); delete pkg.devDependencies; delete pkg.scripts.dev; delete pkg.scripts.build; delete pkg.scripts.check; pkg.scripts = { start: 'node dist/index.js' }; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2));"
-
-# Install only production dependencies
-RUN npm ci --only=production --frozen-lockfile && \
+# Install only production dependencies (using omit=dev instead of modifying package.json)
+RUN npm ci --omit=dev --frozen-lockfile && \
     npm cache clean --force && \
     rm -rf /tmp/* && \
     rm -rf /root/.npm
