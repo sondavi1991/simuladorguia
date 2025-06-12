@@ -18,9 +18,34 @@ export function log(message: string, source = "express") {
 export async function setupVite(app: Express, server: Server) {
   // Import vite only when needed (development)
   const { createServer: createViteServer, createLogger } = await import("vite");
-  const viteConfig = (await import("../vite.config")).default;
   
   const viteLogger = createLogger();
+  
+  // Create inline vite config instead of importing the file
+  const viteConfig = {
+    plugins: [
+      // Basic React plugin setup
+      (await import("@vitejs/plugin-react")).default(),
+    ],
+    resolve: {
+      alias: {
+        "@": path.resolve(import.meta.dirname, "..", "client", "src"),
+        "@shared": path.resolve(import.meta.dirname, "..", "shared"),
+        "@assets": path.resolve(import.meta.dirname, "..", "attached_assets"),
+      },
+    },
+    root: path.resolve(import.meta.dirname, "..", "client"),
+    build: {
+      outDir: path.resolve(import.meta.dirname, "..", "dist/public"),
+      emptyOutDir: true,
+    },
+    server: {
+      fs: {
+        strict: true,
+        deny: ["**/.*"],
+      },
+    },
+  };
   
   const serverOptions = {
     middlewareMode: true,
