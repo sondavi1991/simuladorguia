@@ -6,7 +6,7 @@ RUN apk add --no-cache libc6-compat python3 make g++ curl
 
 WORKDIR /app
 
-# Dependencies stage
+# Dependencies stage - All dependencies for building
 FROM base AS deps
 COPY package.json package-lock.json ./
 RUN npm ci --frozen-lockfile
@@ -32,14 +32,26 @@ WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 appuser
 
-# Copy built application
+# Copy only production files
 COPY --from=builder --chown=appuser:nodejs /app/dist ./dist
-COPY --from=builder --chown=appuser:nodejs /app/package*.json ./
+COPY --from=builder --chown=appuser:nodejs /app/package.json ./package.json
 
-# Install production dependencies only
+# Create a production-only package.json (without devDependencies)
+RUN node -e "
+const pkg = require('./package.json');
+delete pkg.devDependencies;
+delete pkg.scripts.dev;
+delete pkg.scripts.build;
+delete pkg.scripts.check;
+pkg.scripts = { start: 'node dist/index.js' };
+require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2));
+"
+
+# Install only production dependencies
 RUN npm ci --only=production --frozen-lockfile && \
     npm cache clean --force && \
-    rm -rf /tmp/*
+    rm -rf /tmp/* && \
+    rm -rf /root/.npm
 
 # Switch to non-root user
 USER appuser
