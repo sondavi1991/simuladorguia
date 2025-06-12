@@ -20,6 +20,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function Login() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -46,7 +47,6 @@ export default function Login() {
       return response.json();
     },
     onSuccess: (data) => {
-      const queryClient = useQueryClient();
       // Set the user data immediately to update the UI
       queryClient.setQueryData(["/api/auth/me"], data);
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
@@ -56,7 +56,7 @@ export default function Login() {
         description: "Bem-vindo de volta!",
       });
       
-      // Small delay to ensure state update before navigation
+      // Pequeno delay para garantir atualização de estado antes do redirecionamento
       setTimeout(() => {
         navigate("/admin");
       }, 100);

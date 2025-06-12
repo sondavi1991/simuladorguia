@@ -12,6 +12,7 @@ import {
   loginSchema
 } from "@shared/schema";
 import * as XLSX from "xlsx";
+import rateLimit from 'express-rate-limit';
 
 interface AuthenticatedRequest extends Request {
   user?: any;
@@ -44,6 +45,17 @@ function requireAuth(req: AuthenticatedRequest, res: Response, next: any) {
   next();
 }
 
+// Limite de 5 tentativas de login por IP a cada 15 minutos
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5,
+  message: {
+    error: 'Muitas tentativas de login. Tente novamente em 15 minutos.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint for deployment monitoring
   app.get("/api/health", (req, res) => {
@@ -59,7 +71,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(authenticateSession);
 
   // Authentication routes
-  app.post("/api/auth/login", async (req, res) => {
+  app.post("/api/auth/login", loginLimiter, async (req, res) => {
     try {
       const { username, password } = loginSchema.parse(req.body);
       const result = await AuthStorage.login(username, password);

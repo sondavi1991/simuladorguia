@@ -322,8 +322,6 @@ export default function CleanSimulator() {
     }
   };
 
-
-
   const processNavigation = (stepData: FormStep, formData: Record<string, any>) => {
     // Mostrar loading para criar experiência envolvente
     const isLastStep = navigationState.currentStep === formSteps.length;
@@ -448,8 +446,6 @@ export default function CleanSimulator() {
       }));
     }
   };
-
-
 
   const handleFieldChange = (fieldId: string, value: any) => {
     setNavigationState(prev => ({
@@ -599,58 +595,34 @@ export default function CleanSimulator() {
                 return (
                   <div
                     key={index}
-                    onClick={() => handleFieldChange(field.id, option)}
                     className={`
                       relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 group
-                      ${isSelected 
-                        ? 'border-primary bg-primary/5 shadow-lg transform scale-105' 
-                        : 'border-gray-200 bg-white hover:border-primary/50 hover:shadow-md hover:transform hover:scale-102'
+                      ${isSelected
+                        ? 'bg-primary border-primary text-white'
+                        : 'bg-white border-gray-200 text-gray-700 hover:border-primary/50 hover:shadow-md hover:scale-102'
                       }
                     `}
+                    onClick={() => handleFieldChange(field.id, option)}
                   >
-                    {/* Selection indicator */}
+                    {/* Ícone */}
                     <div className={`
-                      absolute top-4 right-4 w-5 h-5 rounded-full border-2 transition-all duration-200 flex items-center justify-center
-                      ${isSelected 
-                        ? 'border-primary bg-primary' 
-                        : 'border-gray-300 group-hover:border-primary/50 bg-white'
-                      }
-                    `}>
-                      {isSelected && (
-                        <div className="w-2 h-2 rounded-full bg-white"></div>
-                      )}
-                    </div>
-
-                    {/* Icon */}
-                    <div className={`
-                      flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300
-                      ${isSelected 
-                        ? 'bg-primary text-white' 
+                      flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300 z-10
+                      ${isSelected
+                        ? 'bg-white text-primary'
                         : 'bg-gray-100 text-gray-500 group-hover:bg-primary/10 group-hover:text-primary'
                       }
                     `}>
                       {optionIcon}
                     </div>
-
-                    {/* Text */}
-                    <div className="text-center">
+                    {/* Texto */}
+                    <div className="text-center z-10">
                       <p className={`
                         font-medium text-base transition-colors duration-200
-                        ${isSelected 
-                          ? 'text-primary' 
-                          : 'text-gray-700 group-hover:text-primary'
-                        }
+                        ${isSelected ? 'text-white' : 'text-gray-700 group-hover:text-primary'}
                       `}>
                         {option}
                       </p>
                     </div>
-
-                    {/* Animated background effect */}
-                    <div className={`
-                      absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300
-                      ${isSelected ? 'opacity-100' : 'opacity-0'}
-                      bg-gradient-to-br from-primary/5 to-primary/10
-                    `}></div>
                   </div>
                 );
               })}
@@ -674,63 +646,39 @@ export default function CleanSimulator() {
                 return (
                   <div
                     key={index}
+                    className={`
+                      relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 group
+                      ${isSelected
+                        ? 'bg-primary border-primary text-white'
+                        : 'bg-white border-gray-200 text-gray-700 hover:border-primary/50 hover:shadow-md hover:scale-102'
+                      }
+                    `}
                     onClick={() => {
                       const newValues = isSelected
                         ? selectedValues.filter(v => v !== option)
                         : [...selectedValues, option];
                       handleFieldChange(field.id, newValues);
                     }}
-                    className={`
-                      relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 group
-                      ${isSelected 
-                        ? 'border-primary bg-primary/5 shadow-lg transform scale-105' 
-                        : 'border-gray-200 bg-white hover:border-primary/50 hover:shadow-md hover:transform hover:scale-102'
-                      }
-                    `}
                   >
-                    {/* Selection indicator - square for checkboxes */}
+                    {/* Ícone */}
                     <div className={`
-                      absolute top-4 right-4 w-5 h-5 rounded border-2 transition-all duration-200 flex items-center justify-center
-                      ${isSelected 
-                        ? 'border-primary bg-primary' 
-                        : 'border-gray-300 group-hover:border-primary/50'
-                      }
-                    `}>
-                      {isSelected && (
-                        <Check className="w-3 h-3 text-white" />
-                      )}
-                    </div>
-
-                    {/* Icon */}
-                    <div className={`
-                      flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300
-                      ${isSelected 
-                        ? 'bg-primary text-white' 
+                      flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300 z-10
+                      ${isSelected
+                        ? 'bg-white text-primary'
                         : 'bg-gray-100 text-gray-500 group-hover:bg-primary/10 group-hover:text-primary'
                       }
                     `}>
                       {optionIcon}
                     </div>
-
-                    {/* Text */}
-                    <div className="text-center">
+                    {/* Texto */}
+                    <div className="text-center z-10">
                       <p className={`
                         font-medium text-base transition-colors duration-200
-                        ${isSelected 
-                          ? 'text-primary' 
-                          : 'text-gray-700 group-hover:text-primary'
-                        }
+                        ${isSelected ? 'text-white' : 'text-gray-700 group-hover:text-primary'}
                       `}>
                         {option}
                       </p>
                     </div>
-
-                    {/* Animated background effect */}
-                    <div className={`
-                      absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300
-                      ${isSelected ? 'opacity-100' : 'opacity-0'}
-                      bg-gradient-to-br from-primary/5 to-primary/10
-                    `}></div>
                   </div>
                 );
               })}

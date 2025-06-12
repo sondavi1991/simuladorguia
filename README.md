@@ -137,3 +137,43 @@ MIT License
 
 ## Suporte
 Para suporte técnico, consulte a documentação de deployment ou verifique os logs da aplicação.
+
+# Guia Saúde
+
+Projeto pronto para deploy no Coolify usando Docker.
+
+## Como rodar no Coolify
+
+1. **Configure a variável de ambiente do banco:**
+   - No painel do Coolify, adicione a variável `DATABASE_URL` com a string de conexão do seu banco PostgreSQL/Supabase.
+
+2. **Deploy via Dockerfile:**
+   - O Coolify irá buildar a imagem usando o `Dockerfile` já pronto.
+   - O app irá rodar na porta 3000 (exposta no Dockerfile).
+
+3. **Acesse a aplicação:**
+   - O Coolify irá mapear a porta 3000 para a URL do seu projeto.
+
+## Variáveis de ambiente obrigatórias
+
+- `DATABASE_URL` (string de conexão do banco PostgreSQL)
+- (Opcional) Outras variáveis do seu `.env` se necessário
+
+## Build e start local (opcional)
+
+```sh
+npm install
+npm run build
+PORT=3000 npm start
+```
+
+## Deploy manual via Docker (opcional)
+
+```sh
+docker build -t guia-saude .
+docker run -p 3000:3000 --env DATABASE_URL=postgresql://usuario:senha@host:porta/postgres guia-saude
+```
+
+---
+
+Se precisar de ajuda para migrar o banco ou configurar o deploy, consulte o README ou peça suporte!
