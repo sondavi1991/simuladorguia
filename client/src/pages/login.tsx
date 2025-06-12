@@ -123,12 +123,6 @@ export default function Login() {
               {loginMutation.isPending ? "Fazendo login..." : "Entrar"}
             </Button>
           </form>
-          
-          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
-            <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">Test Credentials:</p>
-            <p className="text-sm text-blue-600 dark:text-blue-400">Username: admin</p>
-            <p className="text-sm text-blue-600 dark:text-blue-400">Password: admin123</p>
-          </div>
         </CardContent>
       </Card>
     </div>
