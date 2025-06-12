@@ -33,7 +33,7 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 appuser
 
 # Copy built application
-COPY --from=builder --chown=appuser:nodejs /app/dist ./
+COPY --from=builder --chown=appuser:nodejs /app/dist ./dist
 COPY --from=builder --chown=appuser:nodejs /app/package*.json ./
 
 # Install production dependencies only
@@ -45,16 +45,16 @@ RUN npm ci --only=production --frozen-lockfile && \
 USER appuser
 
 # Expose application port
-EXPOSE 5000
+EXPOSE 3000
 
 # Environment variables
 ENV NODE_ENV=production
-ENV PORT=5000
+ENV PORT=3000
 ENV HOST=0.0.0.0
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:5000/api/health || exit 1
+  CMD curl -f http://localhost:3000/api/health || exit 1
 
 # Start application
-CMD ["node", "index.js"]
+CMD ["node", "dist/index.js"]
