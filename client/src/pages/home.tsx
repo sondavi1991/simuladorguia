@@ -19,7 +19,7 @@ export default function Home() {
             className="inline-block hover:opacity-80 transition-opacity"
           >
             <img 
-              src="/logo-guia-unico.png" 
+              src="/images/logo-guia-unico.png" 
               alt="Guia Único dos Planos de Saúde" 
               className="h-20 md:h-24 w-auto mx-auto" 
             />

@@ -818,7 +818,7 @@ export default function CleanSimulator() {
           {navigationState.recommendations.length === 0 && (
             <div className="text-center py-8 sm:py-12 px-4">
               <h3 className="text-lg sm:text-xl font-semibold text-secondary mb-3 sm:mb-4">
-                OPS, vale com um de nossos consultores para que ele veja o melhor plano para você
+              Ops, nenhum plano foi encontrado. Recomendamos que você entre em contato com um de nossos consultores para uma análise detalhada de suas necessidades. Eles poderão apresentar as opções de planos de saúde mais adequadas ao seu perfil e orçamento.
               </h3>
               <Button
                 onClick={() => handleWhatsAppContact({
@@ -840,6 +840,16 @@ export default function CleanSimulator() {
               </Button>
             </div>
           )}
+        </div>
+
+        {/* Aviso de simulação */}
+        <div className="max-w-3xl mx-auto mt-10">
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-xl shadow text-yellow-900 text-base sm:text-lg text-justify">
+            <strong>Aviso importante:</strong> <br />
+            Os valores apresentados nesta simulação são meramente informativos e representam uma estimativa inicial. Os preços e condições dos planos de saúde estão sujeitos a alterações pelas operadoras, de acordo com fatores como a sua idade, região de cobertura, tipo de plano e rede credenciada. <br /><br />
+            Para obter uma proposta personalizada e informações precisas, entre em contato com um de nossos consultores especializados. <br />
+            <span className="font-semibold">A Guia Único dos Planos de Saúde está à disposição para te auxiliar na escolha do plano ideal para você e sua família.</span>
+          </div>
         </div>
       </div>
     );
