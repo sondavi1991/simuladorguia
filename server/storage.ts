@@ -420,6 +420,14 @@ export class MemStorage implements IStorage {
   }
 
   async deleteUser(id: number): Promise<boolean> {
+    // First, delete all sessions for this user to maintain consistency
+    Array.from(this.sessions.entries()).forEach(([sessionId, session]) => {
+      if (session.userId === id) {
+        this.sessions.delete(sessionId);
+      }
+    });
+    
+    // Then delete the user
     return this.users.delete(id);
   }
 
@@ -854,6 +862,10 @@ export class PostgreSQLStorage implements IStorage {
   }
 
   async deleteUser(id: number): Promise<boolean> {
+    // First, delete all sessions for this user to avoid foreign key constraint violation
+    await this.db.delete(sessions).where(eq(sessions.userId, id));
+    
+    // Then delete the user
     const result = await this.db.delete(users).where(eq(users.id, id)).returning();
     return result.length > 0;
   }

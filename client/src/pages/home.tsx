@@ -1,83 +1,139 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MessageCircle, BarChart3, Users, CheckCircle, Play, Shield } from "lucide-react";
-import { Link } from "wouter";
-import { openWhatsApp } from "@/lib/whatsapp";
 import { useState } from "react";
+import { Link } from "wouter";
 
 export default function Home() {
   const [termsAccepted, setTermsAccepted] = useState(true);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 lg:py-16">
-          <div className="text-center animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-4 sm:mb-6 leading-tight">
-              Simulador - Guia Único dos planos de saúde
+    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-white">
+      {/* Header */}
+      <header className="w-full px-6 py-8">
+        <div className="container mx-auto text-center">
+          <a 
+            href="https://www.guiadeplanosdesaude.com.br/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-block hover:opacity-80 transition-opacity"
+          >
+            <img 
+              src="/logo-guia-unico.png" 
+              alt="Guia Único dos Planos de Saúde" 
+              className="h-20 md:h-24 w-auto mx-auto" 
+            />
+          </a>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-6 py-12 md:py-20">
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Hero Section */}
+          <div className="animate-fade-in-up">
+            <h1 className="text-4xl md:text-6xl font-bold text-brand-black mb-6 leading-tight">
+              Encontre o plano de saúde{" "}
+              <span className="text-brand-blue">ideal para você</span>
             </h1>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto mb-6 sm:mb-8 leading-relaxed px-2">
-              Encontre seu plano de saúde ideal com nosso simulador, faça sua simulação gratuita e rápida conosco
+            
+            <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+              Compare planos, analise benefícios e faça a melhor escolha para sua saúde e a de sua família com nosso simulador inteligente.
             </p>
+          </div>
+
+          {/* CTA Section */}
+          <div className="animate-fade-in-up" style={{animationDelay: '0.3s'}}>
+            <Card className="p-8 md:p-12 bg-white/80 backdrop-blur-sm border-2 border-brand-blue/10 shadow-xl hover:shadow-2xl transition-all duration-300 max-w-2xl mx-auto">
+              <div className="space-y-6">
+                <div className="w-20 h-20 mx-auto bg-brand-blue/10 rounded-full flex items-center justify-center animate-pulse-soft">
+                  <div className="w-10 h-10 bg-brand-blue rounded-full flex items-center justify-center">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
+                      <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="currentColor" />
+                    </svg>
+                  </div>
+                </div>
+                
+                <h2 className="text-2xl md:text-3xl font-semibold text-brand-black">
+                  Pronto para começar?
+                </h2>
+                
+                <p className="text-gray-600 text-lg">
+                  Responda algumas perguntas simples e descubra os planos que mais se adequam ao seu perfil e orçamento.
+                </p>
+                
+                <Link href="/simulator">
+                  <Button 
+                    size="lg" 
+                    disabled={!termsAccepted}
+                    className="bg-brand-blue hover:bg-brand-blue/90 text-white px-12 py-6 text-xl font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:scale-100"
+                  >
+                    Faça a sua simulação
+                  </Button>
+                </Link>
+                
+                <div className="flex items-center justify-center space-x-2 mt-4">
+                  <Checkbox 
+                    id="terms" 
+                    checked={termsAccepted}
+                    onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                  />
+                  <label 
+                    htmlFor="terms" 
+                    className="text-sm text-gray-600 cursor-pointer"
+                  >
+                    Ao iniciar você concorda com nossos termos de uso e política de privacidade
+                  </label>
+                </div>
+                
+                <p className="text-sm text-gray-500 mt-4">
+                  ✓ Gratuito ✓ Rápido ✓ Sem compromisso
+                </p>
+              </div>
+            </Card>
+          </div>
+
+          {/* Features Section */}
+          <div className="grid md:grid-cols-3 gap-8 mt-20 animate-fade-in-up" style={{animationDelay: '0.6s'}}>
+            <div className="text-center p-6">
+              <div className="w-16 h-16 mx-auto bg-brand-blue/10 rounded-full flex items-center justify-center mb-4">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-brand-blue">
+                  <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-brand-black mb-2">Comparação Inteligente</h3>
+              <p className="text-gray-600">Compare dezenas de planos de forma rápida e objetiva</p>
+            </div>
             
+            <div className="text-center p-6">
+              <div className="w-16 h-16 mx-auto bg-brand-blue/10 rounded-full flex items-center justify-center mb-4">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-brand-blue">
+                  <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-brand-black mb-2">Personalizado</h3>
+              <p className="text-gray-600">Recomendações baseadas no seu perfil e necessidades</p>
+            </div>
             
+            <div className="text-center p-6">
+              <div className="w-16 h-16 mx-auto bg-brand-blue/10 rounded-full flex items-center justify-center mb-4">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-brand-blue">
+                  <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-brand-black mb-2">Resultado Instantâneo</h3>
+              <p className="text-gray-600">Tenha a resposta em poucos minutos</p>
+            </div>
           </div>
         </div>
-      </div>
-      {/* Main Action Cards */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-8 sm:pb-16">
-        <div className="grid grid-cols-1 gap-6 sm:gap-8 mb-8 sm:mb-16 max-w-2xl mx-auto">
-          {/* Simulator Card */}
-          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-blue-50 border-0 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 sm:hover:-translate-y-2 animate-in fade-in slide-in-from-left duration-700">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative p-4 sm:p-6 lg:p-8">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4 sm:mb-6">
-                <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-2 sm:p-3 rounded-xl sm:rounded-2xl mb-3 sm:mb-0 sm:mr-4 group-hover:scale-110 transition-transform duration-300">
-                  <Play className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
-                </div>
-                <div className="text-center sm:text-left">
-                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Iniciar Simulação</h2>
-                  <p className="text-blue-600 font-medium text-sm sm:text-base">Encontre seu plano ideal</p>
-                </div>
-              </div>
-              
-              
-              <Link href="/simulator">
-                <Button 
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 sm:py-4 text-base sm:text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={!termsAccepted}
-                >
-                  Começar Simulação
-                  <Play className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
-                </Button>
-              </Link>
-              
-              <div className="flex items-start space-x-3 mt-4 text-xs sm:text-sm text-gray-600">
-                <Checkbox 
-                  id="terms"
-                  checked={termsAccepted}
-                  onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
-                  className="border-gray-300 mt-0.5 flex-shrink-0"
-                />
-                <label htmlFor="terms" className="cursor-pointer leading-relaxed">
-                  Ao iniciar você concorda com nossos termos de uso e política de privacidade
-                </label>
-              </div>
-            </div>
-          </Card>
+      </main>
 
-          
+      {/* Footer */}
+      <footer className="mt-20 py-8 border-t border-gray-200">
+        <div className="container mx-auto px-6 text-center text-gray-500">
+          <p>© 2025 Guia Único dos Planos de Saúde. Todos os direitos reservados.</p>
         </div>
-
-        
-
-        
-      </div>
+      </footer>
     </div>
   );
 }

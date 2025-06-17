@@ -710,7 +710,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Username already exists" });
       }
 
-      const newUser = await storage.createUser({
+      // Criação centralizada com hash
+      const { AuthStorage } = await import('./auth-storage');
+      const newUser = await AuthStorage.createUser({
         username,
         email: email || null,
         firstName: firstName || null,

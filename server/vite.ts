@@ -23,10 +23,6 @@ export async function setupVite(app: Express, server: Server) {
   
   // Create inline vite config instead of importing the file
   const viteConfig = {
-    plugins: [
-      // Basic React plugin setup
-      (await import("@vitejs/plugin-react")).default(),
-    ],
     resolve: {
       alias: {
         "@": path.resolve(import.meta.dirname, "..", "client", "src"),
@@ -55,7 +51,7 @@ export async function setupVite(app: Express, server: Server) {
 
   const vite = await createViteServer({
     ...viteConfig,
-    configFile: false,
+    configFile: path.resolve(import.meta.dirname, '..', 'vite.config.ts'),
     customLogger: {
       ...viteLogger,
       error: (msg, options) => {
