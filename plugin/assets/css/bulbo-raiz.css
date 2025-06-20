@@ -1,0 +1,979 @@
+/**
+ * Bulbo Raiz Plugin Styles
+ * Estilos para o formulário de contato - Design inspirado na imagem
+ */
+
+/* Container Principal */
+.bulbo-raiz-form-container {
+    max-width: 600px;
+    padding: 40px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #10b9811a 0%, #044825 100%);
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    color: white;
+}
+
+/* Grupos de Campo */
+.bulbo-raiz-field-group {
+    margin-bottom: 25px;
+}
+
+/* Labels */
+.bulbo-raiz-label {
+    display: block;
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+/* Inputs Gerais */
+.bulbo-raiz-input,
+.bulbo-raiz-select {
+    width: 100%;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 0 !important;
+    font-size: 17px;
+    background: #8EC8AF;
+    color: #024725;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    outline: none;
+    height: 50px !important;
+    font-weight: 600;
+}
+
+/* Campo telefone específico */
+.bulbo-raiz-input[type="tel"] {
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 1px;
+}
+
+.bulbo-raiz-input:focus,
+.bulbo-raiz-select:focus {
+    background: #ffffff;
+    color: #024725;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.bulbo-raiz-input::placeholder {
+    color: #024725;
+    font-style: italic;
+    opacity: 0.7;
+}
+
+/* Select específico */
+.bulbo-raiz-select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23024725' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 15px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 45px;
+    appearance: none;
+}
+
+/* Primeiro select (tipo de atendimento) sempre branco */
+#bulbo_service_type {
+    background: #ffffff !important;
+    color: #024725 !important;
+}
+
+/* Campos que seguem o padrão estado (fundo verde claro, branco ao focar) */
+#bulbo_name,
+#bulbo_email, 
+#bulbo_phone {
+    background: #8EC8AF !important;
+    color: #024725 !important;
+}
+
+#bulbo_name:focus,
+#bulbo_email:focus,
+#bulbo_phone:focus {
+    background: #ffffff !important;
+    color: #024725 !important;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3) !important;
+    transform: translateY(-1px) !important;
+}
+
+#bulbo_name::placeholder,
+#bulbo_email::placeholder,
+#bulbo_phone::placeholder {
+    color: #024725 !important;
+    opacity: 0.7 !important;
+    font-style: italic !important;
+}
+
+/* Campo telefone mantém fonte monospace para melhor legibilidade */
+#bulbo_phone {
+    font-family: 'Courier New', Courier, monospace !important;
+    letter-spacing: 1px !important;
+}
+
+/* Interface de busca de cidades */
+.city-search-container {
+    position: relative;
+    margin-top: 0;
+    z-index: 100;
+}
+
+.city-search-input {
+    width: 100%;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 0 !important;
+    font-size: 16px;
+    background: #8EC8AF;
+    color: #024725;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    outline: none;
+    height: 48px !important;
+}
+
+.city-search-input:focus {
+    background: #ffffff;
+    color: #024725;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.city-search-input::placeholder {
+    color: #024725;
+    font-style: italic;
+    opacity: 0.7;
+}
+
+.city-search-input:read-only {
+    background: rgba(220, 252, 231, 0.9);
+    color: #10b981;
+    cursor: default;
+    font-weight: 600;
+}
+
+.search-results {
+    position: relative;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    margin-top: 5px;
+    display: none;
+}
+
+.search-results.show {
+    display: block;
+}
+
+.search-loading,
+.search-message,
+.search-error {
+    padding: 16px 20px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
+
+.search-error {
+    color: #dc2626;
+    background: #fef2f2;
+    border-radius: 8px;
+}
+
+.search-info-result {
+    padding: 12px 20px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 12px;
+    color: #475569;
+    font-weight: 500;
+    border-radius: 8px 8px 0 0;
+}
+
+.city-results {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.city-result-item {
+    padding: 14px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f5f9;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    color: #000 !important;
+    background: #fff;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.city-result-item:hover {
+    background: #f8fafc !important;
+    color: #10b981 !important;
+    transform: translateX(5px);
+}
+
+.city-result-item:last-child {
+    border-bottom: none;
+    border-radius: 0 0 8px 8px;
+}
+
+.city-result-item.selected {
+    background: #ecfdf5 !important;
+    color: #10b981 !important;
+    font-weight: 600;
+}
+
+.city-selected {
+    padding: 16px 20px;
+    background: #ecfdf5;
+    color: #10b981;
+    text-align: center;
+    font-weight: 500;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.change-city-btn {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.change-city-btn:hover {
+    background: #059669;
+    transform: scale(1.05);
+}
+
+.search-loading {
+    animation: pulse 1.5s ease-in-out infinite;
+    color: #10b981;
+    font-weight: 500;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Texto de Campo Obrigatório */
+.bulbo-raiz-required {
+    display: block;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    margin-top: 5px;
+    text-align: right;
+    font-style: italic;
+}
+
+/* Texto de Ajuda */
+.bulbo-raiz-help {
+    display: block;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 11px;
+    margin-top: 5px;
+    text-align: left;
+    font-style: italic;
+}
+
+/* Animações para campos que aparecem/desaparecem */
+#city-field-group,
+#neighborhood-field-group {
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Loading states para selects */
+.bulbo-raiz-select:disabled {
+    background-color: rgba(255, 255, 255, 0.6);
+    cursor: not-allowed;
+    color: #9ca3af;
+}
+
+.bulbo-raiz-select option:disabled {
+    color: #9ca3af;
+}
+
+/* Estado de carregamento para os selects */
+.bulbo-raiz-select.loading {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M10 3v3m6 2l-2.12 2.12M17 10h-3m-2 6l-2.12-2.12M10 17v-3m-6-2l2.12-2.12M3 10h3m2-6l2.12 2.12'/%3e%3c/svg%3e"), url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 35px center, right 15px center;
+    background-repeat: no-repeat, no-repeat;
+    background-size: 16px, 16px;
+    animation: bulbo-spin 1s linear infinite;
+    padding-right: 65px;
+}
+
+/* Estilos específicos para campos de geografia */
+.geography-field {
+    position: relative;
+}
+
+.geography-field.has-dependency {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.geography-field.has-dependency:after {
+    content: "Selecione o campo anterior primeiro";
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 11px;
+    font-style: italic;
+}
+
+/* Wrapper do Botão */
+.bulbo-raiz-submit-wrapper {
+    text-align: right;
+    margin-top: 35px;
+}
+
+/* Botão Enviar */
+.bulbo-raiz-submit-btn {
+    background: white;
+    color: #004322;
+    border: none;
+    padding: 15px 40px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 0px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 140px;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.bulbo-raiz-submit-btn:hover {
+    background: #f3f4f6;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.bulbo-raiz-submit-btn:active {
+    transform: translateY(0);
+}
+
+.bulbo-raiz-submit-btn:disabled {
+    background: #9ca3af;
+    color: white;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.bulbo-raiz-btn-text {
+    font-weight: 700;
+}
+
+/* Loading States */
+.bulbo-raiz-loading {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    color: white;
+}
+
+.bulbo-raiz-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: bulbo-spin 1s ease-in-out infinite;
+}
+
+.bulbo-raiz-spinner-large {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(16, 185, 129, 0.3);
+    border-radius: 50%;
+    border-top-color: #10b981;
+    animation: bulbo-spin 1s ease-in-out infinite;
+}
+
+@keyframes bulbo-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Overlay */
+.bulbo-raiz-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.bulbo-raiz-overlay-content {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.bulbo-raiz-overlay-content p {
+    margin: 20px 0 0 0;
+    color: #374151;
+    font-size: 16px;
+}
+
+/* Área de Resultado */
+.bulbo-raiz-result {
+    margin-top: 30px;
+}
+
+.bulbo-raiz-success-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    animation: bulbo-fadeIn 0.5s ease-in-out;
+}
+
+.bulbo-raiz-success-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.bulbo-raiz-success-icon {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 30px;
+}
+
+.bulbo-raiz-success-header h4 {
+    color: #10b981;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Informações do Distribuidor */
+.bulbo-raiz-distributor-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border-left: 4px solid #10b981;
+}
+
+.bulbo-raiz-distributor-avatar {
+    width: 60px;
+    height: 60px;
+    background: #10b981;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.bulbo-raiz-avatar-icon {
+    color: white;
+    font-size: 24px;
+}
+
+.bulbo-raiz-distributor-details {
+    flex: 1;
+}
+
+.bulbo-raiz-distributor-name {
+    color: #374151;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 5px 0;
+}
+
+.bulbo-raiz-distributor-region {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0 0 10px 0;
+}
+
+.bulbo-raiz-contact-info {
+    margin-top: 10px;
+}
+
+.bulbo-raiz-whatsapp-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #dcfce7;
+    border-radius: 6px;
+    display: inline-flex;
+}
+
+.bulbo-raiz-whatsapp-icon {
+    font-size: 16px;
+}
+
+.bulbo-raiz-whatsapp-number {
+    color: #10b981;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Ações */
+.bulbo-raiz-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.bulbo-raiz-whatsapp-btn {
+    background: #25d366;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.bulbo-raiz-whatsapp-btn:hover {
+    background: #128c7e;
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: white;
+}
+
+.bulbo-raiz-copy-btn {
+    background: #6b7280;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.bulbo-raiz-copy-btn:hover {
+    background: #4b5563;
+    transform: translateY(-2px);
+}
+
+.bulbo-raiz-whatsapp-logo,
+.bulbo-raiz-copy-icon {
+    font-size: 16px;
+}
+
+.bulbo-raiz-success-footer {
+    text-align: center;
+}
+
+.bulbo-raiz-success-message {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Área de Erro */
+.bulbo-raiz-error {
+    background: #fef2f2;
+    color: #dc2626;
+    padding: 15px 20px;
+    border-radius: 8px;
+    border-left: 4px solid #dc2626;
+    margin-top: 20px;
+    animation: bulbo-fadeIn 0.3s ease-in-out;
+}
+
+@keyframes bulbo-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .bulbo-raiz-form-container {
+        padding: 30px 20px;
+        margin: 0 10px;
+    }
+    
+    .bulbo-raiz-distributor-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .bulbo-raiz-distributor-details {
+        text-align: center;
+    }
+    
+    .bulbo-raiz-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .bulbo-raiz-whatsapp-btn,
+    .bulbo-raiz-copy-btn {
+        justify-content: center;
+    }
+    
+    /* Busca de cidades responsiva */
+    .search-results {
+        position: fixed;
+        top: auto;
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+        max-height: 60vh;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .city-search-input {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 12px 20px;
+    }
+    
+    .city-result-item {
+        padding: 18px 20px;
+        font-size: 16px;
+    }
+    
+    .city-selected {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .change-city-btn {
+        width: 100%;
+        padding: 10px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .bulbo-raiz-form-container {
+        padding: 25px 15px;
+        margin: 0 5px;
+    }
+    
+    .bulbo-raiz-input,
+    .bulbo-raiz-select {
+        padding: 12px 15px;
+        font-size: 16px;
+    }
+    
+    .bulbo-raiz-submit-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Estados de Validação */
+.bulbo-raiz-field-group.error .bulbo-raiz-input,
+.bulbo-raiz-field-group.error .bulbo-raiz-select {
+    background: rgba(254, 242, 242, 0.95);
+    border: 2px solid #dc2626;
+}
+
+.bulbo-raiz-field-group.success .bulbo-raiz-input,
+.bulbo-raiz-field-group.success .bulbo-raiz-select {
+    background: rgba(240, 253, 244, 0.95);
+    border: 2px solid #10b981;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilos para campos desabilitados */
+.bulbo-raiz-input:disabled,
+.bulbo-raiz-select:disabled {
+    background-color: rgba(142, 200, 175, 0.5) !important;
+    color: #024725 !important;
+    cursor: not-allowed !important;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+
+.bulbo-raiz-input:disabled::placeholder {
+    color: #024725 !important;
+    opacity: 0.5;
+}
+
+.bulbo-raiz-select:disabled {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23024725' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+}
+
+/* Estado visual para campos progressivos */
+.bulbo-raiz-field-group.field-disabled {
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.bulbo-raiz-field-group.field-enabled {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* Animação suave ao habilitar campos */
+.bulbo-raiz-input:not(:disabled),
+.bulbo-raiz-select:not(:disabled) {
+    transition: all 0.3s ease;
+}
+
+.bulbo-raiz-input:not(:disabled):focus,
+.bulbo-raiz-select:not(:disabled):focus {
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+/* Loading indicator for city search */
+.bulbo-raiz-field-group .search-loading {
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    color: #6c757d;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 5px;
+}
+
+.bulbo-raiz-field-group .loading-spinner {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* City search results */
+.bulbo-raiz-field-group .search-results {
+    position: relative;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none; /* Escondido por padrão */
+    margin-top: 2px;
+}
+
+.bulbo-raiz-field-group .search-results.show {
+    display: block !important; /* Força exibição quando tem classe show */
+}
+
+/* Estilos específicos para busca de bairros */
+#neighborhood-search-container {
+    position: relative;
+}
+
+#neighborhood-search-results {
+    position: relative;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 350px;
+    overflow-y: auto;
+    margin-top: 0;
+}
+
+.neighborhood-results {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.neighborhood-item {
+    padding: 14px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.neighborhood-item:hover {
+    background-color: #f8f9fa;
+}
+
+.neighborhood-item.selected {
+    background-color: #e3f2fd;
+    border-left: 3px solid #2196f3;
+}
+
+.neighborhood-item:last-child {
+    border-bottom: none;
+}
+
+.neighborhood-name {
+    font-weight: 500;
+    color: #333;
+    flex-grow: 1;
+}
+
+/* Indicador de carregamento melhorado */
+.neighborhood-search-loading {
+    padding: 15px;
+    text-align: center;
+    color: #666;
+    background: #f9f9f9;
+    border-radius: 4px;
+    margin: 5px 0;
+}
+
+.neighborhood-search-loading .spinner {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+    font-size: 16px;
+    margin-right: 8px;
+}
+
+/* Highlight de busca */
+.search-highlight {
+    background: #fff3cd;
+    font-weight: bold;
+    padding: 1px 2px;
+    border-radius: 2px;
+}
+
+#neighborhood-not-found {
+    padding: 8px 0;
+}
+
+#neighborhood-not-found p {
+    margin: 0;
+    color: #666;
+    font-style: italic;
+}
+
+#manual-neighborhood-link {
+    color: #0073aa;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#manual-neighborhood-link:hover {
+    color: #0085ba;
+}
+
+/* Estilo para o input de busca de bairros */
+#bulbo_neighborhood_search {
+    width: 100%;
+    position: relative;
+}
+
+#bulbo_neighborhood_search:focus + #neighborhood-search-results {
+    border-color: #0073aa;
+}
+
+/* Responsividade para busca de bairros */
+@media (max-width: 768px) {
+    #neighborhood-search-results {
+        position: fixed;
+        top: auto;
+        left: 15px;
+        right: 15px;
+        bottom: 80px; /* Ajustado para não sobrepor botões */
+        max-height: 70vh; /* Aumentado para melhor visualização */
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        border: 1px solid #e9ecef; /* Adicionado para consistência */
+    }
+    
+    .neighborhood-item {
+        padding: 18px 20px;
+        font-size: 16px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .neighborhood-item:last-child {
+        border-bottom: none;
+        border-radius: 0 0 12px 12px; /* Arredondar último item */
+    }
+    
+    /* Melhor feedback visual no mobile */
+    .neighborhood-item:active {
+        background-color: #e3f2fd;
+        transform: scale(0.98);
+        transition: all 0.1s ease;
+    }
+}
+

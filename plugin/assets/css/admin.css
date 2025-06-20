@@ -1,0 +1,675 @@
+/**
+ * Bulbo Raiz Admin Styles
+ */
+
+.bulbo-raiz-admin {
+    background: #f1f1f1;
+    margin: 0 -20px -20px -20px;
+    padding: 20px;
+    min-height: calc(100vh - 32px);
+    max-width: 1200px;
+}
+
+.bulbo-raiz-header {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bulbo-raiz-logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.bulbo-raiz-icon {
+    font-size: 32px;
+    line-height: 1;
+}
+
+.bulbo-raiz-logo h2 {
+    margin: 0;
+    color: #23282d;
+}
+
+.bulbo-raiz-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.bulbo-raiz-actions .button {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bulbo-raiz-actions .button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.bulbo-raiz-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+}
+
+.bulbo-raiz-main {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.bulbo-raiz-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.bulbo-raiz-widget {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.bulbo-raiz-widget h3 {
+    margin: 0;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    background: #f9f9f9;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #23282d;
+}
+
+.bulbo-raiz-widget-content {
+    padding: 20px;
+}
+
+.bulbo-raiz-widget-content p {
+    margin: 0 0 15px 0;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.bulbo-raiz-widget-content code {
+    display: block;
+    background: #f1f1f1;
+    padding: 10px;
+    border-radius: 3px;
+    margin: 10px 0;
+    font-family: Monaco, 'Courier New', monospace;
+    font-size: 12px;
+    border: 1px solid #ddd;
+}
+
+.bulbo-raiz-widget-content h4 {
+    margin: 20px 0 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.bulbo-raiz-widget-content ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.bulbo-raiz-widget-content li {
+    margin: 5px 0;
+}
+
+/* Status */
+.bulbo-raiz-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.bulbo-raiz-status.success {
+    background: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.bulbo-raiz-status.warning {
+    background: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404;
+}
+
+.bulbo-raiz-status.error {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.bulbo-raiz-status-icon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.bulbo-raiz-status-text {
+    font-weight: 500;
+}
+
+/* Token Field */
+.bulbo-raiz-token-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.bulbo-raiz-token-field input[type="text"] {
+    flex: 1;
+    background: #f9fafb;
+    border: 2px solid #e5e7eb;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #374151;
+}
+
+.bulbo-raiz-token-field .button {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 16px;
+    font-size: 13px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.bulbo-raiz-token-field .button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.bulbo-raiz-token-field .button .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* Token Status */
+.token-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.status-indicator {
+    font-size: 12px;
+}
+
+.expiry-info {
+    color: #666;
+    font-style: italic;
+}
+
+.token-status.valid {
+    background: #ecfdf5;
+    border-color: #10b981;
+}
+
+.token-status.expired {
+    background: #fef2f2;
+    border-color: #ef4444;
+}
+
+/* Authentication Section */
+.bulbo-raiz-main .form-table tr.auth-section td {
+    padding-top: 20px;
+    border-top: 2px solid #e5e7eb;
+}
+
+.bulbo-raiz-main .form-table tr.auth-section th {
+    padding-top: 20px;
+    border-top: 2px solid #e5e7eb;
+}
+
+/* Improved form inputs */
+.bulbo-raiz-main .form-table input[type="email"],
+.bulbo-raiz-main .form-table input[type="password"],
+.bulbo-raiz-main .form-table input[type="datetime-local"] {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.bulbo-raiz-main .form-table input[type="email"]:focus,
+.bulbo-raiz-main .form-table input[type="password"]:focus,
+.bulbo-raiz-main .form-table input[type="datetime-local"]:focus {
+    border-color: #10b981;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Stats */
+.bulbo-raiz-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 15px;
+}
+
+.bulbo-raiz-stat {
+    text-align: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+
+.bulbo-raiz-stat-number {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    color: #0073aa;
+    line-height: 1.2;
+}
+
+.bulbo-raiz-stat-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Section Headers */
+.bulbo-raiz-main h2 {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 15px 20px;
+    margin: 30px 0 0 0;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.bulbo-raiz-main h2:first-child {
+    margin-top: 0;
+}
+
+/* Submit Button */
+.bulbo-raiz-main .submit {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.bulbo-raiz-main .submit .button-primary {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.bulbo-raiz-main .submit .button-primary:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+    .bulbo-raiz-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .bulbo-raiz-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .bulbo-raiz-token-field {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .bulbo-raiz-token-field .button {
+        margin: 5px 0;
+    }
+}
+
+/* Loading Animation */
+@keyframes bulbo-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.bulbo-raiz-loading {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: bulbo-spin 1s linear infinite;
+}
+
+/* Notifications */
+.bulbo-raiz-notice {
+    padding: 15px 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+    border-left: 4px solid;
+    font-weight: 500;
+}
+
+.bulbo-raiz-notice.success {
+    background: #ecfdf5;
+    border-color: #10b981;
+    color: #065f46;
+}
+
+.bulbo-raiz-notice.error {
+    background: #fef2f2;
+    border-color: #ef4444;
+    color: #dc2626;
+}
+
+.bulbo-raiz-notice.warning {
+    background: #fef3c7;
+    border-color: #f59e0b;
+    color: #92400e;
+}
+
+/* Tooltips */
+.bulbo-raiz-tooltip {
+    position: relative;
+    cursor: help;
+}
+
+.bulbo-raiz-tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #374151;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+}
+
+.bulbo-raiz-tooltip:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #374151;
+    z-index: 1000;
+}
+
+/* Form Styles */
+.bulbo-raiz-main .form-table {
+    margin-top: 0;
+}
+
+.bulbo-raiz-main .form-table th {
+    padding: 20px 10px 20px 0;
+    font-weight: 600;
+    color: #374151;
+}
+
+.bulbo-raiz-main .form-table td {
+    padding: 20px 10px 20px 0;
+}
+
+.bulbo-raiz-main .form-table input[type="text"],
+.bulbo-raiz-main .form-table input[type="url"],
+.bulbo-raiz-main .form-table input[type="number"],
+.bulbo-raiz-main .form-table textarea,
+.bulbo-raiz-main .form-table select {
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+    width: 100%;
+    max-width: 400px;
+}
+
+.bulbo-raiz-main .form-table input[type="text"]:focus,
+.bulbo-raiz-main .form-table input[type="url"]:focus,
+.bulbo-raiz-main .form-table input[type="number"]:focus,
+.bulbo-raiz-main .form-table textarea:focus,
+.bulbo-raiz-main .form-table select:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    outline: none;
+}
+
+.bulbo-raiz-main .description {
+    color: #6b7280;
+    font-style: italic;
+    margin-top: 5px;
+}
+
+/* Sync specific styles */
+.bulbo-raiz-sync-status {
+    padding: 12px 15px;
+    border-radius: 4px;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 4px solid #0073aa;
+    background: #f7f7f7;
+    font-weight: 500;
+}
+
+.bulbo-raiz-sync-status.success {
+    border-left-color: #46b450;
+    background: #ecf7ed;
+    color: #155724;
+}
+
+.bulbo-raiz-sync-status.warning {
+    border-left-color: #ffb900;
+    background: #fff8e1;
+    color: #856404;
+}
+
+.bulbo-raiz-sync-status.error {
+    border-left-color: #dc3232;
+    background: #ffeaea;
+    color: #721c24;
+}
+
+.bulbo-raiz-sync-details {
+    margin-top: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.bulbo-raiz-sync-details table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.bulbo-raiz-sync-details th,
+.bulbo-raiz-sync-details td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.bulbo-raiz-sync-details th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #23282d;
+}
+
+.sync-last-update {
+    padding: 15px;
+    background: #f8f9fa;
+    border-top: 1px solid #eee;
+    font-size: 13px;
+}
+
+.bulbo-raiz-sync-actions {
+    margin: 15px 0;
+}
+
+.bulbo-raiz-sync-actions .button {
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.sync-progress-bar {
+    width: 100%;
+    height: 24px;
+    background-color: #f0f0f0;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 15px 0;
+    border: 1px solid #ddd;
+    position: relative;
+}
+
+.sync-progress-fill {
+    height: 100%;
+    background: linear-gradient(45deg, #0073aa, #00a0d2);
+    background-size: 40px 40px;
+    animation: progress-animation 2s linear infinite;
+    transition: width 0.3s ease;
+    border-radius: 12px;
+    position: relative;
+}
+
+@keyframes progress-animation {
+    0% { background-position: 0 0; }
+    100% { background-position: 40px 0; }
+}
+
+.sync-progress-text {
+    text-align: center;
+    font-weight: bold;
+    margin: 10px 0;
+    color: #23282d;
+    min-height: 20px;
+}
+
+.sync-loading {
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Form elements */
+.bulbo-raiz-admin .form-table th {
+    font-weight: 600;
+    color: #23282d;
+}
+
+.bulbo-raiz-admin .description {
+    font-style: italic;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Notice styles */
+.bulbo-raiz-admin .notice {
+    margin: 15px 0;
+}
+
+/* Status específicos para conexão e sincronização */
+.sync-success, .sync-warning, .sync-error {
+    font-size: 16px;
+    margin-right: 8px;
+}
+
+.bulbo-raiz-status.loading .bulbo-raiz-status-icon {
+    animation: spin 1s linear infinite;
+}
+
+#connection-status.success {
+    background: #d4edda;
+    border-color: #c3e6cb;
+}
+
+#connection-status.success .bulbo-raiz-status-icon::before {
+    content: '✅';
+}
+
+#connection-status.error {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+#connection-status.error .bulbo-raiz-status-icon::before {
+    content: '❌';
+}
+
+#connection-status.loading {
+    background: #fff3cd;
+    border-color: #ffeaa7;
+}
+
+#connection-status.loading .bulbo-raiz-status-icon::before {
+    content: '⏳';
+}
+
+/* Animação para ícones em rotação */
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Estilo específico para o botão de SP */
+#btn-sync-sp-neighborhoods:hover {
+    background: #46b450 !important;
+    border-color: #46b450 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(70, 180, 80, 0.3);
+}
+
