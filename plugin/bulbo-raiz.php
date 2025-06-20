@@ -27,6 +27,9 @@ define('BULBO_RAIZ_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('BULBO_RAIZ_PLUGIN_BASENAME', plugin_basename(__FILE__));
 define('BULBO_RAIZ_URL', plugin_dir_url(__FILE__));
 
+// Load configuration
+require_once BULBO_RAIZ_PLUGIN_DIR . 'bulbo-raiz-config.php';
+
 /**
  * Main plugin class
  */
@@ -144,7 +147,8 @@ class Bulbo_Raiz_Plugin {
         wp_localize_script('bulbo-raiz', 'bulbo_raiz_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('bulbo_raiz_nonce'),
-            'debug' => $this->get_option('enable_debug', false)
+            'debug' => $this->get_option('enable_debug', false),
+            'api_url' => $this->get_option('api_url', Bulbo_Raiz_Config::get_api_url())
         ));
     }
     
@@ -471,7 +475,7 @@ class Bulbo_Raiz_Plugin {
         // Teste 3: Requisição real para API
         if (isset($_POST['test']) && $_POST['test'] === 'api') {
             error_log('Teste API - fazendo requisição real');
-            $states = $this->api_request('geography/states');
+            $states = $this->api_request('geography/states', null, 'GET', false);
             error_log('Resposta da API: ' . json_encode($states));
             
             if ($states) {
@@ -610,7 +614,8 @@ class Bulbo_Raiz_Plugin {
             error_log('Bulbo Raiz: Payload final enviado para API de leads: ' . json_encode($data));
         }
         // Create the lead first
-        $lead_response = $this->api_request('leads/webhook', $data, 'POST');
+        // Create lead via webhook (PUBLIC ROUTE - no auth needed)
+        $lead_response = $this->api_request('leads/webhook', $data, 'POST', false);
         
         if ($this->get_option('enable_debug', false)) {
             error_log('Bulbo Raiz: Resposta da API para criação de lead: ' . json_encode($lead_response));
@@ -662,7 +667,8 @@ class Bulbo_Raiz_Plugin {
             error_log('Bulbo Raiz: Endpoint de busca por distribuidor: ' . $search_endpoint);
         }
         
-        $distributor_response = $this->api_request($search_endpoint, null, 'GET');
+        // Search distributors (PUBLIC ROUTE - no auth needed)
+        $distributor_response = $this->api_request($search_endpoint, null, 'GET', false);
         
         if ($this->get_option('enable_debug', false)) {
             error_log('Bulbo Raiz: Resposta da busca por distribuidor: ' . json_encode($distributor_response));
@@ -916,7 +922,7 @@ class Bulbo_Raiz_Plugin {
      * Authenticate with Laravel API and get token
      */
     private function authenticate_and_get_token($email, $password) {
-        $api_url = $this->get_option('api_url', 'http://localhost:8000/api');
+        $api_url = $this->get_option('api_url', Bulbo_Raiz_Config::get_api_url());
         $url = rtrim($api_url, '/') . '/login';
         
         if ($this->get_option('enable_debug', false)) {
@@ -1007,10 +1013,10 @@ class Bulbo_Raiz_Plugin {
      * Make API request - VERSÃO SIMPLES COM LOGIN AUTOMÁTICO
      */
     /**
-     * SIMPLIFIED API request - BACK TO BASICS!
+     * API request with Bearer token authentication (same as frontend)
      */
-    private function api_request($endpoint, $data = null, $method = 'GET') {
-        $api_url = $this->get_option('api_url', 'http://localhost:8000/api');
+    private function api_request($endpoint, $data = null, $method = 'GET', $require_auth = true) {
+        $api_url = $this->get_option('api_url', Bulbo_Raiz_Config::get_api_url());
         $url = rtrim($api_url, '/') . '/' . ltrim($endpoint, '/');
         
         $args = array(
@@ -1022,8 +1028,27 @@ class Bulbo_Raiz_Plugin {
             )
         );
         
+        // Add Bearer token if authentication is required
+        if ($require_auth) {
+            $token = $this->get_valid_token();
+            if (!$token) {
+                if ($this->get_option('enable_debug', false)) {
+                    error_log("Bulbo Raiz: Não foi possível obter token válido para a requisição");
+                }
+                return false;
+            }
+            $args['headers']['Authorization'] = 'Bearer ' . $token;
+        }
+        
         if ($method === 'POST' && $data) {
             $args['body'] = json_encode($data);
+        }
+        
+        if ($this->get_option('enable_debug', false)) {
+            error_log("Bulbo Raiz: Fazendo requisição para: " . $url);
+            error_log("Bulbo Raiz: Method: " . $method);
+            error_log("Bulbo Raiz: Require Auth: " . ($require_auth ? 'true' : 'false'));
+            error_log("Bulbo Raiz: Has Token: " . ($require_auth && !empty($args['headers']['Authorization']) ? 'true' : 'false'));
         }
         
         $response = wp_remote_request($url, $args);
@@ -1038,6 +1063,29 @@ class Bulbo_Raiz_Plugin {
         $status_code = wp_remote_retrieve_response_code($response);
         $body = wp_remote_retrieve_body($response);
         
+        if ($this->get_option('enable_debug', false)) {
+            error_log("Bulbo Raiz: Resposta - Status: " . $status_code);
+        }
+        
+        // Handle 401 Unauthorized - token might be expired
+        if ($status_code === 401 && $require_auth) {
+            if ($this->get_option('enable_debug', false)) {
+                error_log("Bulbo Raiz: Token expirado, tentando renovar...");
+            }
+            
+            // Try to refresh token
+            if ($this->refresh_token_if_possible()) {
+                // Retry the request with new token
+                $token = $this->get_option('api_token');
+                if ($token) {
+                    $args['headers']['Authorization'] = 'Bearer ' . $token;
+                    $response = wp_remote_request($url, $args);
+                    $status_code = wp_remote_retrieve_response_code($response);
+                    $body = wp_remote_retrieve_body($response);
+                }
+            }
+        }
+        
         if ($status_code >= 200 && $status_code < 300) {
             $decoded = json_decode($body, true);
             return $decoded ? $decoded : array();
@@ -1048,6 +1096,28 @@ class Bulbo_Raiz_Plugin {
         }
         
         return false;
+    }
+    
+    /**
+     * Get a valid authentication token
+     */
+    private function get_valid_token() {
+        $token = $this->get_option('api_token');
+        
+        // If no token or token is expired, try to get a new one
+        if (!$token || $this->is_token_expired()) {
+            if ($this->get_option('enable_debug', false)) {
+                error_log("Bulbo Raiz: Token não existe ou expirado, tentando obter novo token...");
+            }
+            
+            if (!$this->refresh_token_if_possible()) {
+                return false;
+            }
+            
+            $token = $this->get_option('api_token');
+        }
+        
+        return $token;
     }
     
     /**
@@ -1651,7 +1721,7 @@ class Bulbo_Raiz_Plugin {
             }
             
             // Get states from API - USANDO ROTA PÚBLICA (SEM AUTH)
-            $api_states = $this->api_request('geography/states');
+            $api_states = $this->api_request('geography/states', null, 'GET', false);
             
             if (!$api_states || !is_array($api_states)) {
                 throw new Exception('Não foi possível obter estados da API');
@@ -1766,8 +1836,8 @@ class Bulbo_Raiz_Plugin {
                 error_log("Syncing cities for state: {$state->name} (ID: {$state_id})");
             }
             
-            // Get cities from API
-            $api_cities = $this->api_request("geography/cities?state_id=" . $state_id, null, 'GET');
+            // Get cities from API - USANDO ROTA PÚBLICA (SEM AUTH)
+            $api_cities = $this->api_request("geography/cities?state_id=" . $state_id, null, 'GET', false);
             
             if (!is_array($api_cities)) {
                 if ($this->get_option('enable_debug', false)) {
@@ -1912,8 +1982,8 @@ class Bulbo_Raiz_Plugin {
                 error_log("Syncing neighborhoods for city: {$city->name}, {$city->state_name} (ID: {$city_id})");
             }
             
-            // Get neighborhoods from API
-            $api_neighborhoods = $this->api_request("geography/neighborhoods?city_id=" . $city_id, null, 'GET');
+            // Get neighborhoods from API - ROTA PÚBLICA (SEM AUTH)
+            $api_neighborhoods = $this->api_request("geography/neighborhoods?city_id=" . $city_id, null, 'GET', false);
             
             if (!is_array($api_neighborhoods)) {
                 if ($this->get_option('enable_debug', false)) {
