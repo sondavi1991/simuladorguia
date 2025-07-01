@@ -48,11 +48,6 @@ interface NavigationState {
   completedSteps: number[];
   recommendations: HealthPlan[];
   isComplete: boolean;
-  assignedAttendant?: {
-    id: number;
-    name: string;
-    phoneNumber: string;
-  };
 }
 
 interface GameificationState {
@@ -159,8 +154,7 @@ export default function CleanSimulator() {
     formData: {},
     completedSteps: [],
     recommendations: [],
-    isComplete: false,
-    assignedAttendant: undefined
+    isComplete: false
   });
 
   const [gameState, setGameState] = useState<GameificationState>({
@@ -421,15 +415,11 @@ export default function CleanSimulator() {
       const response = await apiRequest("POST", "/api/health-plans/recommend", { formData });
       const recommendations = await response.json();
       
-      // Get assigned attendant for this simulation
-      const attendantResponse = await apiRequest("GET", "/api/whatsapp-attendants/next");
-      const assignedAttendant = await attendantResponse.json();
-      
+      // Don't assign attendant during simulation completion - only when user actually contacts via WhatsApp
       setNavigationState(prev => ({
         ...prev,
         isComplete: true,
         recommendations,
-        assignedAttendant,
         completedSteps: [...prev.completedSteps, prev.currentStep]
       }));
 
@@ -492,20 +482,9 @@ export default function CleanSimulator() {
 
   const handleWhatsAppContact = async (plan: HealthPlan) => {
     try {
-      // Use the assigned attendant for this simulation, or get one if not assigned yet
-      let attendant = navigationState.assignedAttendant;
-      
-      if (!attendant) {
-        // Get an attendant for this contact
-        const attendantResponse = await apiRequest("GET", "/api/whatsapp-attendants/next");
-        attendant = await attendantResponse.json();
-        
-        // Update state with assigned attendant
-        setNavigationState(prev => ({
-          ...prev,
-          assignedAttendant: attendant
-        }));
-      }
+      // Always get a fresh attendant for each contact to ensure proper rotation
+      const attendantResponse = await apiRequest("GET", "/api/whatsapp-attendants/next");
+      const attendant = await attendantResponse.json();
 
       if (!attendant) {
         toast({
