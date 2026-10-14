@@ -24,6 +24,8 @@ import {
   type ConditionalRule,
   type StepNavigation
 } from "@shared/schema";
+import bcrypt from "bcrypt";
+import crypto from "crypto";
 import { drizzle as drizzlePg } from "drizzle-orm/node-postgres";
 import pg from "pg";
 import { eq, and, inArray } from "drizzle-orm";
@@ -112,23 +114,37 @@ export class MemStorage implements IStorage {
   }
 
   private initializeDefaultData() {
-    // Initialize default admin user
-    this.createUser({
-      username: "admin",
-      password: "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj5QJxfHvjve", // senha: "admin123"
-      email: "admin@guiaunico.com.br",
-      firstName: "Administrador",
-      lastName: "Sistema"
-    });
+    // Contas de desenvolvimento: NUNCA são criadas em produção. Isso evita que
+    // uma queda do PostgreSQL (fallback para memória) deixe o painel acessível
+    // com uma senha conhecida.
+    if (process.env.NODE_ENV !== "production") {
+      // A senha vem de ADMIN_INITIAL_PASSWORD; se não existir, é gerada
+      // aleatoriamente a cada start e exibida uma única vez no console.
+      let devPassword = process.env.ADMIN_INITIAL_PASSWORD;
+      if (!devPassword) {
+        devPassword = crypto.randomBytes(12).toString("base64url");
+        console.log(
+          `[dev] Usuários "admin" e "gerente" criados em memória. Senha desta execução: ${devPassword}`
+        );
+      }
+      const devPasswordHash = bcrypt.hashSync(devPassword, 12);
 
-    // Initialize additional test users
-    this.createUser({
-      username: "gerente",
-      password: "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj5QJxfHvjve", // senha: "admin123"
-      email: "gerente@guiaunico.com.br",
-      firstName: "Gerente",
-      lastName: "Operacional"
-    });
+      this.createUser({
+        username: "admin",
+        password: devPasswordHash,
+        email: "admin@guiaunico.com.br",
+        firstName: "Administrador",
+        lastName: "Sistema"
+      });
+
+      this.createUser({
+        username: "gerente",
+        password: devPasswordHash,
+        email: "gerente@guiaunico.com.br",
+        firstName: "Gerente",
+        lastName: "Operacional"
+      });
+    }
 
     // Initialize default health plans
     const defaultPlans: InsertHealthPlan[] = [

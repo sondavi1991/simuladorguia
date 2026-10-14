@@ -68,4 +68,4 @@ Write-Host "2. Execute: npm run db:push (para criar as tabelas)" -ForegroundColo
 Write-Host "3. Execute: npm run dev (para iniciar o servidor)" -ForegroundColor White
 Write-Host ""
 Write-Host "🌐 A aplicação estará disponível em: http://localhost:5000" -ForegroundColor Cyan
-Write-Host "👤 Login padrão: admin / admin123" -ForegroundColor Cyan
+Write-Host "👤 Login: usuário admin; senha = ADMIN_INITIAL_PASSWORD do .env (ou a exibida no console ao iniciar)" -ForegroundColor Cyan

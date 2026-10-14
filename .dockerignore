@@ -135,4 +135,4 @@ build/
 
 # Development files
 attached_assets/
-SUPABASE_SETUP.md
+docs/

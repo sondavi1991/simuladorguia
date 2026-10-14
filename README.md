@@ -1,179 +1,122 @@
-# Guia Único - Sistema de Simulação de Planos de Saúde
+# Guia Único — Simulador e recomendação de planos de saúde
 
-## Visão Geral
-Sistema completo para simulação e recomendação de planos de saúde, desenvolvido com React, Node.js e PostgreSQL.
+> **EN:** Full-stack web app (React + Express + PostgreSQL, all TypeScript) that guides visitors through a configurable multi-step form, recommends health plans from their answers, and routes the resulting leads to sales consultants via WhatsApp using round-robin distribution. Includes an admin panel with a form builder and Excel export.
 
-## Funcionalidades Principais
+Aplicação web full-stack em TypeScript. O visitante responde a um formulário em etapas, recebe recomendações de planos de saúde compatíveis com o perfil e é encaminhado a um consultor por WhatsApp. A equipe administra tudo por um painel: planos, etapas do formulário, atendentes, e-mail e submissões.
 
-### 🏥 Simulador Inteligente
-- Formulário multi-etapas com lógica condicional
-- Validação em tempo real
-- Suporte a upload de arquivos
-- Sistema de navegação inteligente
+<!-- Adicione capturas de tela em docs/img/ e referencie aqui, por exemplo: ![Simulador](docs/img/simulador.png) -->
 
-### 📊 Engine de Recomendação
-- Recomendações personalizadas baseadas no perfil do usuário
-- Comparação de preços e benefícios
-- Matching de características por necessidades
+## Funcionalidades
 
-### 👥 Painel Administrativo
-- Gestão completa de usuários
-- Configuração dinâmica de planos
-- Construtor de formulários
-- Dashboard de analytics
+**Simulador**
+- Formulário multi-etapas configurável, com regras condicionais e navegação entre etapas
+- Motor de recomendação que cruza as respostas com os planos cadastrados (`POST /api/health-plans/recommend`)
 
-### 📱 Integração WhatsApp
-- Distribuição automática de contatos
-- Sistema de fila para consultores
-- Notificações em tempo real
+**Painel administrativo**
+- Gestão de usuários administradores
+- Cadastro e edição de planos de saúde
+- Construtor de formulário: criação e edição das etapas do simulador
+- Consulta das submissões e exportação para Excel (`GET /api/form-submissions/export`)
 
-### 📋 Exportação e Relatórios
-- Exportação para Excel
-- Relatórios detalhados de submissões
-- Analytics de conversão
+**WhatsApp e e-mail**
+- Distribuição de contatos entre os atendentes ativos em rodízio (round-robin), com pré-visualização do próximo atendente
+- Envio de e-mail por SMTP configurável pelo painel, com endpoint de teste
 
-## Stack Tecnológica
+## Stack
 
-### Frontend
-- **React 18** - Interface de usuário
-- **TypeScript** - Tipagem estática
-- **Tailwind CSS** - Estilização
-- **Shadcn/UI** - Componentes reutilizáveis
-- **Tanstack Query** - Gerenciamento de estado
-- **Wouter** - Roteamento
-- **Framer Motion** - Animações
+| Camada | Tecnologias |
+| --- | --- |
+| Front-end | React, TypeScript, Vite, Tailwind CSS, shadcn/ui, TanStack Query, Wouter, Framer Motion |
+| Back-end | Node.js 20, Express, TypeScript, Drizzle ORM, Zod, Nodemailer, SheetJS (xlsx) |
+| Banco de dados | PostgreSQL (compatível com Supabase e Neon) |
+| Infra | Docker, Docker Compose, Coolify, Nginx (opcional) |
 
-### Backend
-- **Node.js 20** - Runtime
-- **Express** - Framework web
-- **TypeScript** - Tipagem estática
-- **Drizzle ORM** - Database ORM
-- **PostgreSQL** - Banco de dados
-- **bcrypt** - Hash de senhas
-- **Zod** - Validação de dados
-
-### DevOps & Deploy
-- **Docker** - Containerização
-- **Coolify** - Deploy e orquestração
-- **Nginx** - Proxy reverso (opcional)
-
-## Estrutura do Projeto
+## Estrutura do projeto
 
 ```
-├── client/                 # Frontend React
-│   ├── src/
-│   │   ├── components/     # Componentes reutilizáveis
-│   │   ├── pages/          # Páginas da aplicação
-│   │   └── lib/            # Utilitários e configurações
-├── server/                 # Backend Node.js
-│   ├── routes.ts           # Rotas da API
-│   ├── storage.ts          # Camada de dados
-│   ├── auth.ts             # Autenticação
-│   └── index.ts            # Servidor principal
-├── shared/                 # Código compartilhado
-│   └── schema.ts           # Esquemas e tipos
-├── Dockerfile              # Configuração Docker
-├── docker-compose.yml      # Orquestração local
-├── coolify.yml             # Configuração Coolify
-└── DEPLOYMENT.md           # Guia de deploy
+├── client/                  # Front-end React (pages, components, lib)
+├── server/                  # API Express
+│   ├── index.ts             # Servidor, middlewares e health check
+│   ├── routes.ts            # Rotas da API
+│   ├── storage.ts           # Camada de dados (PostgreSQL ou memória)
+│   ├── auth.ts              # Autenticação e sessões
+│   └── email-service.ts     # Envio de e-mail
+├── shared/schema.ts         # Schemas Drizzle e tipos compartilhados (Zod)
+├── scripts/
+│   ├── create-admin.ts      # Cria ou redefine a senha de um admin no PostgreSQL
+│   └── windows/             # Scripts PowerShell de apoio para Windows
+├── docs/                    # Deploy, Supabase e guias para Windows
+├── Dockerfile · docker-compose.yml · coolify.yml · nginx.conf
+└── .env.example             # Modelo das variáveis de ambiente
 ```
 
-## Desenvolvimento Local
+## Como rodar localmente
 
-### Pré-requisitos
-- Node.js 20+
-- PostgreSQL
-- npm ou yarn
+Pré-requisitos: Node.js 20+ e um PostgreSQL acessível (local, Supabase ou Neon).
 
-### Configuração
-1. Clone o repositório
-2. Instale as dependências: `npm install`
-3. Configure as variáveis de ambiente (ver `.env.example`)
-4. Execute as migrações: `npm run db:push`
-5. Inicie o servidor de desenvolvimento: `npm run dev`
-
-### Usuários Padrão
-- **Username:** admin
-- **Password:** admin123
-
-## Deploy em Produção
-
-### Coolify (Recomendado)
-1. Conecte seu repositório ao Coolify
-2. Configure as variáveis de ambiente
-3. Deploy automático via Dockerfile
-
-### Docker Compose
 ```bash
-docker-compose up -d
+git clone https://github.com/sondavi1991/simuladorguia.git
+cd simuladorguia
+npm install
+cp .env.example .env      # preencha DATABASE_URL
+npm run db:push           # cria as tabelas
+npm run dev               # http://localhost:5000
 ```
 
-### Variáveis de Ambiente Obrigatórias
-- `DATABASE_URL` - URL do PostgreSQL
-- `SESSION_SECRET` - Chave secreta para sessões
+**Primeiro acesso ao painel.** Fora de produção, o servidor cria em memória os usuários `admin` e `gerente`, com a senha definida em `ADMIN_INITIAL_PASSWORD`. Se a variável estiver vazia, uma senha aleatória é gerada e exibida no console ao iniciar. Esses usuários **não existem em produção**. Para criar o administrador no banco:
+
+```bash
+ADMIN_PASSWORD='uma-senha-forte-com-12+-caracteres' npm run create-admin -- admin seu@email.com
+```
+
+O mesmo comando redefine a senha de um usuário existente e encerra as sessões ativas dele.
+
+## Variáveis de ambiente
+
+| Variável | Obrigatória | Descrição |
+| --- | --- | --- |
+| `DATABASE_URL` | Sim | String de conexão do PostgreSQL |
+| `NODE_ENV` | Não | `development` ou `production` |
+| `PORT` / `HOST` | Não | Porta (padrão `5000`) e host do servidor |
+| `ADMIN_INITIAL_PASSWORD` | Não | Senha dos usuários de desenvolvimento (somente fora de produção) |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | Não | Envio de e-mail |
+| `WHATSAPP_API_URL`, `WHATSAPP_TOKEN` | Não | Integração com a API de WhatsApp |
+| `SESSION_SECRET` | Não | Reservada: as sessões atuais usam IDs aleatórios guardados no banco |
+
+Nunca versione o `.env`. Use `.env.example` como modelo.
+
+## Deploy
+
+**Coolify.** Conecte o repositório, defina `DATABASE_URL` nas variáveis de ambiente e faça o deploy. O `coolify.yml` define `PORT=5000`.
+
+> **Atenção à porta:** o `Dockerfile` define `PORT=3000` por padrão, enquanto `docker-compose.yml` e `coolify.yml` a sobrescrevem para `5000`. Use a porta correspondente ao método de deploy ao configurar o mapeamento.
+
+**Docker manual** (usa a porta 3000 do `Dockerfile`):
+
+```bash
+docker build -t guia-unico .
+docker run -p 3000:3000 --env DATABASE_URL='postgresql://usuario:senha@host:5432/postgres' guia-unico
+```
+
+**Docker Compose:** `docker-compose up -d`. Detalhes em [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) e [`docs/SUPABASE_SETUP.md`](docs/SUPABASE_SETUP.md). Guia para Windows em [`docs/windows/`](docs/windows/).
+
+Depois do primeiro deploy, crie o administrador com `npm run create-admin`, conforme a seção anterior.
 
 ## Segurança
-- Senhas criptografadas com bcrypt
-- Autenticação baseada em sessões
-- Validação de entrada com Zod
-- Headers de segurança configurados
-- Proteção contra SQL injection
 
-## Performance
-- Build otimizado para produção
-- Cache de assets estáticos
-- Compressão gzip
-- Connection pooling do banco
-- Health checks configurados
+- Senhas com hash bcrypt; sessões com identificadores aleatórios de 256 bits
+- Limite de tentativas no endpoint de login (`express-rate-limit`)
+- Cabeçalhos de segurança com Helmet
+- Validação de entrada com Zod; consultas ao banco parametrizadas pelo Drizzle ORM
+- Nenhuma conta padrão em produção
 
-## Monitoramento
-- Endpoint de health check: `/api/health`
-- Logs estruturados
-- Métricas de uptime
-- Error tracking
+## Operação
 
-## Licença
-MIT License
+- Health check: `GET /api/health` (também usado pelo `HEALTHCHECK` do Docker)
+- Se a conexão com o PostgreSQL falhar na inicialização, o servidor cai para armazenamento em memória, útil só para desenvolvimento. Em produção, monitore o log de inicialização.
 
-## Suporte
-Para suporte técnico, consulte a documentação de deployment ou verifique os logs da aplicação.
+## Estado atual e próximos passos
 
-# Guia Saúde
-
-Projeto pronto para deploy no Coolify usando Docker.
-
-## Como rodar no Coolify
-
-1. **Configure a variável de ambiente do banco:**
-   - No painel do Coolify, adicione a variável `DATABASE_URL` com a string de conexão do seu banco PostgreSQL/Supabase.
-
-2. **Deploy via Dockerfile:**
-   - O Coolify irá buildar a imagem usando o `Dockerfile` já pronto.
-   - O app irá rodar na porta 3000 (exposta no Dockerfile).
-
-3. **Acesse a aplicação:**
-   - O Coolify irá mapear a porta 3000 para a URL do seu projeto.
-
-## Variáveis de ambiente obrigatórias
-
-- `DATABASE_URL` (string de conexão do banco PostgreSQL)
-- (Opcional) Outras variáveis do seu `.env` se necessário
-
-## Build e start local (opcional)
-
-```sh
-npm install
-npm run build
-PORT=3000 npm start
-```
-
-## Deploy manual via Docker (opcional)
-
-```sh
-docker build -t guia-saude .
-docker run -p 3000:3000 --env DATABASE_URL=postgresql://usuario:senha@host:porta/postgres guia-saude
-```
-
----
-
-Se precisar de ajuda para migrar o banco ou configurar o deploy, consulte o README ou peça suporte!
+- Ainda não há testes automatizados nem pipeline de CI
+- Logs são simples (`console`); não há logging estruturado nem monitoramento de erros
+- Capturas de tela e uma demo pública com dados fictícios estão planejadas

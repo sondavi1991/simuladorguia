@@ -34,7 +34,7 @@ Abra PowerShell na pasta do projeto e execute:
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 # Executar configuração automática
-.\setup-windows.ps1
+.\scripts\windows\setup-windows.ps1
 ```
 
 ### Passo 5: Configurar Conexão
@@ -50,14 +50,14 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/guiaunico
 
 ### Passo 6: Iniciar Aplicação
 ```powershell
-.\dev-windows.ps1
+.\scripts\windows\dev-windows.ps1
 ```
 
 ## Acesso à Aplicação
 
 - **URL:** http://localhost:5000
 - **Login:** admin
-- **Senha:** admin123
+- **Senha:** a definida em `ADMIN_INITIAL_PASSWORD` no `.env` (ou a exibida no console ao iniciar em desenvolvimento). Em produção, crie o admin com `npm run create-admin`.
 
 ## Funcionalidades Disponíveis
 
@@ -88,7 +88,7 @@ PORT=3000
 
 ### Erro de conexão com banco
 1. Verifique a URL no arquivo `.env`
-2. Teste conectividade com: `.\test-windows.ps1`
+2. Teste conectividade com: `.\scripts\windows\test-windows.ps1`
 3. Para PostgreSQL local, verifique se o serviço está ativo
 
 ### Node.js não reconhecido
@@ -98,10 +98,10 @@ PORT=3000
 
 ## Scripts Disponíveis
 
-- `.\setup-windows.ps1` - Configuração inicial
-- `.\dev-windows.ps1` - Desenvolvimento local
-- `.\docker-local.ps1` - Usar com Docker
-- `.\test-windows.ps1` - Testar funcionalidades
+- `.\scripts\windows\setup-windows.ps1` - Configuração inicial
+- `.\scripts\windows\dev-windows.ps1` - Desenvolvimento local
+- `.\scripts\windows\docker-local.ps1` - Usar com Docker
+- `.\scripts\windows\test-windows.ps1` - Testar funcionalidades
 
 ## Estrutura do Projeto
 
@@ -124,12 +124,12 @@ guia-unico/
 ## Recursos Adicionais
 
 - Documentação completa: `README.md`
-- Deploy em produção: `DEPLOYMENT.md`
+- Deploy em produção: `docs/DEPLOYMENT.md`
 - Arquivos Docker incluídos para deploy
 
 ## Suporte
 
 Se encontrar dificuldades:
-1. Execute `.\test-windows.ps1` para diagnóstico
+1. Execute `.\scripts\windows\test-windows.ps1` para diagnóstico
 2. Verifique os logs no terminal
 3. Confirme configuração do arquivo `.env`
