@@ -1,5 +1,5 @@
 # Script de teste para Windows
-# Execute: .\test-windows.ps1
+# Execute: .\scripts\windows\test-windows.ps1
 
 Write-Host "🧪 Testando Guia Único - Sistema de Simulação" -ForegroundColor Green
 
@@ -14,7 +14,7 @@ try {
     Write-Host "Uptime: $([math]::Round($response.uptime/60, 2)) minutos" -ForegroundColor Cyan
 } catch {
     Write-Host "❌ Servidor não está respondendo em http://localhost:5000" -ForegroundColor Red
-    Write-Host "Execute primeiro: .\dev-windows.ps1" -ForegroundColor Yellow
+    Write-Host "Execute primeiro: .\scripts\windows\dev-windows.ps1" -ForegroundColor Yellow
     exit 1
 }
 
@@ -34,7 +34,7 @@ Write-Host "🔐 Testando sistema de autenticação..." -ForegroundColor Yellow
 try {
     $loginData = @{
         username = "admin"
-        password = "admin123"
+        password = $env:ADMIN_INITIAL_PASSWORD
     } | ConvertTo-Json
 
     $session = Invoke-WebRequest -Uri "http://localhost:5000/api/auth/login" -Method Post -Body $loginData -ContentType "application/json" -SessionVariable webSession
@@ -54,7 +54,7 @@ Write-Host ""
 Write-Host "🎯 Resumo dos Testes:" -ForegroundColor Green
 Write-Host "📱 Frontend: http://localhost:5000" -ForegroundColor White
 Write-Host "🔧 API Health: http://localhost:5000/api/health" -ForegroundColor White
-Write-Host "👤 Login: admin / admin123" -ForegroundColor White
+Write-Host "👤 Login: usuário admin (senha definida por você)" -ForegroundColor White
 Write-Host ""
 Write-Host "📋 Funcionalidades Principais:" -ForegroundColor Cyan
 Write-Host "• Simulador de planos de saúde" -ForegroundColor White

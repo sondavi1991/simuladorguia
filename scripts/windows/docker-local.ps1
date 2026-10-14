@@ -1,5 +1,5 @@
 # Script para rodar com Docker no Windows
-# Execute: .\docker-local.ps1
+# Execute: .\scripts\windows\docker-local.ps1
 
 Write-Host "🐳 Iniciando Guia Único com Docker" -ForegroundColor Green
 
@@ -44,7 +44,7 @@ docker-compose ps
 Write-Host ""
 Write-Host "🎉 Aplicação iniciada com Docker!" -ForegroundColor Green
 Write-Host "🌐 Acesse: http://localhost:5000" -ForegroundColor Cyan
-Write-Host "👤 Login: admin / admin123" -ForegroundColor Cyan
+Write-Host "👤 Crie o admin com: npm run create-admin -- admin" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Comandos úteis:" -ForegroundColor Yellow
 Write-Host "docker-compose logs app    # Ver logs da aplicação" -ForegroundColor White

@@ -39,7 +39,7 @@ cd guia-unico
 Abra o PowerShell como administrador e execute:
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-.\setup-windows.ps1
+.\scripts\windows\setup-windows.ps1
 ```
 
 ### 3. Configurar Banco de Dados
@@ -58,7 +58,7 @@ NODE_ENV=development
 
 ### 4. Iniciar Desenvolvimento
 ```powershell
-.\dev-windows.ps1
+.\scripts\windows\dev-windows.ps1
 ```
 
 ## Comandos Úteis
@@ -107,14 +107,13 @@ guia-unico/
 ├── server/                 # Backend Node.js
 ├── shared/                 # Código compartilhado
 ├── .env                    # Variáveis de ambiente
-├── setup-windows.ps1       # Script de configuração
-├── dev-windows.ps1         # Script de desenvolvimento
+├── scripts/windows/        # Scripts de configuração e desenvolvimento
 └── package.json            # Dependências
 ```
 
 ## URLs Importantes
 - Aplicação: http://localhost:5000
-- Login padrão: admin / admin123
+- Login: usuário `admin` (senha em `ADMIN_INITIAL_PASSWORD` no `.env`)
 - Health Check: http://localhost:5000/api/health
 
 ## Recursos do Sistema

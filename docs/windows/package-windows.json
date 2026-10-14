@@ -1,0 +1,23 @@
+{
+  "name": "guia-unico-health-simulator",
+  "version": "1.0.0",
+  "description": "Sistema completo de simulação de planos de saúde",
+  "scripts": {
+    "setup": "powershell -ExecutionPolicy Bypass -File scripts/windows/setup-windows.ps1",
+    "dev:windows": "powershell -ExecutionPolicy Bypass -File scripts/windows/dev-windows.ps1",
+    "test:windows": "powershell -ExecutionPolicy Bypass -File scripts/windows/test-windows.ps1",
+    "docker:local": "powershell -ExecutionPolicy Bypass -File scripts/windows/docker-local.ps1"
+  },
+  "windows": {
+    "requirements": {
+      "node": ">=20.0.0",
+      "npm": ">=9.0.0"
+    },
+    "database_options": [
+      "PostgreSQL local",
+      "Supabase (recomendado)",
+      "Neon",
+      "Docker PostgreSQL"
+    ]
+  }
+}

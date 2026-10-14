@@ -5,3 +5,20 @@ server/public
 vite.config.ts.*
 *.tar.gz
 dist/public/assets/
+
+# Segredos e configuração local — nunca versionar
+.env
+.env.*
+!.env.example
+cookies.txt
+*.pem
+*.key
+
+# Logs e artefatos de ferramentas
+*.log
+.config/
+
+# Editor / SO
+.vscode/
+.idea/
+Thumbs.db
